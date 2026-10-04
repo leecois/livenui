@@ -16,7 +16,7 @@ Coding agents must read [AGENTS.md](AGENTS.md) before editing.
 
 ## Independent project
 
-This checkout starts a new local Git history on `main`, without a remote or inherited repository configuration. The application, component source, tests, licenses and infrastructure configuration were copied from the previous project. Dependencies and generated outputs are installed or rebuilt locally.
+This checkout uses an independent Git history on `main`. Remote configuration is local; pushing, publication and deployment require explicit authorization. The application, component source, tests, licenses and infrastructure configuration were copied from the previous project. Dependencies and generated outputs are installed or rebuilt locally.
 
 The site and registry default to `http://localhost:3000` until a deployment origin is configured. Set `NEXT_PUBLIC_APP_URL` in a local environment file before building for a hosted origin; replace localhost in static installation examples with that origin. No domain registration, npm publication or remote deployment is implied.
 
@@ -54,3 +54,7 @@ The application preserves bright `--gradient-accent` controls with white text in
 Rendering source is ported from [Libraries.dev](https://github.com/Jakubantalik/Libraries.dev), with licenses and legal notices preserved. SDK workspaces remain private. Liven UI distributes its maintained fork through source registries, including licenses/notices; no npm ownership or original authorship is claimed. Local builds update registry payloads, and deployment is a separate authorized action. See [the source-distribution decision](docs/decisions/002-source-registry-distribution.md).
 
 Historical integration/dependency/UX snapshots remain in `reports/`. They document past evidence and limits; canonical instructions are the linked guides above.
+
+## Open-source readiness
+
+Read the [publication audit and remaining license decision](docs/open-source.md). Private environment files, local editor integrations and generated artifacts are excluded. Existing SDK licenses and notices remain authoritative; the repository has no root license granting rights to all first-party code.

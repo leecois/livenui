@@ -20,7 +20,7 @@ bun run dev:docs
 
 The application workspace is `@livenui/docs`, the control foundation is `@livenui/agent-ui`, and installer support uses `livenui-cli` and `livenui-ui`. Seven rendering SDKs retain their private build identities and public component APIs. Consumer source installs under `components/livenui`.
 
-The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUBLIC_APP_URL` for a hosted build and pass the hosted registry with the CLI's `--dir` option. Git starts independently on `main` with no remote; adding a new remote, publishing and deployment require explicit authorization. Historical reports use current Liven UI identifiers while retaining original audit dates, findings and validation limits. Reports record naming normalization explicitly; obsolete machine-specific temporary paths are omitted rather than replaced with unverified paths.
+The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUBLIC_APP_URL` for a hosted build and pass the hosted registry with the CLI's `--dir` option. Git uses independent history on `main`; adding a new remote, pushing, publishing and deployment require explicit authorization. Historical reports use current Liven UI identifiers while retaining original audit dates, findings and validation limits. Reports record naming normalization explicitly; obsolete machine-specific temporary paths are omitted rather than replaced with unverified paths.
 
 ## Commands
 
@@ -89,3 +89,11 @@ Use a fresh installation only when investigating dependency resolution or a requ
 ## Local delivery
 
 Inspect `git diff --check` and the exact scope. Stage only intended changes. Run the staged comment gate required in [AGENTS.md](../AGENTS.md), review its matches, then create a one-line Conventional Commit for a small verified change. For sweeping architecture changes, present implemented behavior, validation, affected paths and material limitations, and obtain confirmation **before committing**. Never push automatically.
+
+## Publication sanitation
+
+Follow [open-source readiness](open-source.md) before publication. Ordinary maintenance preserves local environment files; an explicit sanitation request can authorize their removal. Keep `.env.example` free of credentials, ignore all other `.env*` files, and keep local editor integrations outside tracked source. Shared formatting settings in `.vscode` remain portable project configuration.
+
+Remote search synchronization requires `LIVENUI_SYNC_SEARCH=1`, `ORAMA_PRIVATE_API_KEY` and `ORAMA_INDEX_ID`. The index identifier is supplied by the operator; no hosted resource identifier is embedded in source. Missing credentials skip synchronization, and a missing index with supplied credentials fails before reading build output or contacting the service. Local search and ordinary builds do not require these settings.
+
+The sanitized local history uses a neutral maintainer identity. Future local commits use the repository-local identity configuration. Do not overwrite global Git identity, discard source changes or publish rewritten history without explicit authorization.

@@ -12,13 +12,16 @@ export async function updateSearchIndexes(): Promise<void> {
     return
   }
 
+  const index = process.env.ORAMA_INDEX_ID?.trim()
+  if (!index) throw new Error('ORAMA_INDEX_ID is required when remote search sync is enabled')
+
   const content = await fs.readFile('.next/server/app/static.json.body')
   const records = JSON.parse(content.toString()) as OramaDocument[]
 
   const manager = new CloudManager({ api_key: apiKey })
 
   await sync(manager, {
-    index: process.env.ORAMA_INDEX_ID ?? '',
+    index,
     documents: records,
   })
 
