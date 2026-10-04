@@ -80,6 +80,8 @@ Studio `library` and `example` query parameters initialize a keyed workbench; in
 
 Metal shares a renderer but maintains per-instance material frames and pause behavior. Preserve paused initial-frame rendering, instance preset isolation and context-loss identity guards. Liquid supports morph, move, melt and bend; avatars retain native materials, gaze and state interactions. Do not substitute screenshots or CSS imitations for SDK effects.
 
+Image cycle startup retains an explicit pause without scheduling image work. Resuming a cycle preserves its one-shot or continuous mode and manual hold. Completing a resumed hide releases the current image and schedules another reveal only for continuous playback.
+
 ## Data and trust boundaries
 
 JSON configuration is untrusted input. Parsing rejects unknown props, non-finite numbers, unsupported variants, prototype keys, invalid structures and excessive depth/key counts. Files are limited to 64 KB and must match the selected library. Never evaluate uploaded configuration, functions or arbitrary module strings. Function/element props belong in application code.

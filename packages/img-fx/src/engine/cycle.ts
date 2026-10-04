@@ -63,7 +63,11 @@ export function createCycle(opts: CycleOptions): Cycle {
     const hi = Math.max(0, Math.max(min, max))
     return lo + Math.random() * (hi - lo)
   }
-  function scheduleIdle(initialMs?: number): void {
+  function scheduleIdle(
+    initialMs?: number,
+    reschedule = true,
+    holdMode: 'auto' | 'manual' = 'auto'
+  ): void {
     if (!running || paused) return
     emit('idle')
     const [min, max] = delayRange
@@ -72,8 +76,18 @@ export function createCycle(opts: CycleOptions): Cycle {
     clearTimer()
     timer = setTimeout(() => {
       timer = null
-      runReveal(true, 'auto')
+      runReveal(reschedule, holdMode)
     }, ms)
+  }
+  function finishHide(request: number): void {
+    if (!running || paused || request !== generation) return
+    currentSrc = null
+    if (activeReschedule) {
+      scheduleIdle()
+    } else {
+      running = false
+      emit('idle')
+    }
   }
   function performHide(): void {
     if (paused) return
@@ -83,14 +97,7 @@ export function createCycle(opts: CycleOptions): Cycle {
     clearTimer()
     timer = setTimeout(() => {
       timer = null
-      if (!running || paused || request !== generation) return
-      currentSrc = null
-      if (activeReschedule) {
-        scheduleIdle()
-      } else {
-        running = false
-        emit('idle')
-      }
+      finishHide(request)
     }, fadeOutMs)
   }
   function pickAvoidingExcluded(): {
@@ -181,7 +188,8 @@ export function createCycle(opts: CycleOptions): Cycle {
     start() {
       if (running) return
       running = true
-      paused = false
+      activeReschedule = true
+      activeHoldMode = 'auto'
       const initial = opts.initialDelayMs ?? Math.random() * 1500
       scheduleIdle(initial)
     },
@@ -245,13 +253,13 @@ export function createCycle(opts: CycleOptions): Cycle {
           )
         } else if (phase === 'hide') {
           clearTimer()
+          const request = generation
           timer = setTimeout(() => {
             timer = null
-            currentSrc = null
-            scheduleIdle()
+            finishHide(request)
           }, fadeOutMs)
         } else {
-          scheduleIdle()
+          scheduleIdle(undefined, activeReschedule, activeHoldMode)
         }
       }
     },

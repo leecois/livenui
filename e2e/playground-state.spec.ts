@@ -134,3 +134,23 @@ test('import and reset update an already open JSON editor', async ({ page }) => 
   await page.getByRole('button', { name: /Apply configuration/ }).click()
   await expect(page.locator('.control-notice')).toHaveText('Configuration applied.')
 })
+
+test('image one-shot hide completes after pause and resume', async ({ page }) => {
+  await page.goto('/studio?library=image')
+  await expect(page.locator('.image-host')).toBeVisible()
+  await expect(page.locator('.image-demo .demo-note')).toHaveText('Ready')
+  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page
+    .getByLabel('Edit component props')
+    .fill(JSON.stringify({ autoReveal: false, revealFadeOutMs: 3000, paused: true }))
+  await page.getByRole('button', { name: /Apply configuration/ }).click()
+  await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+  await page.getByRole('button', { name: 'Reveal', exact: true }).click()
+  await expect(page.locator('.image-demo .demo-note')).toHaveText('visible')
+  await page.getByRole('button', { name: 'Hide', exact: true }).click()
+  await expect(page.locator('.image-demo .demo-note')).toHaveText('hide')
+  await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
+  await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+  await expect(page.locator('.image-demo .demo-note')).toHaveText('idle')
+  await expect(page.locator('.preview-stage [role="alert"]')).toHaveCount(0)
+})

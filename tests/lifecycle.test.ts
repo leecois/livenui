@@ -236,3 +236,72 @@ assert.equal(document.listeners.size + window.listeners.size, 0);
 console.log('passed');
 `)
 })
+
+test('image cycles retain pause when automatic playback starts', async () => {
+  await probe(`${cycleSetup}
+cycle.setPaused(true);
+cycle.start();
+assert.equal(cycle.isRunning(), false);
+assert.equal(timers.size, 0);
+assert.equal(loads.length, 0);
+cycle.setPaused(false);
+assert.equal(cycle.isRunning(), true);
+runTimer();
+loads[0].resolve({ src: 'old' });
+await flush();
+requests[0].onRevealComplete();
+assert.equal(cycle.getPhase(), 'visible');
+cycle.dispose();
+assert.equal(timers.size, 0);
+console.log('passed');
+`)
+})
+
+for (const continuous of [false, true]) {
+  test(`image cycles preserve ${continuous ? 'continuous' : 'one-shot'} playback after pausing a hide`, async () => {
+    await probe(`${cycleSetup}
+if (${continuous}) {
+  cycle.start();
+  runTimer();
+} else cycle.triggerOnce();
+loads[0].resolve({ src: 'old' });
+await flush();
+requests[0].onRevealComplete();
+runTimer();
+assert.equal(cycle.getPhase(), 'hide');
+cycle.setPaused(true);
+assert.equal(timers.size, 0);
+cycle.setPaused(false);
+runTimer();
+assert.equal(cycle.getPhase(), 'idle');
+assert.equal(cycle.isRunning(), ${continuous});
+assert.equal(timers.size, ${continuous ? 1 : 0});
+assert.deepEqual(events.at(-1), { phase: 'idle', src: null });
+cycle.dispose();
+console.log('passed');
+`)
+  })
+}
+
+test('one-shot image reveals retain manual hold after pausing an in-flight load', async () => {
+  await probe(`${cycleSetup}
+cycle.triggerOnce({ hold: 'manual' });
+cycle.setPaused(true);
+cycle.setPaused(false);
+loads[0].resolve({ src: 'stale' });
+await flush();
+assert.equal(requests.length, 0);
+runTimer();
+loads[1].resolve({ src: 'resumed' });
+await flush();
+requests[0].onRevealComplete();
+assert.equal(cycle.getPhase(), 'visible');
+assert.equal(timers.size, 0);
+cycle.triggerHide();
+runTimer();
+assert.equal(cycle.isRunning(), false);
+assert.equal(timers.size, 0);
+cycle.dispose();
+console.log('passed');
+`)
+})
