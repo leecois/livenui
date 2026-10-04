@@ -1,0 +1,93 @@
+{
+  "$schema": "node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "package.json",
+      "turbo.json",
+      "tsconfig.base.json",
+      "biome.json",
+      "apps/docs/package.json",
+      "apps/docs/app/studio/**",
+      "apps/docs/features/component-library/**",
+      "packages/agent-ui/**",
+      "packages/*/package.json",
+      "packages/*/tsconfig.json",
+      "tests/**",
+      "!**/dist",
+      "!**/node_modules",
+      "apps/docs/app/api/search/**",
+      "apps/docs/components/search.tsx",
+      "apps/docs/lib/source.ts",
+      "apps/docs/app/\\[...slug\\]/**",
+      "apps/docs/app/page.tsx",
+      "apps/docs/components/registry.mts",
+      "apps/docs/registry/**",
+      "apps/docs/scripts/build-registry.ts",
+      "apps/docs/scripts/pre-build.ts",
+      "apps/docs/lib/layout.shared.tsx",
+      "apps/docs/next.config.ts",
+      "apps/docs/components/mobile-navigation.tsx",
+      "apps/docs/app/layout.tsx",
+      "scripts/**",
+      "e2e/**",
+      "playwright.config.ts",
+      "tsconfig.tools.json",
+      "apps/docs/lib/metadata.ts",
+      "apps/docs/lib/site.ts",
+      "packages/voice-glow/src/useMicrophone.ts",
+      "packages/img-fx/src/engine/cycle.ts",
+      "packages/bot-avatars/src/ticker.ts",
+      "packages/cli/src/index.ts",
+      "packages/cli/src/program.ts",
+      "packages/cli/src/utils/paths.ts",
+      "packages/cli/src/utils/add/install-component.ts",
+      "packages/cli/src/utils/add/install-deps.ts",
+      "packages/cli/src/build/shadcn.ts",
+      "packages/liquid-gooey/src/development.ts"
+    ]
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "asNeeded",
+      "trailingCommas": "es5"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "a11y": {
+        "useButtonType": "error"
+      },
+      "style": {
+        "noDescendingSpecificity": "off"
+      },
+      "complexity": {
+        "noImportantStyles": "off"
+      }
+    }
+  },
+  "css": {
+    "parser": {
+      "cssModules": true
+    }
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
+}

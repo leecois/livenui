@@ -1,0 +1,66 @@
+{
+  "name": "livenui",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager": "bun@1.4.2",
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:docs": "turbo run dev -F @livenui/docs...",
+    "start": "bun run --filter @livenui/docs start",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck && tsc -p tsconfig.tools.json",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "test": "bun test tests",
+    "check": "bun run typecheck && bun run lint && bun run lint:docs && bun run check:architecture && bun run test && bun run build",
+    "clean:ws": "turbo run clean",
+    "clean": "bun run clean:ws",
+    "lint:docs": "bun run --filter @livenui/docs lint",
+    "lint:ws": "sherif",
+    "release": "turbo run build --filter=./packages/* && changeset publish",
+    "version": "changeset version && bun install --lockfile-only",
+    "check:architecture": "bun run scripts/check-architecture.ts",
+    "test:ui": "playwright test",
+    "check:ui": "bun run check && bun run test:ui"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@changesets/cli": "^3.0.3",
+    "@next/bundle-analyzer": "16.3.8",
+    "@parcel/watcher": "^2.6.0",
+    "@playwright/test": "1.63.0",
+    "@total-typescript/ts-reset": "^0.6.1",
+    "@types/bun": "^1.4.2",
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "@unlighthouse/cli": "^0.19.0",
+    "concurrently": "^10.0.5",
+    "minimatch": "^10.2.6",
+    "proxy-agent": "^8.0.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "sherif": "^1.13.0",
+    "sort-package-json": "^4.0.0",
+    "tsup": "^8.5.1",
+    "turbo": "^2.11.7",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-native": "npm:typescript@^7.0.2"
+  },
+  "trustedDependencies": [
+    "@biomejs/biome",
+    "esbuild",
+    "sharp",
+    "@livenui/docs"
+  ]
+}
