@@ -1,5 +1,7 @@
 # UI, performance and architecture audit
 
+Project and package identifiers are normalized to current Liven UI naming. Original audit dates, findings and validation limits are retained; obsolete machine-specific temporary paths are omitted.
+
 Date: 2026-10-04. Local checkout on `main`. The owner explicitly requested parallel subagents for this audit, overriding the usual single-primary-agent restriction for this task. Three bounded audit/edit scopes ran independently; the primary agent reviewed integration and ran all shared build/browser gates sequentially.
 
 ## Findings and implemented fixes
@@ -21,7 +23,7 @@ Root lint now explicitly covers the edited SDK/CLI source files. Existing packag
 
 - Toolchain: Node 24.21.0 and pinned Bun 1.4.2.
 - `bun run check`: passed; 20 typecheck/upstream tasks, 106 root lint files, 57 docs lint files, 12-workspace architecture gate, 37 tests with 22,644 assertions and 11 production build tasks.
-- `SOLTU_BROWSER_CHANNEL=chrome bun run test:ui`: 98 passed, two intentional desktop drawer skips, zero failures, one worker and no retries (2.1 minutes). All four viewport/theme profiles passed against the fresh production output.
+- `LIVENUI_BROWSER_CHANNEL=chrome bun run test:ui`: 98 passed, two intentional desktop drawer skips, zero failures, one worker and no retries (2.1 minutes). All four viewport/theme profiles passed against the fresh production output.
 - The primary agent inspected full-page desktop/mobile light/dark captures, plus image and overview captures; gradients, geometry and source order remained intact. The managed preview server stopped after the run.
 - `git diff --check` and the staged-comment gate are required before each local commit. No push, publication or deployment is authorized.
 

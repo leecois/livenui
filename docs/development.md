@@ -20,7 +20,7 @@ bun run dev:docs
 
 The application workspace is `@livenui/docs`, the control foundation is `@livenui/agent-ui`, and installer support uses `livenui-cli` and `livenui-ui`. Seven rendering SDKs retain their private build identities and public component APIs. Consumer source installs under `components/livenui`.
 
-The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUBLIC_APP_URL` for a hosted build and pass the hosted registry with the CLI's `--dir` option. Git starts independently on `main` with no remote; adding a new remote, publishing and deployment require explicit authorization. Historical reports retain their original project names and observations.
+The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUBLIC_APP_URL` for a hosted build and pass the hosted registry with the CLI's `--dir` option. Git starts independently on `main` with no remote; adding a new remote, publishing and deployment require explicit authorization. Historical reports use current Liven UI identifiers while retaining original audit dates, findings and validation limits. Reports record naming normalization explicitly; obsolete machine-specific temporary paths are omitted rather than replaced with unverified paths.
 
 ## Commands
 

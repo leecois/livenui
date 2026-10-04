@@ -1,4 +1,5 @@
 {
+  "namingNote": "Project and package identifiers are normalized to current Liven UI naming. Original audit dates, findings and validation limits are retained; obsolete machine-specific temporary paths are omitted.",
   "baseline": "0167d7f",
   "layout": "Fumadocs Glass retained",
   "removedComponents": [
@@ -57,7 +58,7 @@
     "remark",
     "remark-gfm",
     "remark-rehype",
-    "soltux-ui"
+    "livenui-ui"
   ],
   "validation": {
     "typecheck": "20 tasks passed",
@@ -304,8 +305,8 @@
     "metalFirstFrame": "all five configurations render non-empty frames and remain pixel-stable when reduced motion pauses playback",
     "frozenInstall": "passed with no lockfile changes",
     "logs": [
-      "/tmp/soltu-component-replacement-check.log",
-      "/tmp/soltu-examples-check.log"
+      "Historical component replacement validation log; not stored in this checkout",
+      "Historical example validation log; not stored in this checkout"
     ],
     "metalPlayback": {
       "variants": [

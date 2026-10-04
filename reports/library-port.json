@@ -1,4 +1,5 @@
 {
+  "namingNote": "Project and package identifiers are normalized to current Liven UI naming. Original audit dates, findings and validation limits are retained; obsolete machine-specific temporary paths are omitted.",
   "reference": {
     "url": "https://github.com/Jakubantalik/Libraries.dev",
     "commit": "d06640864eb4adc2fe240f899a44ee6210779782",
@@ -47,8 +48,8 @@
       ".env.example"
     ],
     "environmentHashesMatch": true,
-    "originalBackup": "/tmp/soltu-before-library-rebuild.tar",
-    "alternativePortBackup": "/tmp/soltu-vite-port-before-fumadocs.tar"
+    "originalBackup": "Archived pre-library-rebuild backup; not stored in this checkout",
+    "alternativePortBackup": "Archived alternative-framework port backup; not stored in this checkout"
   },
   "workspace": {
     "application": "apps/docs",
@@ -246,7 +247,7 @@
       "nonCommentMatches": "URLs, legal attribution text and glob strings"
     },
     "upstreamWarning": "the CommonJS compatibility test emits the upstream Three.js CJS deprecation notice; ESM browser rendering is clean",
-    "artifacts": "/tmp/soltu-rebuild",
+    "artifacts": "Historical temporary rebuild artifacts; not stored in this checkout",
     "resolvedFindings": [
       "browser-only effects use client dynamic imports with SSR disabled",
       "theme and reduced-motion initialization are hydration-safe",
@@ -301,6 +302,6 @@
     "navigation": "existing Glass sidebar, TOC, header and theme provider",
     "studioNavigation": "Studio belongs to the agent documentation tree",
     "localSearch": "/api/search indexes original and new documentation with Library and Agent interfaces filters",
-    "remoteSearchSync": "original optional synchronization is retained but requires SOLTU_SYNC_SEARCH=1"
+    "remoteSearchSync": "original optional synchronization is retained but requires LIVENUI_SYNC_SEARCH=1"
   }
 }

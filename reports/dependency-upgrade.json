@@ -1,4 +1,5 @@
 {
+  "namingNote": "Project and package identifiers are normalized to current Liven UI naming. Original audit dates, findings and validation limits are retained; obsolete machine-specific temporary paths are omitted.",
   "analysisDate": "2026-10-03",
   "baselineCommit": "e4276b4",
   "scope": "Five manifests, four workspaces, resolved lockfile graph, source imports, peer ranges, build graph, CI and deployment configuration.",
@@ -33,13 +34,13 @@
     },
     "workspaces": [
       {
-        "name": "@lee/docs",
+        "name": "@livenui/docs",
         "path": "apps/docs",
         "version": "0.1.0",
         "private": true,
         "internalDependencies": {
-          "soltux-ui": "workspace:*",
-          "soltux": "workspace:*",
+          "livenui-ui": "workspace:*",
+          "livenui-cli": "workspace:*",
           "tsconfig": "workspace:*"
         },
         "scripts": {
@@ -55,7 +56,7 @@
         }
       },
       {
-        "name": "soltux",
+        "name": "livenui-cli",
         "path": "packages/cli",
         "version": "0.0.3",
         "private": false,
@@ -71,12 +72,12 @@
         }
       },
       {
-        "name": "soltux-ui",
+        "name": "livenui-ui",
         "path": "packages/ui",
         "version": "0.0.2",
         "private": false,
         "internalDependencies": {
-          "soltux": "workspace:*",
+          "livenui-cli": "workspace:*",
           "tsconfig": "workspace:*"
         },
         "scripts": {
@@ -96,7 +97,7 @@
         "scripts": {}
       }
     ],
-    "productionBuildOrder": ["soltux", "soltux-ui", "@lee/docs"],
+    "productionBuildOrder": ["livenui-cli", "livenui-ui", "@livenui/docs"],
     "sharedTypeScriptConfiguration": [
       "packages/tsconfig/base.json",
       "packages/tsconfig/nextjs.json",
@@ -181,7 +182,7 @@
         "remark-gfm": [null, "^4.0.1"],
         "remark-rehype": [null, "^11.1.2"],
         "shiki": ["^3.22.0", "^4.5.0"],
-        "soltux-ui": [null, "workspace:*"],
+        "livenui-ui": [null, "workspace:*"],
         "tailwind-merge": [null, "^3.7.0"],
         "twoslash": ["^0.3.6", "^0.3.9"],
         "unist-util-visit": [null, "^5.1.0"],
@@ -344,7 +345,7 @@
     "zod": "4.6.5"
   },
   "compatibilityChanges": [
-    "Declare direct docs imports and the missing soltux-ui workspace edge instead of relying on incidental hoisting.",
+    "Declare direct docs imports and the missing livenui-ui workspace edge instead of relying on incidental hoisting.",
     "Declare fumadocs-core as a UI dependency and package-local build/clean tools.",
     "Use TypeScript 7.0.2 for typechecking/UI compilation, plus npm:@typescript/typescript6@6.0.2 for the programmatic API required by tsup and twoslash.",
     "Select the native compiler explicitly for CLI/UI scripts to avoid competing tsc binaries.",
@@ -445,10 +446,10 @@
         "extract-zip@2.0.1",
         "node-forge@1.4.0"
       ],
-      "details": "bun audit v1.4.2 (744846f84)\n\nbasic-ftp@5.3.1\n  proxy-agent > pac-proxy-agent > get-uri > basic-ftp\n  high: basic-ftp: Quadratic-time CPU denial of service in Client.list() Unix directory-listing parser (RE_LINE backtracking) (<=6.2.0) - https://github.com/advisories/GHSA-c475-qrg2-pj4r\n\nesbuild@0.27.7, 0.28.2\n  workspace:@lee/docs > fumadocs-mdx > esbuild\n  workspace:soltux > tsup > bundle-require > esbuild\n  @unlighthouse/cli > @unlighthouse/core > @unlighthouse/client > @tailwindcss/vite > vite > esbuild\n  workspace:@lee/docs > lenis > @nuxt/kit > unctx > unplugin > esbuild\n  low: esbuild allows arbitrary file read when running the development server on Windows (>=0.27.3 <0.28.1) - https://github.com/advisories/GHSA-g7r4-m6w7-qqqr\n\nextract-zip@2.0.1\n  @unlighthouse/cli > @unlighthouse/core > @puppeteer/browsers > extract-zip\n  high: extract-zip unvalidated symlink path traversal (<=2.0.1) - https://github.com/advisories/GHSA-jmr9-qjv8-65gv\n  high: extract-zip allows arbitrary file writes through symlink archive entries (<=2.0.1) - https://github.com/advisories/GHSA-7pqw-9j4j-h8q3\n\nnode-forge@1.4.0\n  @unlighthouse/cli > @unlighthouse/server > listhen > node-forge\n  high: node-forge RSA PKCS#1 v1.5 signature verification accepts extra nested DigestAlgorithm elements (<=1.4.0) - https://github.com/advisories/GHSA-86w9-cpqp-85rv\n\n5 vulnerabilities (4 high, 1 low)\n\n  bun audit fix           upgrade the vulnerable packages within their ranges\n  bun audit fix --latest  also cross major versions\n"
+      "details": "bun audit v1.4.2 (744846f84)\n\nbasic-ftp@5.3.1\n  proxy-agent > pac-proxy-agent > get-uri > basic-ftp\n  high: basic-ftp: Quadratic-time CPU denial of service in Client.list() Unix directory-listing parser (RE_LINE backtracking) (<=6.2.0) - https://github.com/advisories/GHSA-c475-qrg2-pj4r\n\nesbuild@0.27.7, 0.28.2\n  workspace:@livenui/docs > fumadocs-mdx > esbuild\n  workspace:livenui-cli > tsup > bundle-require > esbuild\n  @unlighthouse/cli > @unlighthouse/core > @unlighthouse/client > @tailwindcss/vite > vite > esbuild\n  workspace:@livenui/docs > lenis > @nuxt/kit > unctx > unplugin > esbuild\n  low: esbuild allows arbitrary file read when running the development server on Windows (>=0.27.3 <0.28.1) - https://github.com/advisories/GHSA-g7r4-m6w7-qqqr\n\nextract-zip@2.0.1\n  @unlighthouse/cli > @unlighthouse/core > @puppeteer/browsers > extract-zip\n  high: extract-zip unvalidated symlink path traversal (<=2.0.1) - https://github.com/advisories/GHSA-jmr9-qjv8-65gv\n  high: extract-zip allows arbitrary file writes through symlink archive entries (<=2.0.1) - https://github.com/advisories/GHSA-7pqw-9j4j-h8q3\n\nnode-forge@1.4.0\n  @unlighthouse/cli > @unlighthouse/server > listhen > node-forge\n  high: node-forge RSA PKCS#1 v1.5 signature verification accepts extra nested DigestAlgorithm elements (<=1.4.0) - https://github.com/advisories/GHSA-86w9-cpqp-85rv\n\n5 vulnerabilities (4 high, 1 low)\n\n  bun audit fix           upgrade the vulnerable packages within their ranges\n  bun audit fix --latest  also cross major versions\n"
     },
     "buildWarnings": [
-      "Registry generator cannot find dependency info for its own soltux-ui registry reference.",
+      "Registry generator cannot find dependency info for its own livenui-ui registry reference.",
       "Missing metadataBase falls back to localhost."
     ],
     "blockedOptionalInstallScripts": [

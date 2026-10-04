@@ -1,11 +1,13 @@
 # Component discovery and integration UX
 
+Project and package identifiers are normalized to current Liven UI naming. Original audit dates, findings and validation limits are retained; obsolete machine-specific temporary paths are omitted.
+
 Date: 2026-10-04
 Audience: developers selecting and integrating React components.
 
 ## Evidence and approach
 
-The review covered the local navigation tree, eleven documentation pages, seven playgrounds, 83 example configurations and the existing desktop/mobile layout. Baseline screenshots are in `/tmp/soltu-ux/before-*`. This is a task-based heuristic review, not a usability study with recruited users or a measured conversion experiment.
+The review covered the local navigation tree, eleven documentation pages, seven playgrounds, 83 example configurations and the existing desktop/mobile layout. Baseline screenshots were recorded as temporary artifacts outside this checkout. This is a task-based heuristic review, not a usability study with recruited users or a measured conversion experiment.
 
 The primary task is find → try → integrate. Recommendations follow these sources:
 
@@ -46,6 +48,6 @@ Browser verification uses Chrome with isolated contexts:
 - 37 layout profiles cover all seven playgrounds at 1440px and 390px in both themes, all seven at 320px, and Studio at 768px and 1024px. Preview hosts fit, controls precede integration on mobile, and accent code buttons retain white text.
 - Four mobile navigation profiles at 320px/390px in both themes verify initial focus, Tab/Shift+Tab wrapping, Escape, restored focus, navigation and control editing.
 - Components, Examples, Studio and Get started have full-page and viewport screenshots at desktop/mobile in both themes. All 16 page/profile combinations return HTTP 200, have one active navigation entry and have no horizontal overflow.
-- The browser runs record no uncaught JavaScript errors or failed HTTP responses. Artifacts and JSON evidence are in `/tmp/soltu-ux/`; these temporary files are not committed.
+- The browser runs record no uncaught JavaScript errors or failed HTTP responses. Artifacts and JSON evidence were temporary files outside this checkout and are not committed.
 
 These checks establish functional and layout behavior; they do not substitute for observing real developers completing the task. A future usability session should ask a developer to find an audio visualization, customize a Metal badge and integrate a saved configuration without guidance.
