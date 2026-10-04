@@ -57,4 +57,8 @@ Historical integration/dependency/UX snapshots remain in `reports/`. They docume
 
 ## Open-source readiness
 
-Read the [publication audit and remaining license decision](docs/open-source.md). Private environment files, local editor integrations and generated artifacts are excluded. Existing SDK licenses and notices remain authoritative; the repository has no root license granting rights to all first-party code.
+Read the [publication audit and licensing scope](docs/open-source.md). Private environment files, local editor integrations and generated artifacts are excluded.
+
+## License
+
+Liven UI's first-party code and documentation are licensed under the [MIT License](LICENSE), with copyright attributed to Liven UI contributors. Third-party code retains its existing licenses, copyright notices and attribution. Package-specific LICENSE and NOTICE files remain authoritative for their respective source; the root license does not replace them.
