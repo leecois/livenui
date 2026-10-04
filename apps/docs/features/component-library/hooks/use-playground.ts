@@ -48,7 +48,18 @@ export function usePlayground({
   useEffect(() => {
     setPaused(matchMedia('(prefers-reduced-motion: reduce)').matches || initialPlayback)
   }, [initialPlayback])
-  const [draft, setDraft] = useState(JSON.stringify(props, null, 2))
+  const [draft, setDraftValue] = useState(JSON.stringify(props, null, 2))
+  const configurationRevision = useRef(0)
+  useEffect(
+    () => () => {
+      configurationRevision.current++
+    },
+    []
+  )
+  const setDraft = (value: string) => {
+    configurationRevision.current++
+    setDraftValue(value)
+  }
   const [notice, setNotice] = useState('')
   const [transferNotice, setTransferNotice] = useState('')
   const [startingPoint, setStartingPoint] = useState(initialExample?.id || '')
@@ -72,6 +83,7 @@ export function usePlayground({
   }
   const liveCode = snippet(activeLibrary, exportedProps)
   const chooseVariant = (next: string) => {
+    configurationRevision.current++
     setStartingPoint('')
     setVariant(next)
     const nextProps = variantDefaults(library, next)
@@ -93,6 +105,7 @@ export function usePlayground({
       setNotice('Use a finite value within the playground limit of 10000.')
       return
     }
+    configurationRevision.current++
     if (name === 'paused' || name === 'active') setPaused(configurationPlayback({ [name]: value }))
     setProps((current) => {
       const next = { ...current }
@@ -104,6 +117,7 @@ export function usePlayground({
   const apply = () => {
     try {
       const next = parseProps(draft, activeLibrary)
+      configurationRevision.current++
       setStartingPoint('')
       setProps(next)
       setPaused(configurationPlayback(next))
@@ -141,9 +155,14 @@ export function usePlayground({
   }
   const importConfiguration = async (file: File | undefined) => {
     if (!file) return
+    const request = ++configurationRevision.current
+    if (importInput.current) importInput.current.value = ''
+    setTransferNotice('')
     try {
       if (file.size > 65536) throw new Error('Use a configuration file smaller than 64 KB.')
-      const data: unknown = JSON.parse(await file.text())
+      const text = await file.text()
+      if (request !== configurationRevision.current) return
+      const data: unknown = JSON.parse(text)
       if (!data || typeof data !== 'object' || Array.isArray(data))
         throw new Error('Invalid configuration file.')
       const envelope = data as Props
@@ -159,14 +178,16 @@ export function usePlayground({
       setStartingPoint('')
       setVariant(nextVariant)
       setProps(next)
-      setDraft(JSON.stringify(playbackProps(next, configurationPlayback(next)), null, 2))
+      setDraftValue(JSON.stringify(playbackProps(next, configurationPlayback(next)), null, 2))
       setRevision((value) => value + 1)
       setPaused(configurationPlayback(next))
       setTransferNotice('Configuration imported.')
     } catch (error) {
-      setTransferNotice(error instanceof Error ? error.message : 'Could not import configuration.')
+      if (request === configurationRevision.current)
+        setTransferNotice(
+          error instanceof Error ? error.message : 'Could not import configuration.'
+        )
     }
-    if (importInput.current) importInput.current.value = ''
   }
   const download = () => {
     const url = URL.createObjectURL(
@@ -219,13 +240,19 @@ export function usePlayground({
     if (!savePresets(presets.filter((item) => item.id !== id)))
       setNotice('This browser could not delete the preset.')
   }
-  const replay = () => setRevision((value) => value + 1)
+  const replay = () => {
+    configurationRevision.current++
+    setRevision((value) => value + 1)
+  }
   return {
     activeLibrary,
     props: effectiveProps,
     variant,
     paused,
-    setPaused,
+    setPaused: (value: boolean) => {
+      configurationRevision.current++
+      setPaused(value)
+    },
     revision,
     replay,
     chooseVariant,

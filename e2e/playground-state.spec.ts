@@ -1,4 +1,34 @@
-import { expect, test } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
+
+declare global {
+  interface Window {
+    __configurationReads: { resolve: () => Promise<void>; reject: () => void }[]
+  }
+}
+
+async function deferConfigurationReads(page: Page) {
+  await page.addInitScript(() => {
+    window.__configurationReads = []
+    const read = File.prototype.text
+    File.prototype.text = function () {
+      const contents = read.call(this)
+      return new Promise<string>((resolve, reject) => {
+        window.__configurationReads.push({
+          resolve: async () => resolve(await contents),
+          reject: () => reject(new Error('Deferred read failed.')),
+        })
+      })
+    }
+  })
+}
+
+async function importDeferred(page: Page, props: object, variant = 'ring') {
+  await page.getByLabel('Import configuration file').setInputFiles({
+    name: 'configuration.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ variant, props })),
+  })
+}
 
 test.beforeEach(async ({ page }, testInfo) => {
   const theme = testInfo.project.name.endsWith('dark') ? 'dark' : 'light'
@@ -133,6 +163,50 @@ test('import and reset update an already open JSON editor', async ({ page }) => 
   })
   await page.getByRole('button', { name: /Apply configuration/ }).click()
   await expect(page.locator('.control-notice')).toHaveText('Configuration applied.')
+})
+
+for (const completion of ['resolve', 'reject'] as const) {
+  test(`a late import ${completion} cannot replace a newer imported configuration`, async ({
+    page,
+  }) => {
+    await deferConfigurationReads(page)
+    await page.goto('/studio?library=orbs')
+    await page.locator('summary').filter({ hasText: 'Save or hand off' }).click()
+    await importDeferred(page, { state: 'searching', paused: true })
+    await importDeferred(page, { state: 'listening', paused: false })
+    await expect.poll(() => page.evaluate(() => window.__configurationReads.length)).toBe(2)
+    await page.evaluate(() => window.__configurationReads[1].resolve())
+    await expect(page.locator('.code-panel code')).toContainText('state={"listening"}')
+    await page.evaluate((action) => window.__configurationReads[0][action](), completion)
+    await expect(page.locator('.code-panel code')).toContainText('state={"listening"}')
+    await expect(page.locator('.transfer-notice')).toHaveText('Configuration imported.')
+    await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toBeVisible()
+  })
+}
+
+test('reset cancels a pending configuration import', async ({ page }) => {
+  await deferConfigurationReads(page)
+  await page.goto('/studio?library=orbs')
+  await page.locator('summary').filter({ hasText: 'Save or hand off' }).click()
+  await importDeferred(page, { state: 'listening', paused: false })
+  await expect.poll(() => page.evaluate(() => window.__configurationReads.length)).toBe(1)
+  await page.getByRole('button', { name: 'Reset', exact: true }).click()
+  await page.evaluate(() => window.__configurationReads[0].resolve())
+  await expect(page.locator('.code-panel code')).toContainText('state={"working"}')
+  await expect(page.getByRole('button', { name: '▶ Play', exact: true })).toBeVisible()
+  await expect(page.locator('.transfer-notice')).toBeEmpty()
+})
+
+test('a component variant selection cancels a pending configuration import', async ({ page }) => {
+  await deferConfigurationReads(page)
+  await page.goto('/studio?library=metal')
+  await page.locator('summary').filter({ hasText: 'Save or hand off' }).click()
+  await importDeferred(page, { strength: 0.4 })
+  await expect.poll(() => page.evaluate(() => window.__configurationReads.length)).toBe(1)
+  await page.getByRole('button', { name: 'text', exact: true }).click()
+  await page.evaluate(() => window.__configurationReads[0].resolve())
+  await expect(page.locator('.code-panel code')).toContainText('<MetalText')
+  await expect(page.locator('.transfer-notice')).toBeEmpty()
 })
 
 test('image one-shot hide completes after pause and resume', async ({ page }) => {

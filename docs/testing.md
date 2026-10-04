@@ -39,6 +39,8 @@ Rendered preview motion starts paused for reduced-motion runs, which gives repro
 
 Browser regressions in `e2e/playground-state.spec.ts` check playback persistence, Voice activation/freeze independence and valid draft replacement. `e2e/microphone.spec.ts` controls deferred capture resolution after Pause, Replay and navigation, plus stale denials. The capture streams are test doubles; these cases prove hook ownership and state handling, not physical audio capture.
 
+Deferred file reads in the playground suite verify that late success/failure cannot replace a newer import, Reset or Metal variant selection. Image playback also exercises a real one-shot reveal/hide through Pause and Resume. Isolated cycle probes cover paused startup, preserved manual hold and one-shot versus continuous hide completion. Installer graph probes cover shared-child deduplication, circular dependency rejection before writes and retry after an invalid child payload.
+
 Add targeted moving-scene tests for animation-engine changes: time-varying frames, per-instance pause, pointer interaction, material isolation and teardown are not proven by a paused layout capture.
 
 ## Evidence

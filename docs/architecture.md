@@ -86,6 +86,8 @@ Image cycle startup retains an explicit pause without scheduling image work. Res
 
 JSON configuration is untrusted input. Parsing rejects unknown props, non-finite numbers, unsupported variants, prototype keys, invalid structures and excessive depth/key counts. Files are limited to 64 KB and must match the selected library. Never evaluate uploaded configuration, functions or arbitrary module strings. Function/element props belong in application code.
 
+Only the current file import may replace configuration or report a result. A newer import, draft edit, applied configuration, field edit, preset/example load, Reset, variant selection, playback action or unmount invalidates pending reads. Capture the selected file and clear the input before reading so the same file can be selected again. Invalidating a read prevents state updates; it does not cancel the browser's file operation.
+
 Presets stay in this browser; unavailable or corrupt storage is handled without crashing. Exported JSON includes library, component, variant and effective theme/playback props. Microphone access is click-initiated and local. Pending capture requests are shared and invalidated on stop or unmount; late streams are stopped before they can become live. Hosted accounts, billing, cloud presets and agent chat are not connected.
 
 ## Build and compatibility contracts
