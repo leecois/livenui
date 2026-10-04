@@ -1,0 +1,69 @@
+---
+title: Get started
+description: Install a component, copy a working configuration and connect it to your application's state and design system.
+---
+
+## Choose the right interaction
+
+Use [Components](/agents) to choose by purpose, or browse [Examples](/agents/gallery) to compare states and materials. Open a component or an example to try it live. Studio offers the same controls and generated code for all seven libraries.
+
+| Goal | Component |
+| --- | --- |
+| Highlight an action, input or card | [Border beam](/agents/beam) |
+| Show searching, listening or composing | [Thinking orbs](/agents/orbs) |
+| Add reflective actions, labels or badges | [Metal](/agents/metal) |
+| Animate menus, sliders and draggable items | [Gooey](/agents/gooey) |
+| Visualize speech or audio activity | [Voice](/agents/voice) |
+| Reveal an image with an animated transition | [Image](/agents/image) |
+| Express an assistant's state and personality | [Bot avatars](/agents/avatars) |
+
+## Add Liven UI source
+
+Each playground has a **Use in your project** section with an installation command for npm, pnpm or Bun. The command copies the component's complete editable source from the Liven UI registry into your project. It does not install the reference project's effect packages.
+
+For example, to add a progress indicator to a project configured for the component installer:
+
+```sh
+npx shadcn@latest add http://localhost:3000/r/orbs.json
+```
+
+The installed entry is `components/livenui/orbs.tsx`, with the rendering engine and types alongside it. Imports in the examples use `@/components/livenui`; adjust that prefix to your project's configured component alias. Components require React 18 or newer. Image also installs Three.js. Metal uses a shader dependency listed in its registry payload. Licenses and notices are included with the downloaded source.
+
+The installer handles copying files; the component source comes from Liven UI. You can inspect and change that source in your application without waiting for an upstream effect-package release.
+
+## Copy and connect the component
+
+Adjust the preview using **Controls**, or choose a starting point in **Examples & saved**. Copy the generated React code from **Use in your project**. In a server-rendered application, place animated components inside a client component.
+
+```tsx
+'use client'
+
+import { ThinkingOrb } from '@/components/livenui/orbs'
+
+export function WorkingIndicator() {
+  return (
+    <div role="status" aria-live="polite">
+      <ThinkingOrb state="working" size={64} />
+      <span>Working on your request…</span>
+    </div>
+  )
+}
+```
+
+Connect visual states to your application's actual state. The playground demonstrates the interaction; it does not run an agent or generate images. For example, use `working` while a request is in progress and use `breathing` when it finishes.
+
+## Keep your design system
+
+Retain semantic buttons, labels and loading text. Match the component's theme to your application. Keep decorative effects separate from the accessible status message. Use your existing color and spacing tokens for host content.
+
+Honor reduced motion and pause animations that are not visible. Clean up rendering resources when components unmount. The preview starts paused when the browser requests reduced motion; its Play and Pause buttons let you compare both states.
+
+For advanced configuration, open **API reference** beneath the generated code. Use **JSON** to edit structured props; functions, streams and element references belong in application code.
+
+## Save and share a configuration
+
+In **Examples & saved**, name a preset to keep it in this browser. Presets do not sync between devices. Open **Save or hand off** to export a JSON file, import a configuration or copy a coding-agent prompt containing installation instructions, your props and the API reference.
+
+For Voice, simulation works without microphone permission. Microphone access starts only after you choose it; processing stays local and tracks stop when the preview unmounts.
+
+[Download the integration reference](/agent-skill.md) for your coding agent. The documentation is also available through the LLM endpoints.

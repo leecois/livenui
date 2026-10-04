@@ -1,0 +1,22 @@
+{
+  "title": "Components",
+  "icon": "Sparkles",
+  "defaultOpen": true,
+  "pages": [
+    "---Explore---",
+    "index",
+    "gallery",
+    "studio",
+    "---Components---",
+    "beam",
+    "orbs",
+    "metal",
+    "gooey",
+    "voice",
+    "image",
+    "avatars",
+    "---Guides---",
+    "integration"
+  ],
+  "root": true
+}
