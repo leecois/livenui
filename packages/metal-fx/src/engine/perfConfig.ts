@@ -1,0 +1,9 @@
+export const FRAME_INTERVAL_MS = 66;
+export const REFLECTION_INTERVAL_MS = 66;
+export const GLOW_READBACK_INTERVAL_MS = 1500;
+export const GLOW_SKIP_FRAMES = 1;
+export const PERIM_SAMPLES = 16;
+export const HALO_SEGMENTS = 16;
+export const EXTRA_SEGMENTS = 8;
+export const CANONICAL_GL_SIZE = 96;
+export const GL_DPR_CAP = 2;

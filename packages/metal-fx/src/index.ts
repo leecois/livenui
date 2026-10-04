@@ -1,0 +1,16 @@
+export { MetalFx } from './MetalFx';
+export { MetalText, METAL_TEXT_DEFAULTS, type TextInnerShadow } from './MetalText';
+export { MetalBadge, METAL_BADGE_DEFAULTS, type MetalBadgeCore } from './MetalBadge';
+export { useMetalBend } from './useMetalBend';
+export { BEND, BEND_DEFAULTS, setBendConfig, resetBendConfig, type BendConfig } from './engine/bend/config';
+export { useMetalTextReflection } from './useMetalTextReflection';
+export { paintTextRun, textMaskDataUrl } from './engine/textMask';
+export type { MetalFxProps, MetalFxVariant, MetalFxTheme, MetalFxPreset, MetalFxReflectionTarget, } from './types';
+export { PRESETS, SHAPE_NONE, SHAPE_CIRCLE, SHAPE_DAISY, SHAPE_DIAMOND, SHAPE_METABALLS, FIT_NONE, FIT_CONTAIN, FIT_COVER, hexToRgb, hexToRgba, type Preset, type PresetMode, type PresetName, type PresetTheme, } from './engine/presets';
+export { createInstance, destroyInstance, updateInstance, setSharedPreset, setSharedPresetMode, getSharedPreset, setInstanceDeform, redrawInstance, pauseShared, resumeShared, } from './engine/renderer/loop';
+export type { MetalFxInstance, DeformFn, DeformLayers, MaskFn } from './engine/renderer/core';
+export { RIM_DEFAULTS, type RimOptions } from './engine/rim';
+export { isMetalFxSupported } from './engine/renderer/core';
+export { GLOW, GLOW_DEFAULTS, GLOW_MARKUP_KEYS, setGlowConfig, resetGlowConfig, subscribeGlowConfig, type GlowConfig, } from './engine/glow/config';
+export { CURSOR_LIGHT, CURSOR_LIGHT_DEFAULTS, setCursorLightConfig, resetCursorLightConfig, setCursorSprite, type CursorLightConfig, type CursorSprite, } from './engine/cursor/light';
+export { REFLECTION_OCCLUDER, REFLECTION_OCCLUDER_DEFAULTS, setReflectionOccluderConfig, resetReflectionOccluderConfig, type ReflectionOccluderConfig, } from './engine/reflection/paint';
