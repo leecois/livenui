@@ -1,0 +1,391 @@
+.agent-libraries .demo-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.agent-libraries .demo-note {
+  display: block;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}
+.agent-libraries .beam-host {
+  width: 320px;
+  max-width: 100%;
+  padding: 28px;
+  border-radius: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.agent-libraries .demo-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  color: var(--muted);
+}
+.agent-libraries .beam-host strong {
+  display: block;
+  font-size: 27px;
+  line-height: 1.15;
+  font-weight: 550;
+  letter-spacing: -0.04em;
+  margin-top: 18px;
+}
+.agent-libraries .beam-lines {
+  display: grid;
+  gap: 7px;
+  margin-top: 24px;
+}
+.agent-libraries .beam-lines span {
+  display: block;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--track);
+  width: 92%;
+}
+.agent-libraries .beam-lines span:last-child {
+  width: 66%;
+}
+.agent-libraries .beam-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 27px;
+}
+.agent-libraries .beam-footer > span:last-child {
+  margin-left: auto;
+  font-size: 16px;
+}
+.agent-libraries .orb-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+}
+.agent-libraries .orb-demo > p {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+.agent-libraries .stage-orbs canvas {
+  transform: scale(1.8);
+  margin: 32px;
+}
+.agent-libraries .avatar-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+.agent-libraries .avatar-demo > p {
+  color: var(--muted);
+  font-size: 12px;
+}
+.agent-libraries .voice-demo {
+  width: 390px;
+  max-width: 100%;
+}
+.agent-libraries .voice-host {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 27px 24px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+}
+.agent-libraries .host-icon {
+  font-size: 22px;
+  color: var(--foreground);
+}
+.agent-libraries .gooey-demo {
+  width: min(320px, 100%);
+  text-align: center;
+}
+.agent-libraries .liquid-menu {
+  width: 200px;
+  height: 170px;
+  margin: 0 auto;
+}
+.agent-libraries .liquid-menu-slot {
+  position: absolute;
+  left: 80px;
+  top: 100px;
+}
+.agent-libraries .liquid-menu-button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--liquid-ink);
+}
+.agent-libraries .liquid-main {
+  background: var(--gradient-accent);
+  color: white;
+}
+.agent-libraries .liquid-main svg {
+  transition: transform 250ms ease;
+}
+.agent-libraries .is-open .liquid-main svg {
+  transform: rotate(45deg);
+}
+.agent-libraries .liquid-satellite {
+  pointer-events: none;
+}
+.agent-libraries .is-open .liquid-satellite {
+  pointer-events: auto;
+}
+.agent-libraries .liquid-satellite svg {
+  opacity: 0;
+  filter: blur(2px);
+  transition:
+    opacity 180ms ease,
+    filter 180ms ease;
+}
+.agent-libraries .is-open .liquid-satellite svg {
+  opacity: 1;
+  filter: blur(0);
+}
+.agent-libraries .liquid-slider-demo {
+  padding-block: 55px 30px;
+}
+.agent-libraries .liquid-slider {
+  width: 240px;
+  height: 80px;
+  margin-inline: auto;
+}
+.agent-libraries .liquid-track {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 38px;
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 20%, var(--track));
+  z-index: -2;
+}
+.agent-libraries .liquid-thumb {
+  position: absolute;
+  left: 14px;
+  top: 30px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: transparent;
+  touch-action: none;
+  cursor: grab;
+}
+.agent-libraries .liquid-value {
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.agent-libraries .liquid-bend,
+.agent-libraries .liquid-melt {
+  width: 100%;
+  height: 210px;
+}
+.agent-libraries .liquid-drag-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 236px;
+  height: 48px;
+  margin: -24px 0 0 -118px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--liquid-ink);
+  font-size: 12px;
+  white-space: nowrap;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+.agent-libraries .liquid-drag-card > * {
+  --bend-weight: 0.3;
+  transform: translate(
+      calc(var(--lg-bend-x, 0px) * var(--bend-weight) * 2.4),
+      calc(var(--lg-bend-y, 0px) * var(--bend-weight) * 2.4)
+    )
+    rotate(calc(var(--lg-bend-yn, 0) * var(--bend-weight) * var(--bend-rotate, 0) * 1deg))
+    skewX(calc(var(--lg-bend-xn, 0) * var(--bend-weight) * -0.55deg));
+}
+.agent-libraries .liquid-card-icon {
+  --bend-weight: 0.135;
+  --bend-rotate: 1.6;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--track);
+}
+.agent-libraries .liquid-card-count {
+  --bend-weight: 0.18;
+  --bend-rotate: -1.6;
+  margin-left: auto;
+  color: var(--muted);
+}
+.agent-libraries .liquid-melt-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: transparent;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+.agent-libraries .liquid-melt-focus {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: var(--radius);
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+  pointer-events: none;
+  z-index: 10000;
+}
+.agent-libraries .liquid-melt-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.agent-libraries .liquid-thumb:active,
+.agent-libraries .liquid-drag-card:active,
+.agent-libraries .liquid-melt-card:active {
+  cursor: grabbing;
+}
+.agent-libraries .metal-stage {
+  min-height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.agent-libraries .metal-host {
+  height: 40px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gradient-accent);
+  color: white;
+  font-size: 13px;
+}
+.agent-libraries .metal-host-circle {
+  width: 40px;
+  padding: 0;
+}
+.agent-libraries .metal-composition {
+  width: 280px;
+  max-width: 100%;
+}
+.agent-libraries .metal-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.agent-libraries .metal-reflection-label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--track);
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.agent-libraries .metal-hint {
+  margin: 14px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+}
+.agent-libraries .metal-text-row,
+.agent-libraries .metal-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.agent-libraries .metal-plan-label {
+  position: relative;
+  color: var(--muted);
+  font: 500 24px / 1.2 system-ui;
+}
+.agent-libraries .metal-badge-row {
+  font-size: 14px;
+  color: var(--foreground);
+}
+.agent-libraries .image-host {
+  width: 320px;
+  height: 240px;
+  max-width: 100%;
+  border-radius: 24px;
+  background: var(--track);
+}
+
+.agent-libraries fieldset.demo-actions {
+  border: 0;
+  padding: 0;
+  margin-inline: 0;
+}
+.agent-libraries .preview-stage .image-gen-root {
+  max-width: 100%;
+}
+.agent-libraries .preview-stage .image-host {
+  height: auto;
+  aspect-ratio: 4 / 3;
+}
+@container (width < 550px) {
+  .agent-libraries .voice-demo {
+    width: min(280px, 100%);
+  }
+  .agent-libraries .voice-host {
+    padding: 24px 16px;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .agent-libraries .image-demo {
+    max-width: 100%;
+  }
+}
