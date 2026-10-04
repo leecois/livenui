@@ -1,0 +1,20 @@
+{
+  "extends": "tsconfig/nextjs.json",
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["./*"],
+      "fumadocs-mdx:collections/*": ["./.source/*"]
+    },
+    "types": ["node", "react", "react-dom", "bun"]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "content/**/*.mdx",
+    "**/*.mts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "next.config.ts"
+  ],
+  "exclude": ["node_modules"]
+}
