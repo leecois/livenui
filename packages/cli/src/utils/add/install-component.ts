@@ -24,7 +24,7 @@ export function createComponentInstaller(options: {
   const projectDir = path.resolve(options.projectDir ?? process.cwd())
   const project = createEmptyProject()
   const installedFiles = new Set<string>()
-  const downloadedComps = new Map<string, DownloadedComponents>()
+  const downloadedComps = new Map<string, OutputComponent>()
 
   function buildFileList(downloaded: DownloadedComponents): OutputFile[] {
     const map = new Map<string, OutputFile>()
@@ -109,24 +109,26 @@ export function createComponentInstaller(options: {
       }
     },
     async download(name: string): Promise<DownloadedComponents> {
-      registryPath(name)
-      const cached = downloadedComps.get(name)
-      if (cached) return cached
+      const result: DownloadedComponents = []
+      const visited = new Set<string>()
+      const ancestors = new Set<string>()
+      const visit = async (id: string): Promise<void> => {
+        registryPath(id)
+        if (ancestors.has(id)) throw new Error(`Circular registry dependency: ${id}`)
+        if (visited.has(id)) return
 
-      const comp = validateRegistryComponent(
-        await resolver(`${name}.json`).catch((e) => {
-          log.error(`component ${name} not found:`)
-          log.error(String(e))
-          process.exit(1)
-        })
-      )
-      const result: DownloadedComponents = [comp]
-      downloadedComps.set(name, result)
-
-      for (const sub of comp.subComponents) {
-        result.push(...(await this.download(sub)))
+        let comp = downloadedComps.get(id)
+        if (!comp) {
+          comp = validateRegistryComponent(await resolver(`${id}.json`))
+          downloadedComps.set(id, comp)
+        }
+        visited.add(id)
+        ancestors.add(id)
+        result.push(comp)
+        for (const sub of comp.subComponents) await visit(sub)
+        ancestors.delete(id)
       }
-
+      await visit(name)
       return result
     },
     transform(filePath: string, file: OutputFile, fileList: OutputFile[]) {

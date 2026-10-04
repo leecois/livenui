@@ -76,6 +76,8 @@ Run `bun test tests/registry.test.ts tests/config.test.ts tests/discovery.test.t
 
 Registry file targets and resolver names are untrusted paths. Reject absolute, traversal and encoded traversal paths. Preflight all parent/child outputs against the captured project root and reject escaping symlinks before writing any file. Configured sibling aliases and symlinks inside that root remain valid. Recheck destinations immediately before writes; do not claim protection against concurrent hostile filesystem mutation.
 
+Resolve each component once per dependency traversal, preserving parent-first order. Cache validated component payloads rather than partially expanded dependency lists, so shared children are unique and a failed child can be retried. Reject circular dependencies before writing files.
+
 The command factory in `packages/cli/src/program.ts` owns global option propagation. Dependency installation must reject nonzero subprocess exits and must not announce success after failure. Run `bun test tests/cli.test.ts tests/registry.test.ts` for installer changes, then the full gate.
 
 ## Dependency maintenance

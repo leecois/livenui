@@ -53,6 +53,68 @@ async function inProject(run: (project: string, outside: string) => Promise<void
 }
 
 describe('registry installation containment', () => {
+  test('downloads shared child components once in dependency order', async () => {
+    const requests: string[] = []
+    const children: Record<string, string[]> = {
+      parent: ['left', 'right'],
+      left: ['shared'],
+      right: ['shared'],
+      shared: [],
+    }
+    const installer = createComponentInstaller({
+      config,
+      resolver: async (name) => {
+        requests.push(name)
+        const id = name.replace(/\.json$/, '')
+        return { ...component([]), name: id, subComponents: children[id] }
+      },
+    })
+    expect((await installer.download('parent')).map((item) => item.name)).toEqual([
+      'parent',
+      'left',
+      'shared',
+      'right',
+    ])
+    await installer.download('right')
+    expect(requests).toEqual(['parent.json', 'left.json', 'shared.json', 'right.json'])
+  })
+
+  for (const children of [['parent'], ['child']]) {
+    test(`rejects ${children[0] === 'parent' ? 'self' : 'indirect'} dependency cycles before writes`, async () => {
+      await inProject(async (project) => {
+        const installer = createComponentInstaller({
+          projectDir: project,
+          config,
+          resolver: async (name) => ({
+            ...component([file(`${name}.txt`)]),
+            subComponents: name === 'parent.json' ? children : ['parent'],
+          }),
+        })
+        await expect(installer.install('parent')).rejects.toThrow('Circular registry dependency')
+        expect(await readdir(project)).toEqual([])
+      })
+    })
+  }
+
+  test('retries a failed child without reusing an incomplete dependency list', async () => {
+    let childRequests = 0
+    const installer = createComponentInstaller({
+      config,
+      resolver: async (name) => {
+        if (name === 'parent.json')
+          return { ...component([]), name: 'parent', subComponents: ['child'] }
+        if (++childRequests === 1) return { name: 'invalid' }
+        return { ...component([]), name: 'child' }
+      },
+    })
+    await expect(installer.download('parent')).rejects.toThrow()
+    expect((await installer.download('parent')).map((item) => item.name)).toEqual([
+      'parent',
+      'child',
+    ])
+    expect(childRequests).toBe(2)
+  })
+
   for (const target of [
     '../../outside/new.txt',
     '/tmp/escape.txt',
