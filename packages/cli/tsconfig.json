@@ -1,0 +1,14 @@
+{
+  "extends": "tsconfig/base.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "noEmit": true,
+    "lib": ["ESNext"],
+    "module": "ESNext",
+    "target": "ES2020",
+    "types": ["node"]
+  },
+  "exclude": ["node_modules"]
+}
