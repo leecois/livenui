@@ -1,0 +1,392 @@
+{
+  "baseline": "0167d7f",
+  "layout": "Fumadocs Glass retained",
+  "removedComponents": [
+    "staggered-menu",
+    "scroll-stack",
+    "blur-text",
+    "shiny-text",
+    "gradient-text",
+    "decrypted-text",
+    "glitch-text",
+    "fuzzy-text",
+    "waves",
+    "noise",
+    "spotlight-card",
+    "star-border",
+    "grid-motion",
+    "count-up",
+    "aurora",
+    "particles"
+  ],
+  "removedDocumentation": "apps/docs/content/docs/blog",
+  "removedPreviewSystem": "apps/docs/components/preview",
+  "retainedWorkspaces": [
+    "apps/docs",
+    "packages/ui",
+    "packages/cli",
+    "packages/tsconfig"
+  ],
+  "replacementLibraries": [
+    "border-beam",
+    "thinking-orbs",
+    "metal-fx",
+    "liquid-gooey",
+    "voice-glow",
+    "img-fx",
+    "bot-avatars"
+  ],
+  "legacyRoutes": "/blog and descendants redirect to /agents",
+  "registry": "seven typed package adapters at /r and /registry; clean regeneration removes retired entries",
+  "removedAppDependencies": [
+    "@ai-sdk/openai-compatible",
+    "@ai-sdk/react",
+    "@fumadocs/mdx-remote",
+    "@radix-ui/react-dialog",
+    "@radix-ui/react-hover-card",
+    "ai",
+    "class-variance-authority",
+    "feed",
+    "framer-motion",
+    "gsap",
+    "hast-util-to-jsx-runtime",
+    "lenis",
+    "mermaid",
+    "octokit",
+    "ogl",
+    "remark",
+    "remark-gfm",
+    "remark-rehype",
+    "soltux-ui"
+  ],
+  "validation": {
+    "typecheck": "20 tasks passed",
+    "lint": "passed",
+    "documentationLinks": "passed",
+    "tests": {
+      "passed": 9,
+      "failed": 0,
+      "assertions": 22159
+    },
+    "productionBuild": "11 tasks passed",
+    "browser": {
+      "profiles": [
+        {
+          "width": 1440,
+          "theme": "light",
+          "root": "/agents",
+          "cards": 7,
+          "overflow": false,
+          "errors": []
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "root": "/agents",
+          "cards": 7,
+          "overflow": false,
+          "errors": []
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "root": "/agents",
+          "cards": 7,
+          "overflow": false,
+          "errors": []
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "root": "/agents",
+          "cards": 7,
+          "overflow": false,
+          "errors": []
+        }
+      ],
+      "registryEntries": 7,
+      "legacyAssetsRemoved": true,
+      "legacyRedirect": 308,
+      "referencesAndSearch": "passed"
+    },
+    "sourceComments": {
+      "introducedComments": 0,
+      "typeScriptFilesReviewed": 17,
+      "patternMatchesReviewed": 6,
+      "matches": "documentation URLs, runtime URLs and glob strings"
+    },
+    "originalRootLayoutUnchanged": true,
+    "environmentFilesUnchanged": true
+  },
+  "gallery": {
+    "route": "/agents/gallery",
+    "alias": "/gallery",
+    "examples": 83,
+    "studioDeepLinks": true,
+    "builtInPresets": true,
+    "filtersAndSearch": true,
+    "renderLifecycle": "example renderers mount only while near the viewport"
+  },
+  "finalValidation": {
+    "typecheck": "20 tasks passed",
+    "lint": "passed",
+    "documentationLinks": "passed",
+    "tests": {
+      "passed": 11,
+      "failed": 0,
+      "assertions": 22500
+    },
+    "productionBuild": "11 tasks passed",
+    "interactions": {
+      "checks": [
+        "9 orb states, sizes, clipboard, keyboard tabs, JSON validation, preset persistence and JSON round trip",
+        "5 border beam sizes and 8 palettes",
+        "18 bot shapes, 5 materials, 3 states, hats and glasses",
+        "Metal ring/text/badge with matching export and pause controls",
+        "Liquid morph/move/melt/bend and matching child prop export",
+        "3 image presets and reveal/hide/regenerate cycle controls",
+        "Voice glow/dots/lines, simulation, real audio stream and track cleanup on navigation",
+        "All Studio library routes and browser history",
+        "Shared theme and gradient emphasis preserved in Glass layout",
+        "Local search finds agent documentation",
+        "Native Glass mobile sidebar navigation and keyboard close control",
+        "Reduced motion starts the workbench paused"
+      ],
+      "errors": []
+    },
+    "requestErrors": [],
+    "gallery": {
+      "profiles": [
+        {
+          "width": 1440,
+          "theme": "light",
+          "overflow": false,
+          "errors": [],
+          "previewLifecycle": "only visible samples mounted",
+          "accent": {
+            "fill": "linear-gradient(120deg, rgb(31, 102, 244), rgb(75, 44, 232))",
+            "color": "rgb(255, 255, 255)"
+          }
+        },
+        {
+          "width": 1440,
+          "theme": "dark",
+          "overflow": false,
+          "errors": [],
+          "previewLifecycle": "only visible samples mounted",
+          "accent": {
+            "fill": "linear-gradient(120deg, rgb(31, 102, 244), rgb(75, 44, 232))",
+            "color": "rgb(255, 255, 255)"
+          }
+        },
+        {
+          "width": 390,
+          "theme": "light",
+          "overflow": false,
+          "errors": [],
+          "previewLifecycle": "only visible samples mounted",
+          "accent": {
+            "fill": "linear-gradient(120deg, rgb(31, 102, 244), rgb(75, 44, 232))",
+            "color": "rgb(255, 255, 255)"
+          }
+        },
+        {
+          "width": 390,
+          "theme": "dark",
+          "overflow": false,
+          "errors": [],
+          "previewLifecycle": "only visible samples mounted",
+          "accent": {
+            "fill": "linear-gradient(120deg, rgb(31, 102, 244), rgb(75, 44, 232))",
+            "color": "rgb(255, 255, 255)"
+          }
+        }
+      ],
+      "examplesLoaded": [
+        "beam-size-sm",
+        "beam-size-md",
+        "beam-size-line",
+        "beam-size-pulse-outside",
+        "beam-size-pulse-inner",
+        "beam-colorVariant-colorful",
+        "beam-colorVariant-mono",
+        "beam-colorVariant-ocean",
+        "beam-colorVariant-sunset",
+        "beam-colorVariant-forest",
+        "beam-colorVariant-candy",
+        "beam-colorVariant-ice",
+        "beam-colorVariant-gold",
+        "orbs-state-working",
+        "orbs-state-searching",
+        "orbs-state-solving",
+        "orbs-state-listening",
+        "orbs-state-connecting",
+        "orbs-state-weaving",
+        "orbs-state-composing",
+        "orbs-state-breathing",
+        "orbs-state-shaping",
+        "metal-preset-chromatic",
+        "metal-preset-silver",
+        "metal-preset-gold",
+        "metal-text",
+        "metal-badge",
+        "gooey-morph",
+        "gooey-move",
+        "gooey-melt",
+        "gooey-bend",
+        "voice-type-default",
+        "voice-type-pill",
+        "voice-type-mobile",
+        "voice-look-glow",
+        "voice-look-dots",
+        "voice-look-lines",
+        "voice-colorVariant-colorful",
+        "voice-colorVariant-mono",
+        "voice-colorVariant-ocean",
+        "voice-colorVariant-sunset",
+        "voice-colorVariant-forest",
+        "voice-colorVariant-candy",
+        "voice-colorVariant-ice",
+        "voice-colorVariant-gold",
+        "image-preset-pixels-organic",
+        "image-preset-pixels-mechanic",
+        "image-preset-sweep-gradient",
+        "avatars-type-clover",
+        "avatars-type-flower",
+        "avatars-type-triangle",
+        "avatars-type-square",
+        "avatars-type-blob",
+        "avatars-type-ghost",
+        "avatars-type-circle",
+        "avatars-type-drop",
+        "avatars-type-star",
+        "avatars-type-droid",
+        "avatars-type-mech",
+        "avatars-type-alien",
+        "avatars-type-hexagon",
+        "avatars-type-cat",
+        "avatars-type-cloud",
+        "avatars-type-pill",
+        "avatars-type-pebble",
+        "avatars-type-puddle",
+        "avatars-shading-crisp",
+        "avatars-shading-smooth",
+        "avatars-shading-plastic",
+        "avatars-shading-flat",
+        "avatars-shading-fabric",
+        "avatars-state-default",
+        "avatars-state-working",
+        "avatars-state-sleeping",
+        "avatars-hat-beret",
+        "avatars-hat-beanie",
+        "avatars-hat-party",
+        "avatars-hat-crown",
+        "avatars-glasses-round",
+        "avatars-glasses-square",
+        "avatars-glasses-shades",
+        "avatars-headphones",
+        "avatars-bow-tie"
+      ],
+      "deepLinks": [
+        "Gallery reflective text opens the MetalText component",
+        "beam example deep link preserves props",
+        "orbs example deep link preserves props",
+        "metal example deep link preserves props",
+        "gooey example deep link preserves props",
+        "voice example deep link preserves props",
+        "image example deep link preserves props",
+        "avatars example deep link preserves props"
+      ],
+      "errors": [],
+      "requestErrors": [],
+      "renderReadinessChecked": true
+    },
+    "metalFirstFrame": "all five configurations render non-empty frames and remain pixel-stable when reduced motion pauses playback",
+    "frozenInstall": "passed with no lockfile changes",
+    "logs": [
+      "/tmp/soltu-component-replacement-check.log",
+      "/tmp/soltu-examples-check.log"
+    ],
+    "metalPlayback": {
+      "variants": [
+        {
+          "variant": "ring",
+          "initialFrameVisible": true,
+          "pauseStable": true,
+          "resumeControlPassed": true
+        },
+        {
+          "variant": "text",
+          "initialFrameVisible": true,
+          "pauseStable": true,
+          "resumeControlPassed": true
+        },
+        {
+          "variant": "badge",
+          "initialFrameVisible": true,
+          "pauseStable": true,
+          "resumeControlPassed": true
+        }
+      ],
+      "errors": []
+    },
+    "customPreviewAndExportControls": {
+      "checks": [
+        "Border beam custom corner radius matches the host and exported props",
+        "Image custom pool loads locally and exports one image attribute with the configured radius"
+      ],
+      "errors": []
+    },
+    "commentAudit": {
+      "introducedSourceComments": 0,
+      "stagedDiff": "reviewed before the local commit",
+      "typeScriptFilesReviewed": 11,
+      "patternMatchesReviewed": 1,
+      "matches": "README provenance URL; no source comment additions"
+    }
+  },
+  "referenceFeatureCoverage": {
+    "publicRendering": "all seven source packages and public exports retained",
+    "variants": "beam shapes/palettes, nine orb states, eighteen avatar shapes and five materials, metal ring/text/badge, four liquid effects, three voice looks and three image presets",
+    "studio": "full documented parameter surfaces, validated JSON, code/prompt export, local presets, portable JSON, pause/replay and example deep links",
+    "agentReference": "plain-text downloadable reference and LLM documentation endpoints",
+    "privateBackendNotConnected": [
+      "authentication",
+      "billing",
+      "cloud presets",
+      "hosted agent chat"
+    ]
+  },
+  "preservation": {
+    "originalRootGlassLayoutUnchanged": true,
+    "environmentHashesUnchanged": true,
+    "repositoryAndInfrastructurePreserved": true
+  },
+  "design": {
+    "tokens": "existing Fumadocs colors and centralized --gradient-accent",
+    "acceptedContrastTradeoff": "bright gradient emphasis retains white text in both themes",
+    "skippedRequirement": "public founder, executive and internal-team identity presentation"
+  },
+  "commits": [
+    {
+      "hash": "09d44fa",
+      "subject": "refactor(ui): replace legacy catalog with agent libraries"
+    },
+    {
+      "hash": "089b6c3",
+      "subject": "fix(ui): render metal previews across pause and context changes"
+    },
+    {
+      "subject": "feat(ui): add agent example gallery and studio starting points",
+      "hash": "see repository history"
+    }
+  ],
+  "push": "not performed",
+  "resolvedFindings": [
+    "retired registry assets are removed during clean regeneration",
+    "Metal previews paint a visible first frame before shared playback pauses",
+    "destroyed WebGL contexts cannot send lifecycle events to replacement renderers",
+    "configured image pools and corner radii are reflected in previews",
+    "image code exports contain one image-pool attribute"
+  ]
+}

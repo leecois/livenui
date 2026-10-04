@@ -1,0 +1,476 @@
+{
+  "analysisDate": "2026-10-03",
+  "baselineCommit": "e4276b4",
+  "scope": "Five manifests, four workspaces, resolved lockfile graph, source imports, peer ranges, build graph, CI and deployment configuration.",
+  "workspaceConfiguration": {
+    "workspaceGlobs": ["apps/*", "packages/*"],
+    "packageManager": {
+      "before": "bun@1.3.10",
+      "after": "bun@1.4.2"
+    },
+    "linker": "hoisted",
+    "nodeEngines": {
+      "before": ">=20",
+      "after": "^22.12.0 || ^24.0.0 || >=26.0.0"
+    },
+    "validationRuntime": {
+      "bun": "1.4.2",
+      "node": "24.21.0"
+    },
+    "ciBunVersion": {
+      "before": "1.3.1",
+      "after": "Read packageManager from package.json"
+    },
+    "deployment": {
+      "nodePackage": "nodejs_24",
+      "install": "bun install --frozen-lockfile",
+      "build": "bunx turbo run build --filter=./apps/docs",
+      "start": "bun run --filter ./apps/docs start",
+      "executed": false,
+      "bunVersion": "Read packageManager from package.json during setup",
+      "setup": "npm install --global \"$(node -p 'require(\"./package.json\").packageManager')\"",
+      "setupCommandValidatedInIsolatedPrefix": true
+    },
+    "workspaces": [
+      {
+        "name": "@lee/docs",
+        "path": "apps/docs",
+        "version": "0.1.0",
+        "private": true,
+        "internalDependencies": {
+          "soltux-ui": "workspace:*",
+          "soltux": "workspace:*",
+          "tsconfig": "workspace:*"
+        },
+        "scripts": {
+          "build": "bun build:pre && next build && bun build:post",
+          "build:post": "bun ./scripts/post-build.ts",
+          "build:pre": "bun ./scripts/pre-build.ts",
+          "clean": "rimraf .next",
+          "dev": "next dev --turbopack",
+          "lint": "fumadocs-mdx && bun --preload ./scripts/preload.ts ./scripts/lint.ts && bunx biome lint --write --diagnostic-level=error",
+          "postinstall": "fumadocs-mdx",
+          "start": "next start",
+          "typecheck": "next typegen && tsc --noEmit"
+        }
+      },
+      {
+        "name": "soltux",
+        "path": "packages/cli",
+        "version": "0.0.3",
+        "private": false,
+        "internalDependencies": {
+          "tsconfig": "workspace:*"
+        },
+        "scripts": {
+          "build": "tsup",
+          "clean": "rimraf dist",
+          "dev": "tsup --watch",
+          "lint": "bunx biome lint --write --diagnostic-level=error",
+          "typecheck": "node ../../node_modules/typescript-native/bin/tsc --noEmit"
+        }
+      },
+      {
+        "name": "soltux-ui",
+        "path": "packages/ui",
+        "version": "0.0.2",
+        "private": false,
+        "internalDependencies": {
+          "soltux": "workspace:*",
+          "tsconfig": "workspace:*"
+        },
+        "scripts": {
+          "build": "node ../../node_modules/typescript-native/bin/tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+          "clean": "rimraf dist",
+          "dev": "concurrently \"node ../../node_modules/typescript-native/bin/tsc -w --project tsconfig.build.json\" \"tsc-alias -w -p tsconfig.build.json\"",
+          "lint": "bunx biome lint --write --diagnostic-level=error",
+          "typecheck": "node ../../node_modules/typescript-native/bin/tsc --noEmit"
+        }
+      },
+      {
+        "name": "tsconfig",
+        "path": "packages/tsconfig",
+        "version": "0.0.0",
+        "private": true,
+        "internalDependencies": {},
+        "scripts": {}
+      }
+    ],
+    "productionBuildOrder": ["soltux", "soltux-ui", "@lee/docs"],
+    "sharedTypeScriptConfiguration": [
+      "packages/tsconfig/base.json",
+      "packages/tsconfig/nextjs.json",
+      "packages/tsconfig/react-library.json"
+    ]
+  },
+  "dependencyTree": {
+    "sourceOfFullGraph": "bun.lock",
+    "baselineGraph": "git show e4276b4:bun.lock",
+    "before": {
+      "lockEntries": 1484,
+      "uniquePackageNames": 1223
+    },
+    "after": {
+      "lockEntries": 1815,
+      "uniquePackageNames": 1501
+    },
+    "removableDuplicates": 0,
+    "parallelVersions": "Retained where upstream version ranges or native platform variants differ; no forced transitive major overrides."
+  },
+  "dependencyChangesByManifest": {
+    "package.json": {
+      "devDependencies": {
+        "@biomejs/biome": ["^2.3.14", "^2.5.15"],
+        "@changesets/cli": ["^2.29.8", "^3.0.3"],
+        "@next/bundle-analyzer": ["16.1.6", "16.3.8"],
+        "@parcel/watcher": [null, "^2.6.0"],
+        "@types/bun": ["^1.3.8", "^1.4.2"],
+        "@types/mdx": ["^2.0.13", "^2.0.14"],
+        "@types/node": ["^25.2.2", "^26.6.4"],
+        "@types/react": ["^19.2.13", "^19.3.0"],
+        "@types/react-dom": ["^19.2.3", "^19.3.0"],
+        "@unlighthouse/cli": [null, "^0.19.0"],
+        "concurrently": ["^9.2.1", "^10.0.5"],
+        "minimatch": ["^10.1.2", "^10.2.6"],
+        "proxy-agent": [null, "^8.0.2"],
+        "react": ["^19.2.4", "^19.3.0"],
+        "react-dom": ["^19.2.4", "^19.3.0"],
+        "sherif": [null, "^1.13.0"],
+        "sort-package-json": ["^3.6.1", "^4.0.0"],
+        "turbo": ["^2.8.3", "^2.11.7"],
+        "typescript": ["^5.9.3", "npm:@typescript/typescript6@^6.0.2"],
+        "typescript-native": [null, "npm:typescript@^7.0.2"]
+      }
+    },
+    "apps/docs/package.json": {
+      "dependencies": {
+        "@ai-sdk/openai-compatible": ["^2.0.28", "^3.0.62"],
+        "@ai-sdk/react": ["^3.0.80", "^4.0.130"],
+        "@fumadocs/mdx-remote": ["^1.4.5", "^1.5.2"],
+        "@next/env": [null, "16.3.8"],
+        "@radix-ui/react-dialog": ["^1.1.15", "^1.1.23"],
+        "@radix-ui/react-hover-card": ["^1.1.15", "^1.1.23"],
+        "@radix-ui/react-tooltip": ["^1.2.8", "^1.2.16"],
+        "@takumi-rs/core": ["^0.67.2", "^2.14.0"],
+        "@takumi-rs/helpers": ["^0.67.2", "^2.14.0"],
+        "@takumi-rs/image-response": ["^0.67.2", "^2.14.0"],
+        "ai": ["^6.0.78", "^7.0.127"],
+        "class-variance-authority": [null, "^0.7.1"],
+        "feed": ["^5.2.0", "^6.0.0"],
+        "framer-motion": [null, "^14.0.0"],
+        "fumadocs-core": ["^16.5.2", "^16.15.18"],
+        "fumadocs-docgen": ["^3.0.6", "^3.1.1"],
+        "fumadocs-mdx": ["^14.2.7", "^15.4.6"],
+        "fumadocs-twoslash": ["^3.1.13", "^4.0.1"],
+        "fumadocs-typescript": ["^5.1.2", "^5.4.1"],
+        "fumadocs-ui": ["^16.5.2", "^16.15.18"],
+        "gsap": [null, "^3.15.0"],
+        "hast-util-to-jsx-runtime": [null, "^2.3.6"],
+        "katex": ["^0.16.28", "^0.19.0"],
+        "latest": ["^0.2.0", null],
+        "lenis": [null, "^1.3.26"],
+        "lucide-react": ["^0.563.0", "^1.50.0"],
+        "mermaid": ["^11.12.2", "^12.1.0"],
+        "next": ["16.1.6", "16.3.8"],
+        "next-themes": [null, "^0.4.6"],
+        "next-validate-link": ["^1.6.4", "^1.6.7"],
+        "oxc-transform": ["^0.112.0", "^0.152.0"],
+        "react": ["^19.2.4", "^19.3.0"],
+        "react-dom": ["^19.2.4", "^19.3.0"],
+        "remark": [null, "^15.0.1"],
+        "remark-gfm": [null, "^4.0.1"],
+        "remark-rehype": [null, "^11.1.2"],
+        "shiki": ["^3.22.0", "^4.5.0"],
+        "soltux-ui": [null, "workspace:*"],
+        "tailwind-merge": [null, "^3.7.0"],
+        "twoslash": ["^0.3.6", "^0.3.9"],
+        "unist-util-visit": [null, "^5.1.0"],
+        "zod": [null, "^4.6.5"]
+      },
+      "devDependencies": {
+        "@next/bundle-analyzer": [null, "16.3.8"],
+        "@tailwindcss/postcss": ["^4.1.18", "^4.3.3"],
+        "@types/hast": [null, "^3.0.5"],
+        "@types/mdast": [null, "^4.0.4"],
+        "@types/mdx": [null, "^2.0.14"],
+        "rimraf": ["^6.1.2", "^6.1.3"],
+        "tailwindcss": ["^4.1.18", "^4.3.3"],
+        "typescript": [null, "^7.0.2"]
+      }
+    },
+    "packages/cli/package.json": {
+      "dependencies": {
+        "@clack/prompts": ["^1.0.0", "^1.8.1"],
+        "commander": ["^14.0.3", "^15.0.0"],
+        "package-manager-detector": ["^1.6.0", "^1.8.0"],
+        "tinyexec": ["^1.0.2", "^1.3.1"],
+        "ts-morph": ["^27.0.2", "^28.0.0"],
+        "zod": ["^4.3.6", "^4.6.5"]
+      },
+      "devDependencies": {
+        "@types/node": ["^25.2.2", "^26.6.4"],
+        "rimraf": [null, "^6.1.3"],
+        "shadcn": ["^3.8.4", "^4.21.1"],
+        "tsup": [null, "^8.5.1"]
+      }
+    },
+    "packages/ui/package.json": {
+      "dependencies": {
+        "@radix-ui/react-accordion": ["^1.2.12", "^1.2.20"],
+        "@radix-ui/react-collapsible": ["^1.1.12", "^1.1.20"],
+        "@radix-ui/react-dialog": ["^1.1.15", "^1.1.23"],
+        "@radix-ui/react-direction": ["^1.1.1", "^1.1.4"],
+        "@radix-ui/react-navigation-menu": ["^1.2.14", "^1.2.22"],
+        "@radix-ui/react-popover": ["^1.1.15", "^1.1.23"],
+        "@radix-ui/react-presence": ["^1.1.5", "^1.1.10"],
+        "@radix-ui/react-scroll-area": ["^1.2.10", "^1.2.18"],
+        "@radix-ui/react-slot": ["^1.2.4", "^1.3.3"],
+        "@radix-ui/react-tabs": ["^1.1.13", "^1.1.21"],
+        "framer-motion": ["^12.34.0", "^14.0.0"],
+        "fumadocs-core": [null, "^16.15.18"],
+        "gsap": ["^3.14.2", "^3.15.0"],
+        "lenis": ["^1.3.17", "^1.3.26"],
+        "postcss-selector-parser": ["^7.1.1", "^7.1.6"],
+        "react-medium-image-zoom": ["^5.4.0", "^5.4.9"],
+        "tailwind-merge": ["^3.4.0", "^3.7.0"]
+      },
+      "devDependencies": {
+        "@next/eslint-plugin-next": ["16.1.6", "16.3.8"],
+        "@tailwindcss/cli": ["^4.1.18", "^4.3.3"],
+        "@types/react": ["^19.2.13", "^19.3.0"],
+        "@types/react-dom": ["^19.2.3", "^19.3.0"],
+        "next": ["16.1.6", "16.3.8"],
+        "rimraf": [null, "^6.1.3"],
+        "tailwindcss": ["^4.1.18", "^4.3.3"],
+        "tsc-alias": ["^1.8.16", "^1.9.7"]
+      }
+    }
+  },
+  "stableExternalReleases": {
+    "@ai-sdk/openai-compatible": "3.0.62",
+    "@ai-sdk/react": "4.0.130",
+    "@biomejs/biome": "2.5.15",
+    "@changesets/cli": "3.0.3",
+    "@clack/prompts": "1.8.1",
+    "@fumadocs/mdx-remote": "1.5.2",
+    "@next/bundle-analyzer": "16.3.8",
+    "@next/env": "16.3.8",
+    "@next/eslint-plugin-next": "16.3.8",
+    "@oramacloud/client": "2.1.4",
+    "@parcel/watcher": "2.6.0",
+    "@radix-ui/react-accordion": "1.2.20",
+    "@radix-ui/react-collapsible": "1.1.20",
+    "@radix-ui/react-dialog": "1.1.23",
+    "@radix-ui/react-direction": "1.1.4",
+    "@radix-ui/react-hover-card": "1.1.23",
+    "@radix-ui/react-navigation-menu": "1.2.22",
+    "@radix-ui/react-popover": "1.1.23",
+    "@radix-ui/react-presence": "1.1.10",
+    "@radix-ui/react-scroll-area": "1.2.18",
+    "@radix-ui/react-slot": "1.3.3",
+    "@radix-ui/react-tabs": "1.1.21",
+    "@radix-ui/react-tooltip": "1.2.16",
+    "@tailwindcss/cli": "4.3.3",
+    "@tailwindcss/postcss": "4.3.3",
+    "@takumi-rs/core": "2.14.0",
+    "@takumi-rs/helpers": "2.14.0",
+    "@takumi-rs/image-response": "2.14.0",
+    "@total-typescript/ts-reset": "0.6.1",
+    "@types/bun": "1.4.2",
+    "@types/hast": "3.0.5",
+    "@types/lodash.merge": "4.6.9",
+    "@types/mdast": "4.0.4",
+    "@types/mdx": "2.0.14",
+    "@types/node": "26.6.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@typescript/typescript6": "6.0.2",
+    "@unlighthouse/cli": "0.19.0",
+    "ai": "7.0.127",
+    "class-variance-authority": "0.7.1",
+    "commander": "15.0.0",
+    "concurrently": "10.0.5",
+    "feed": "6.0.0",
+    "framer-motion": "14.0.0",
+    "fumadocs-core": "16.15.18",
+    "fumadocs-docgen": "3.1.1",
+    "fumadocs-mdx": "15.4.6",
+    "fumadocs-twoslash": "4.0.1",
+    "fumadocs-typescript": "5.4.1",
+    "fumadocs-ui": "16.15.18",
+    "gsap": "3.15.0",
+    "hast-util-to-jsx-runtime": "2.3.6",
+    "katex": "0.19.0",
+    "lenis": "1.3.26",
+    "lodash.merge": "4.6.2",
+    "lucide-react": "1.50.0",
+    "mermaid": "12.1.0",
+    "minimatch": "10.2.6",
+    "next": "16.3.8",
+    "next-themes": "0.4.6",
+    "next-validate-link": "1.6.7",
+    "octokit": "5.0.5",
+    "ogl": "1.0.11",
+    "oxc-transform": "0.152.0",
+    "package-manager-detector": "1.8.0",
+    "picocolors": "1.1.1",
+    "postcss-selector-parser": "7.1.6",
+    "proxy-agent": "8.0.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-medium-image-zoom": "5.4.9",
+    "rehype-katex": "7.0.1",
+    "remark": "15.0.1",
+    "remark-gfm": "4.0.1",
+    "remark-math": "6.0.0",
+    "remark-rehype": "11.1.2",
+    "rimraf": "6.1.3",
+    "scroll-into-view-if-needed": "3.1.0",
+    "shadcn": "4.21.1",
+    "sherif": "1.13.0",
+    "shiki": "4.5.0",
+    "sort-package-json": "4.0.0",
+    "tailwind-merge": "3.7.0",
+    "tailwindcss": "4.3.3",
+    "tailwindcss-animate": "1.0.7",
+    "tinyexec": "1.3.1",
+    "ts-morph": "28.0.0",
+    "tsc-alias": "1.9.7",
+    "tsup": "8.5.1",
+    "turbo": "2.11.7",
+    "twoslash": "0.3.9",
+    "typescript": "7.0.2",
+    "unist-util-visit": "5.1.0",
+    "zod": "4.6.5"
+  },
+  "compatibilityChanges": [
+    "Declare direct docs imports and the missing soltux-ui workspace edge instead of relying on incidental hoisting.",
+    "Declare fumadocs-core as a UI dependency and package-local build/clean tools.",
+    "Use TypeScript 7.0.2 for typechecking/UI compilation, plus npm:@typescript/typescript6@6.0.2 for the programmatic API required by tsup and twoslash.",
+    "Select the native compiler explicitly for CLI/UI scripts to avoid competing tsc binaries.",
+    "Make Node/React/Bun type discovery explicit and generate Next.js route/image types before docs typechecking.",
+    "Suppress the TypeScript 6 baseUrl deprecation only inside tsup declaration generation, which injects baseUrl internally.",
+    "Remove obsolete MDX JSX augmentation and await asynchronous MDX Bun plugin registration.",
+    "Preserve the removed source-code icon as a local SVG with its existing shape.",
+    "Add the UI production build from the existing TypeScript emit and alias configuration.",
+    "Pin workspace audit/Lighthouse utilities and align their optional peer packages.",
+    "Remove unused latest@0.2.0 and its obsolete npm subtree after verifying no source imports."
+  ],
+  "installation": {
+    "upgradeCommand": "npx --yes npm-check-updates -u --deep --target latest",
+    "cleaned": [
+      "Root/workspace node_modules",
+      "Generated dist directories",
+      ".source",
+      ".next",
+      ".turbo",
+      "bun.lock"
+    ],
+    "cache": "New empty task-local cache; shared caches belonging to other projects were preserved.",
+    "installCommand": "bun install --force --no-cache --cache-dir <empty-task-cache>",
+    "deduplicationCommand": "bun dedupe",
+    "reproducibilityCommand": "bun install --frozen-lockfile",
+    "legacyPeerFlagsUsed": false,
+    "forcedTransitiveOverridesUsed": false
+  },
+  "validation": {
+    "stableReleases": {
+      "declaredEntriesChecked": 117,
+      "uniqueExternalPackages": 95,
+      "deviations": []
+    },
+    "sourceImports": {
+      "issues": {}
+    },
+    "peers": {
+      "installedPackages": 1538,
+      "peerEdges": 526,
+      "optionalMissing": 104,
+      "issues": []
+    },
+    "stablePeerRangeNormalization": {
+      "tailwindcss-animate": ">=3.0.0 || insiders checked as >=3.0.0 for stable versions"
+    },
+    "commandsInOrder": [
+      "bun dedupe --check",
+      "Installed dependency peer validation",
+      "bun run lint:ws",
+      "bun run typecheck",
+      "bun run lint",
+      "bun run build"
+    ],
+    "allRequiredCommandsPassed": true,
+    "biomeLintedSourceFiles": 125,
+    "docsLinkValidation": {
+      "urls": 24,
+      "errors": 0
+    },
+    "productionBuilds": {
+      "cli": "ESM and bundled declarations",
+      "ui": "JavaScript and declarations with resolved aliases",
+      "docs": {
+        "staticOutputs": 75
+      }
+    },
+    "uiComponentJavaScriptDeclarationPairs": 10,
+    "productionHttpChecks": {
+      "count": 76,
+      "allStatus200": true
+    },
+    "browser": {
+      "pages": 15,
+      "viewports": ["desktop-light", "desktop-dark", "mobile-light"],
+      "errors": []
+    },
+    "cliSmokeChecks": ["--help", "--version (0.0.3)"],
+    "changedFileBiomeCheck": "passed",
+    "gitDiffCheck": "passed",
+    "ciConfiguration": "Parsed and validated Bun version source, frozen install, lint and typecheck steps",
+    "deploymentConfiguration": "Parsed TOML; setup command installed Bun 1.4.2 into an isolated temporary prefix",
+    "registryJsonArtifacts": {
+      "count": 65,
+      "allParsed": true,
+      "workspaceProtocolsLeaked": false
+    },
+    "stagedCommentCheck": "Requested grep executed before every commit; matches contain only lockfile hashes, URLs and JSON glob strings. No source comments added."
+  },
+  "remainingFindings": {
+    "securityAudit": {
+      "count": 5,
+      "high": 4,
+      "low": 1,
+      "packages": [
+        "basic-ftp@5.3.1",
+        "esbuild@0.27.7",
+        "extract-zip@2.0.1",
+        "node-forge@1.4.0"
+      ],
+      "details": "bun audit v1.4.2 (744846f84)\n\nbasic-ftp@5.3.1\n  proxy-agent > pac-proxy-agent > get-uri > basic-ftp\n  high: basic-ftp: Quadratic-time CPU denial of service in Client.list() Unix directory-listing parser (RE_LINE backtracking) (<=6.2.0) - https://github.com/advisories/GHSA-c475-qrg2-pj4r\n\nesbuild@0.27.7, 0.28.2\n  workspace:@lee/docs > fumadocs-mdx > esbuild\n  workspace:soltux > tsup > bundle-require > esbuild\n  @unlighthouse/cli > @unlighthouse/core > @unlighthouse/client > @tailwindcss/vite > vite > esbuild\n  workspace:@lee/docs > lenis > @nuxt/kit > unctx > unplugin > esbuild\n  low: esbuild allows arbitrary file read when running the development server on Windows (>=0.27.3 <0.28.1) - https://github.com/advisories/GHSA-g7r4-m6w7-qqqr\n\nextract-zip@2.0.1\n  @unlighthouse/cli > @unlighthouse/core > @puppeteer/browsers > extract-zip\n  high: extract-zip unvalidated symlink path traversal (<=2.0.1) - https://github.com/advisories/GHSA-jmr9-qjv8-65gv\n  high: extract-zip allows arbitrary file writes through symlink archive entries (<=2.0.1) - https://github.com/advisories/GHSA-7pqw-9j4j-h8q3\n\nnode-forge@1.4.0\n  @unlighthouse/cli > @unlighthouse/server > listhen > node-forge\n  high: node-forge RSA PKCS#1 v1.5 signature verification accepts extra nested DigestAlgorithm elements (<=1.4.0) - https://github.com/advisories/GHSA-86w9-cpqp-85rv\n\n5 vulnerabilities (4 high, 1 low)\n\n  bun audit fix           upgrade the vulnerable packages within their ranges\n  bun audit fix --latest  also cross major versions\n"
+    },
+    "buildWarnings": [
+      "Registry generator cannot find dependency info for its own soltux-ui registry reference.",
+      "Missing metadataBase falls back to localhost."
+    ],
+    "blockedOptionalInstallScripts": [
+      "@parcel/watcher@2.6.0",
+      "@tailwindcss/cli nested @parcel/watcher@2.5.1",
+      "puppeteer@25.12.0",
+      "vue-demi@0.14.10"
+    ],
+    "verificationLimits": [
+      "Search index synchronization skipped because no private API key is configured.",
+      "No dedicated project test suite exists; runtime checks cover public routes and representative browser pages.",
+      "Lighthouse scanning, remote AI calls, CI runners and container deployment were not executed."
+    ],
+    "designConstraints": {
+      "accentGradientRecoloring": "No changes; contrast warnings remain accepted trade-offs.",
+      "teamIdentityRecommendations": "Skipped; no identity content added."
+    }
+  },
+  "delivery": {
+    "branch": "main",
+    "localCommitsOnly": true,
+    "pushExecuted": false,
+    "subagentsUsed": false
+  }
+}
