@@ -1,0 +1,13 @@
+[phases.setup]
+nixPkgs = ["bun", "nodejs_24", "gcc-unwrapped"]
+cmds = ["npm install --global \"$(node -p 'require(\"./package.json\").packageManager')\""]
+
+[phases.install]
+cmds = ["bun install --frozen-lockfile"]
+cacheDirectories = ["/root/.bun", ".turbo"]
+
+[phases.build]
+cmds = ["bun run build"]
+
+[start]
+cmd = "bun run start"
