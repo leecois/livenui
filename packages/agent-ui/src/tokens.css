@@ -1,0 +1,33 @@
+:root {
+  --gradient-accent: linear-gradient(120deg, hsl(220 91% 54%), hsl(250 80% 54%));
+  --livenui-space-1: 4px;
+  --livenui-space-2: 8px;
+  --livenui-space-3: 12px;
+  --livenui-space-4: 16px;
+  --livenui-space-5: 20px;
+  --livenui-space-6: 24px;
+  --livenui-space-8: 32px;
+  --livenui-radius-panel: 24px;
+  --livenui-radius-control: 9999px;
+  --livenui-control-height: 44px;
+  --livenui-font-body: 14px;
+  --livenui-font-label: 13px;
+  --livenui-font-caption: 12px;
+}
+.agent-libraries {
+  --foreground: var(--color-fd-foreground);
+  --background: var(--color-fd-background);
+  --muted: var(--color-fd-muted-foreground);
+  --surface: var(--color-fd-card);
+  --surface-glass: color-mix(in srgb, var(--color-fd-card) 94%, transparent);
+  --track: var(--color-fd-muted);
+  --border: var(--color-fd-border);
+  --accent: hsl(220 91% 54%);
+  --ring: var(--color-fd-ring);
+  --radius: var(--livenui-radius-panel);
+  --shadow: 0 4px 24px color-mix(in srgb, var(--foreground) 4%, transparent);
+  min-width: 0;
+  container-type: inline-size;
+  font-size: var(--livenui-font-body);
+  line-height: 1.5;
+}
