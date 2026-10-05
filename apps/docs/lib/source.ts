@@ -3,6 +3,7 @@ import type { InferMetaType, InferPageType } from 'fumadocs-core/source'
 import { loader } from 'fumadocs-core/source'
 import { icons } from 'lucide-react'
 import { createElement } from 'react'
+import { navigationIcon } from './navigation-icon'
 
 export const source = loader({
   baseUrl: '/',
@@ -11,9 +12,9 @@ export const source = loader({
       name: 'studio-navigation',
       transformPageTree: {
         file(node) {
-          return node.type === 'page' && node.url === '/agents/studio'
-            ? { ...node, url: '/studio' }
-            : node
+          if (node.type !== 'page') return node
+          const url = node.url === '/agents/studio' ? '/studio' : node.url
+          return { ...node, url, icon: navigationIcon(url) ?? node.icon }
         },
       },
     },

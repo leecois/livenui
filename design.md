@@ -69,6 +69,10 @@ Prefer reduced motion in regression captures; real effects initially pause when 
 
 Controls remain keyboard reachable. Tabs implement ArrowLeft/Right and Home/End with one tab stop. Mobile navigation contains focus, supports Escape and restores the opener. Focus rings use `--ring`; visible focus must survive clipping and theme changes. Decorative symbols/chevrons use `aria-hidden` and never become standalone focus targets.
 
+Sidebar destinations use 18px decorative SVG icons with consistent strokes and 44px row targets. Icon detail motion follows each destination's function, runs once for hover or keyboard focus and settles within 840ms. Selecting a destination adds a short appearance cue. Keep labels and row positions stationary, retain the shell's navigation colors and disable all icon animation for reduced motion. Avoid perpetual sidebar effects or extra render engines.
+
+The mobile drawer keeps its header and theme footer outside the scrollable destination list. Keyboard focus must reveal the whole destination row at compact heights; fixed controls must never cover it.
+
 Microphone access starts only through an explicit user action; simulation is separate. Stop tracks and render resources on teardown. Do not add autoplay capture or cloud persistence to local examples.
 
 ## CSS ownership and prohibited patterns

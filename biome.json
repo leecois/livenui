@@ -24,6 +24,8 @@
       "apps/docs/app/api/search/**",
       "apps/docs/components/search.tsx",
       "apps/docs/lib/source.ts",
+      "apps/docs/lib/navigation-icon.tsx",
+      "apps/docs/app/navigation.css",
       "apps/docs/app/\\[...slug\\]/**",
       "apps/docs/app/page.tsx",
       "apps/docs/components/registry.mts",

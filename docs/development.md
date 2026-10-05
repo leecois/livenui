@@ -46,6 +46,12 @@ The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUB
 4. Add or amend a meaningful browser contract that would fail for the defect (alignment, typography, local overflow, interaction or focus).
 5. Run required checks, inspect screenshots and update the design guide if the intended contract changed.
 
+## Change a sidebar icon
+
+Edit `lib/navigation-icon.tsx` for route-specific SVG anatomy and `app/navigation.css` for shell-scoped motion. The source loader attaches icons to existing page-tree entries; preserve Studio URL normalization, accessible labels and a single active destination. Keep icons decorative and server-rendered, use local color tokens and finite CSS animation, and verify keyboard focus, hover, reduced motion and the mobile drawer with `e2e/sidebar-icons.spec.ts`.
+
+The owned drawer class keeps the existing shell header and footer fixed in its flex layout while the middle destination list owns scrolling. Verify the first and last link stay visible and hit-testable at compact heights when changing shell spacing or upgrading the layout package.
+
 ## Add or change an example
 
 Edit `lib/examples.ts`, preserving existing stable IDs. Configurations must parse with their exact library/variant and generate the correct public component import. Search names and use cases should be understandable to developers. Do not fork a separate catalog in gallery or Studio. Guide showcases select existing IDs through `lib/content.ts`; application-context demonstrations live in `lib/examples.ts` and receive the same validation. Run `bun test tests/examples.test.ts tests/discovery.test.ts`; then run full checks and affected browser journeys.

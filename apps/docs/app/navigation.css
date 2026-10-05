@@ -1,0 +1,157 @@
+#fd-glass-layout :is(#nd-sidebar, #nd-sidebar-mobile) a:has(> .navigation-icon) {
+  min-height: var(--livenui-control-height);
+  scroll-margin-block: var(--livenui-space-2);
+}
+
+#fd-glass-layout #nd-sidebar-mobile .livenui-navigation-drawer {
+  overflow-y: hidden;
+}
+
+#fd-glass-layout #nd-sidebar-mobile .livenui-navigation-drawer > :first-child,
+#fd-glass-layout #nd-sidebar-mobile .livenui-navigation-drawer > :last-child {
+  flex-shrink: 0;
+}
+
+#fd-glass-layout #nd-sidebar-mobile .livenui-navigation-drawer > :nth-child(2) {
+  min-height: 0;
+  overflow-y: auto;
+  padding-inline: var(--livenui-space-1);
+  scroll-padding-block: var(--livenui-space-2);
+}
+
+#fd-glass-layout :is(#nd-sidebar, #nd-sidebar-mobile) .navigation-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.navigation-icon-detail,
+.navigation-icon-wave path {
+  transform-box: view-box;
+  transform-origin: center;
+}
+
+.navigation-icon[data-navigation-icon="components"] {
+  --navigation-motion: navigation-turn;
+}
+
+.navigation-icon[data-navigation-icon="examples"] {
+  --navigation-motion: navigation-lift;
+}
+
+.navigation-icon[data-navigation-icon="studio"],
+.navigation-icon[data-navigation-icon="avatars"],
+.navigation-icon[data-navigation-icon="integration"] {
+  --navigation-motion: navigation-nudge;
+}
+
+.navigation-icon[data-navigation-icon="beam"] {
+  --navigation-motion: navigation-trace;
+}
+
+.navigation-icon[data-navigation-icon="orbs"] {
+  --navigation-motion: navigation-orbit;
+}
+
+.navigation-icon[data-navigation-icon="metal"],
+.navigation-icon[data-navigation-icon="image"] {
+  --navigation-motion: navigation-glint;
+}
+
+.navigation-icon[data-navigation-icon="gooey"] {
+  --navigation-motion: navigation-merge;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #fd-glass-layout :is(#nd-sidebar, #nd-sidebar-mobile) a:focus-visible .navigation-icon-detail {
+    animation: var(--navigation-motion) 700ms ease-in-out;
+  }
+
+  #fd-glass-layout :is(#nd-sidebar, #nd-sidebar-mobile) a:focus-visible .navigation-icon-wave path {
+    animation: navigation-wave 700ms ease-in-out;
+  }
+
+  #fd-glass-layout
+    :is(#nd-sidebar, #nd-sidebar-mobile)
+    a[class~="bg-fd-primary/10"]
+    > .navigation-icon {
+    animation: navigation-arrive 350ms ease-out;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    #fd-glass-layout :is(#nd-sidebar, #nd-sidebar-mobile) a:hover .navigation-icon-detail {
+      animation: var(--navigation-motion) 700ms ease-in-out;
+    }
+
+    #fd-glass-layout :is(#nd-sidebar, #nd-sidebar-mobile) a:hover .navigation-icon-wave path {
+      animation: navigation-wave 700ms ease-in-out;
+    }
+  }
+
+  .navigation-icon-wave path:nth-child(2n) {
+    animation-delay: 70ms;
+  }
+
+  .navigation-icon-wave path:nth-child(3) {
+    animation-delay: 140ms;
+  }
+}
+
+@keyframes navigation-arrive {
+  from {
+    opacity: 0.5;
+  }
+}
+
+@keyframes navigation-turn {
+  50% {
+    transform: rotate(12deg);
+  }
+}
+
+@keyframes navigation-lift {
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes navigation-nudge {
+  50% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes navigation-trace {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes navigation-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes navigation-glint {
+  50% {
+    transform: scale(1.18);
+    opacity: 0.5;
+  }
+}
+
+@keyframes navigation-merge {
+  50% {
+    transform: translate(-3px, -2px) scale(0.9);
+  }
+}
+
+@keyframes navigation-wave {
+  35% {
+    transform: scaleY(0.5);
+  }
+  70% {
+    transform: scaleY(1.12);
+  }
+}

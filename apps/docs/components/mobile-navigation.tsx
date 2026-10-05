@@ -47,6 +47,7 @@ export function MobileNavigation() {
   return (
     <SidebarDrawer
       contentProps={{
+        className: 'livenui-navigation-drawer',
         role: 'dialog',
         'aria-modal': true,
         'aria-label': 'Navigation',

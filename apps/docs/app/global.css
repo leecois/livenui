@@ -5,6 +5,7 @@
 @import 'fumadocs-twoslash/twoslash.css';
 @import '@livenui/agent-ui/tokens.css';
 @import '../features/component-library/styles.css';
+@import './navigation.css';
 
 @source ".";
 @source "../components";
