@@ -1,5 +1,6 @@
 import type { DrawConfig } from './draw';
 import { parseColor } from './color';
+import { reliefContours } from './relief-contours';
 export const PAD = 3;
 export const SPAN = 100 + 2 * PAD;
 const M = 64;
@@ -280,6 +281,7 @@ export function rasterize(path: Path2D, N: number): Uint8ClampedArray | null {
     return cov;
 }
 const forms = new Map<string, Form>();
+const fieldTops = new WeakMap<Form, number>();
 const pending = new Set<string>();
 const pathIds = new WeakMap<Path2D, string>();
 let nextPathId = 0;
@@ -417,6 +419,47 @@ export interface Relief {
     q: number;
 }
 const reliefs = new WeakMap<Form, Map<string, Relief>>();
+const contourPaths = new WeakMap<Relief, Path2D[]>();
+const coatingCache = new WeakMap<AnyCanvas, { version: number; mix: number; ao: number; form: Form; fur: Fur | null; shine: number; fade: number }>();
+function pathsForRelief(form: Form, relief: Relief): Path2D[] {
+    let paths = contourPaths.get(relief);
+    if (!paths) {
+        paths = reliefContours(form, relief, SPAN, PAD).map((loops) => {
+            const path = new Path2D();
+            for (const loop of loops) {
+                let area = 0;
+                for (let i = 0; i < loop.length; i += 2) {
+                    const j = (i + 2) % loop.length;
+                    area += loop[i] * loop[j + 1] - loop[j] * loop[i + 1];
+                }
+                const first = area < 0 ? loop.length - 2 : 0, step = area < 0 ? -2 : 2;
+                path.moveTo(loop[first], loop[first + 1]);
+                for (let i = first + step; i >= 0 && i < loop.length; i += step)
+                    path.lineTo(loop[i], loop[i + 1]);
+                path.closePath();
+            }
+            return path;
+        });
+        contourPaths.set(relief, paths);
+    }
+    return paths;
+}
+export function reliefClip(key: string, path: Path2D, rig: Pick<Rig, 'dev' | 'halfDepth' | 'round' | 'cy' | 'sy' | 'cp' | 'sp'>): Path2D | null {
+    const form = forms.get(`${key}|${tierFor(rig.dev)}|${Math.round(rig.halfDepth)}`);
+    if (!form)
+        return null;
+    const K = rig.dev <= 100 ? 14 : rig.dev <= 224 ? 20 : 26;
+    const relief = reliefFor(form, K, rig.round ?? 1);
+    const paths = pathsForRelief(form, relief);
+    const union = new Path2D();
+    const { cy, sy, cp, sp } = rig;
+    for (let k = 0; k < K; k++)
+        for (const sign of [-1, 1]) {
+            const z = sign * relief.z[k];
+            union.addPath(k === 0 ? path : paths[k], { a: cy, b: sy * sp, c: 0, d: cp, e: z * sy - 50 * cy, f: -z * cy * sp - 50 * sy * sp - 50 * cp });
+        }
+    return union;
+}
 export function reliefFor(form: Form, K: number, round: number): Relief {
     const q = Math.max(0.05, Math.min(1, round));
     const key = `${K}|${q.toFixed(2)}`;
@@ -475,12 +518,13 @@ export function reliefFor(form: Form, K: number, round: number): Relief {
     byKey.set(key, r);
     return r;
 }
-export function surfaceAt(key: string, halfDepth: number, x: number, y: number, round = 1): number | null {
+export function surfaceAt(key: string, halfDepth: number, x: number, y: number, round = 1, devicePx?: number): number | null {
     const prefix = `${key}|`, suffix = `|${Math.round(halfDepth)}`;
-    let form: Form | null = null;
-    for (const [id, f] of forms)
-        if (id.startsWith(prefix) && id.endsWith(suffix))
-            form = f;
+    let form: Form | null = devicePx === undefined ? null : forms.get(`${key}|${tierFor(devicePx)}|${Math.round(halfDepth)}`) ?? null;
+    if (devicePx === undefined)
+        for (const [id, f] of forms)
+            if (id.startsWith(prefix) && id.endsWith(suffix))
+                form = f;
     if (!form)
         return null;
     const { N, h } = form;
@@ -488,10 +532,14 @@ export function surfaceAt(key: string, halfDepth: number, x: number, y: number, 
     const fx = Math.min(N - 1, Math.max(0, (x + PAD) / u - 0.5)), fy = Math.min(N - 1, Math.max(0, (y + PAD) / u - 0.5));
     const x0 = Math.min(N - 2, fx | 0), y0 = Math.min(N - 2, fy | 0), tx = fx - x0, ty = fy - y0, i = y0 * N + x0;
     const v = (h[i] * (1 - tx) + h[i + 1] * tx) * (1 - ty) + (h[i + N] * (1 - tx) + h[i + N + 1] * tx) * ty;
-    let top = 0;
-    for (let k = 0; k < N * N; k++)
-        if (h[k] > top)
-            top = h[k];
+    let top = fieldTops.get(form);
+    if (top === undefined) {
+        top = 0;
+        for (let k = 0; k < N * N; k++)
+            if (h[k] > top)
+                top = h[k];
+        fieldTops.set(form, top);
+    }
     if (top <= 0)
         return 0;
     const q = Math.max(0.05, Math.min(1, round));
@@ -2757,6 +2805,72 @@ export function drawPlasticCap(ctx: CanvasRenderingContext2D, cfg: DrawConfig, r
         }
         st.spriteVersion = st.version;
         st.spriteFur = fur;
+    }
+    if (cfg.typeKey === 'connector') {
+        const paths = pathsForRelief(form, rel);
+        let coated = st.sprites[2];
+        if (!coated) {
+            const c = makeCanvas(spx);
+            const g = c && ctx2d(c, false);
+            if (!c || !g)
+                return false;
+            coated = st.sprites[2] = { c, g };
+        }
+        const cg = coated.g;
+        const face = Math.abs(rig.facing);
+        const fade = rig.dev < 160 ? 0 : face >= 0.88 ? 1 : face <= 0.55 ? 0 : (face - 0.55) / 0.33;
+        const shine = mat.shine ?? 0;
+        const cached = coatingCache.get(coated.c);
+        if (!cached || cached.version !== st.version || cached.mix !== st.mixVersion || cached.ao !== aoK || cached.form !== form || cached.fur !== fur || cached.shine !== shine || cached.fade !== fade) {
+            cg.setTransform(1, 0, 0, 1, 0, 0);
+            cg.globalAlpha = 1;
+            cg.globalCompositeOperation = 'copy';
+            cg.drawImage(capSrc as HTMLCanvasElement, 0, 0, spx, spx);
+            cg.globalCompositeOperation = 'source-atop';
+            if (fur?.dark && fur.light) {
+                const dark = gapFilm(fur, pal.base, mat.vivid ?? 0) ?? fur.dark;
+                const tips = tipFilm(fur, pal.base, mat.vivid ?? 0) ?? fur.light;
+                const lin = linearColor(pal.base);
+                const lum = Math.pow(0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2], 1 / 2.2);
+                const k = spx / SPAN;
+                cg.setTransform(k, 0, 0, k, PAD * k, PAD * k);
+                cg.drawImage(dark as HTMLCanvasElement, -PAD - FILM_M, -PAD - FILM_M, FILM_SPAN, FILM_SPAN);
+                cg.globalAlpha = 0.25 + 0.75 * lum;
+                cg.drawImage(tips as HTMLCanvasElement, -PAD - FILM_M, -PAD - FILM_M, FILM_SPAN, FILM_SPAN);
+                const sheen = fade > 0.01 ? sheenFilm(fur, pal.base, mat) : null;
+                if (sheen) {
+                    cg.globalAlpha = fade;
+                    cg.drawImage(sheen as HTMLCanvasElement, -PAD - FILM_M, -PAD - FILM_M, FILM_SPAN, FILM_SPAN);
+                }
+                cg.globalAlpha = 1;
+            }
+            cg.globalCompositeOperation = 'source-over';
+            coatingCache.set(coated.c, { version: st.version, mix: st.mixVersion, ao: aoK, form, fur, shine, fade });
+        }
+        const plane = (k: number, z: number, dark: number) => {
+            const e = z * sy - 50 * cy, fo = -z * cy * sp - 50 * m1 - 50 * cp;
+            ctx.save();
+            ctx.setTransform(ta, tb, tc, td, ca * e + cc * fo + ce, cb * e + cd * fo + cf);
+            ctx.clip(k === 0 ? cfg.path : paths[k], 'evenodd');
+            ctx.drawImage(coated!.c as HTMLCanvasElement, -PAD, -PAD, SPAN, SPAN);
+            if (dark > 0) {
+                ctx.globalAlpha = dark;
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-PAD, -PAD, SPAN, SPAN);
+            }
+            ctx.restore();
+        };
+        for (let k = K - 1; k >= 1; k--)
+            plane(k, -near * rel.z[k], backShade * (k / K));
+        if (fur) {
+            const e = -50 * cy, fo = -50 * m1 - 50 * cp;
+            ctx.setTransform(ta, tb, tc, td, ca * e + cc * fo + ce, cb * e + cd * fo + cf);
+            ctx.drawImage(st.sprites[0]!.c as HTMLCanvasElement, -PAD, -PAD, SPAN, SPAN);
+        }
+        for (let k = 0; k < K; k++)
+            plane(k, near * rel.z[k], 0);
+        ctx.setTransform(ca, cb, cc, cd, ce, cf);
+        return true;
     }
     const stretch = (lead + 50) / 100, shift = (lead - 50) / 2;
     const A = 1 + (stretch - 1) * ex * ex, B = (stretch - 1) * ex * ey, D = 1 + (stretch - 1) * ey * ey;

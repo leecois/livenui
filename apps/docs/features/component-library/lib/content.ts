@@ -75,7 +75,7 @@ export const content: Record<string, ComponentContent> = {
     purpose: 'Express agent states',
     description:
       'Give an assistant a character that follows the pointer and responds to working or sleeping states.',
-    hint: 'Move the pointer to change its gaze. Click the avatar to make it hop.',
+    hint: 'Try an agent mascot or choose another shape. Move the pointer to change its gaze; click to hop.',
     controls: ['type', 'state', 'shading', 'size'],
     labels: { type: 'Shape', state: 'Activity', shading: 'Material' },
     choices: {
@@ -84,11 +84,13 @@ export const content: Record<string, ComponentContent> = {
       shading: ['fabric', 'plastic', 'crisp', 'smooth', 'flat'],
     },
     featured: [
-      'avatars-type-clover',
-      'avatars-type-flower',
-      'avatars-type-ghost',
-      'avatars-type-star',
+      'avatars-type-arrowhead',
+      'avatars-type-chat',
+      'avatars-type-connector',
+      'avatars-type-bulb',
     ],
+    integration:
+      'Use arrowhead for discovery, chat for conversation, connector for coordination and bulb for research. These native shapes share all materials, states and interactions; no image assets are required.',
   },
 }
 

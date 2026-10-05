@@ -65,7 +65,7 @@ At viewport widths 320, 390, 768, 1024 and 1440px, no document overflow is allow
 
 ## Motion and accessibility
 
-Prefer reduced motion in regression captures; real effects initially pause when reduced motion is requested. Play enables the preview; SDKs may still reduce CSS motion according to the system preference. Replay replaces only the current preview instance. Lazy cards mount around the viewport; do not allocate all 83 GPU scenes at once.
+Prefer reduced motion in regression captures; real effects initially pause when reduced motion is requested. Play enables the preview; SDKs may still reduce CSS motion according to the system preference. Replay replaces only the current preview instance. Lazy cards mount around the viewport; do not allocate all 87 GPU scenes at once.
 
 Controls remain keyboard reachable. Tabs implement ArrowLeft/Right and Home/End with one tab stop. Mobile navigation contains focus, supports Escape and restores the opener. Focus rings use `--ring`; visible focus must survive clipping and theme changes. Decorative symbols/chevrons use `aria-hidden` and never become standalone focus targets.
 

@@ -14,9 +14,9 @@ test('quick settings, installation and Studio preserve one avatar configuration'
   await page.goto('/agents/avatars')
   await expect(page.getByRole('tab', { name: 'JSON', exact: true })).toHaveCount(0)
   await expect(page.getByRole('tab', { name: 'Saved', exact: true })).toHaveCount(0)
-  await page.getByRole('button', { name: 'Try Star bot', exact: true }).click()
+  await page.getByRole('button', { name: 'Try Chat bot', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Make it yours', exact: true })).toBeFocused()
-  await expect(page.getByRole('button', { name: 'Try Star bot', exact: true })).toHaveAttribute(
+  await expect(page.getByRole('button', { name: 'Try Chat bot', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true'
   )
@@ -29,7 +29,7 @@ test('quick settings, installation and Studio preserve one avatar configuration'
   await page.getByRole('button', { name: '▶ Play', exact: true }).click()
   const code = page.locator('.code-panel code')
   for (const prop of [
-    'type={"star"}',
+    'type={"chat"}',
     'state={"working"}',
     'size={64}',
     'shading={"plastic"}',

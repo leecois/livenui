@@ -1,6 +1,6 @@
 # Liven UI
 
-A developer component library with seven rendering SDKs, 83 configurable examples and a shared live playground in the Fumadocs Glass layout. Find an interaction, try it, configure it and copy integration code.
+A developer component library with seven rendering SDKs, 87 configurable examples and a shared live playground in the Fumadocs Glass layout. Find an interaction, try it, configure it and copy integration code.
 
 ## Start here
 

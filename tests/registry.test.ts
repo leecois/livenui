@@ -126,10 +126,21 @@ test('all registry sources install and exported examples typecheck in a separate
     const examples: string[] = []
     for (const library of libraries) {
       await installer.install(library.id)
-      for (const variant of library.id === 'metal' ? ['ring', 'text', 'badge'] : ['ring']) {
+      for (const variant of library.id === 'metal'
+        ? ['ring', 'text', 'badge']
+        : library.id === 'avatars'
+          ? ['ring', 'arrowhead', 'chat', 'connector', 'bulb']
+          : ['ring']) {
         const props =
-          library.id === 'metal' ? variantDefaults(library, variant) : defaults[library.id]
-        const code = snippet(configuredLibrary(library, variant), props)
+          library.id === 'metal'
+            ? variantDefaults(library, variant)
+            : library.id === 'avatars' && variant !== 'ring'
+              ? { ...defaults.avatars, type: variant }
+              : defaults[library.id]
+        const code = snippet(
+          configuredLibrary(library, library.id === 'avatars' ? 'ring' : variant),
+          props
+        )
         expect(code).toContain(sourceImport(library))
         const split = code.lastIndexOf('\n\n')
         const source = code.includes('export function ')

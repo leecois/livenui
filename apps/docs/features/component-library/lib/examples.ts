@@ -78,7 +78,7 @@ export const avatarContexts = libraries
   .flatMap((library) => [
     {
       example: example(library, 'context-inbox', 'Inbox assistant', {
-        type: 'star',
+        type: 'chat',
         state: 'working',
         size: 40,
       }),
@@ -87,7 +87,7 @@ export const avatarContexts = libraries
     },
     {
       example: example(library, 'context-research', 'Research assistant', {
-        type: 'ghost',
+        type: 'bulb',
         state: 'sleeping',
         size: 40,
       }),

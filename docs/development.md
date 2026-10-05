@@ -56,6 +56,10 @@ The owned drawer class keeps the existing shell header and footer fixed in its f
 
 Edit `lib/examples.ts`, preserving existing stable IDs. Configurations must parse with their exact library/variant and generate the correct public component import. Search names and use cases should be understandable to developers. Do not fork a separate catalog in gallery or Studio. Guide showcases select existing IDs through `lib/content.ts`; application-context demonstrations live in `lib/examples.ts` and receive the same validation. Run `bun test tests/examples.test.ts tests/discovery.test.ts`; then run full checks and affected browser journeys.
 
+## Change a bot mascot
+
+Read [mascot design and ownership](mascots.md). Add types, silhouettes and face presets in `packages/bot-avatars/src`, then update both catalog type fields, examples and the SDK guide. Reuse the existing material and animation pipeline. Keep faces inside the body during gaze changes and validate silhouette details at 32px as well as the default preview size. Run the mascot browser contracts and review every material before the full gates.
+
 ## Change a component API
 
 1. Implement in the owning SDK and preserve export/build contracts unless a breaking change is explicitly intended.

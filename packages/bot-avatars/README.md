@@ -2,7 +2,7 @@
 
 Liven UI maintains and distributes this component as editable source. The installation includes its licenses and available notices. Imports below assume the `@/components` alias; adjust it to your project.
 
-Animated bot avatars for React. Eighteen simple 3D shapes with living faces — round eyes that blink and glance, an optional mouth — and three states an agent can be in: idle, working and sleeping. Each one turns its head, looks around, hops and flips, and every state change is a cross-animation. Vector shapes drawn on a 2D canvas as a lit, inflated body in plush faux fur (or glossy plastic): no WebGL, no runtime dependencies.
+Animated bot avatars for React. Twenty-two simple 3D shapes with living faces — round eyes that blink and glance, an optional mouth — and three states an agent can be in: idle, working and sleeping. Each one turns its head, looks around, hops and flips, and every state change is a cross-animation. Vector shapes drawn on a 2D canvas as a lit, inflated body in plush faux fur (or glossy plastic): no WebGL, no runtime dependencies.
 
 [Live demo](https://libraries.dev/bots) · [Repository](https://github.com/Jakubantalik/Libraries.dev) · [Report an issue](https://github.com/Jakubantalik/Libraries.dev/issues)
 
@@ -24,7 +24,7 @@ function Agent({ busy }: { busy: boolean }) {
 
 ## Types
 
-Eighteen bodies, each with its own colour:
+Twenty-two bodies, each with its own colour:
 
 ```tsx
 <BotAvatar type="clover" />
@@ -45,6 +45,10 @@ Eighteen bodies, each with its own colour:
 <BotAvatar type="pill" />
 <BotAvatar type="pebble" />
 <BotAvatar type="puddle" />
+<BotAvatar type="arrowhead" />
+<BotAvatar type="chat" />
+<BotAvatar type="connector" />
+<BotAvatar type="bulb" />
 ```
 
 - `<BotAvatar type="clover" />`: sky
@@ -65,6 +69,24 @@ Eighteen bodies, each with its own colour:
 - `<BotAvatar type="pill" />`: indigo, a wide capsule
 - `<BotAvatar type="pebble" />`: sage, a wide flat stone
 - `<BotAvatar type="puddle" />`: pink, a taller lumpy blob
+
+### Agent mascots
+
+Four role-oriented shapes share the existing palette, two-eye face, materials and animation rig:
+
+| Type | Character | Suggested role |
+| --- | --- | --- |
+| `arrowhead` | Rounded forward arrow, sky blue | Discovery and outreach |
+| `chat` | Soft speech cushion with a reply tail, lavender | Support and conversation |
+| `connector` | Three open rounded arms, teal | Connections and coordination |
+| `bulb` | Soft polygonal lightbulb with a stepped base, yellow | Research and insights |
+
+```tsx
+<BotAvatar type="chat" shading="fabric" state="working" size={64} />
+<BotAvatar type="bulb" shading="plastic" state="default" size={96} />
+```
+
+These are native vector bodies, so gaze, click-to-hop, accessories, custom colors and reduced-motion behavior work through the existing API. Choose `face="mouth"` only when a mouth is wanted; the mascot presets use eyes alone. See the [design rationale](../../docs/mascots.md).
 
 ### Your own shape
 

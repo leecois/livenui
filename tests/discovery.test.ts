@@ -21,7 +21,7 @@ test('every library has a use case, an interaction hint and valid essential cont
 })
 
 test('example discovery supports public names, use cases, combined words and library filters', () => {
-  expect(searchExamples(examples, libraries, 'all', '')).toHaveLength(83)
+  expect(searchExamples(examples, libraries, 'all', '')).toHaveLength(87)
   const avatars = searchExamples(examples, libraries, 'all', '  BOT   AVATARS ')
   expect(avatars.length).toBeGreaterThan(0)
   expect(avatars.every((example) => example.library === 'avatars')).toBe(true)
@@ -60,7 +60,7 @@ test('the initial gallery batch represents all seven libraries without losing ex
   expect(new Set(ordered.map((example) => example.id))).toEqual(
     new Set(examples.map((example) => example.id))
   )
-  expect(ordered).toHaveLength(83)
+  expect(ordered).toHaveLength(87)
 })
 
 test('developers can find examples by their public component import names', () => {

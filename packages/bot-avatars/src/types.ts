@@ -1,5 +1,5 @@
 import type { CanvasHTMLAttributes, CSSProperties } from 'react';
-export type BotAvatarType = 'clover' | 'flower' | 'triangle' | 'square' | 'blob' | 'ghost' | 'circle' | 'drop' | 'star' | 'droid' | 'mech' | 'alien' | 'hexagon' | 'cat' | 'cloud' | 'pill' | 'pebble' | 'puddle';
+export type BotAvatarType = 'clover' | 'flower' | 'triangle' | 'square' | 'blob' | 'ghost' | 'circle' | 'drop' | 'star' | 'droid' | 'mech' | 'alien' | 'hexagon' | 'cat' | 'cloud' | 'pill' | 'pebble' | 'puddle' | 'arrowhead' | 'chat' | 'connector' | 'bulb';
 export type BotAvatarFace = 'eyes' | 'mouth';
 export type BotAvatarState = 'default' | 'working' | 'sleeping';
 export type BotAvatarSquashEase = 'sharp' | 'pulse' | 'soft' | 'bouncy';

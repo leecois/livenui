@@ -2860,14 +2860,14 @@
     "package": "bot-avatars",
     "component": "BotAvatar",
     "tagline": "A familiar face for every agent.",
-    "description": "Eighteen living shapes, five materials, expressive states and a wardrobe of playful accessories.",
+    "description": "Twenty-two living shapes, five materials, expressive states and a wardrobe of playful accessories.",
     "engine": "Canvas 2D",
     "version": "0.2.2",
     "fields": [
       {
         "name": "type",
         "type": "BotAvatarType",
-        "description": "Body shape. Default `clover`.",
+        "description": "Body shape, including `arrowhead`, `chat`, `connector` and `bulb` agent mascots. Default `clover`.",
         "kind": "select",
         "options": [
           "clover",
@@ -2887,7 +2887,11 @@
           "cloud",
           "pill",
           "pebble",
-          "puddle"
+          "puddle",
+          "arrowhead",
+          "chat",
+          "connector",
+          "bulb"
         ],
         "optional": true
       },
@@ -3372,7 +3376,7 @@
           {
             "name": "type",
             "type": "BotAvatarType",
-            "description": "Body shape. Default `clover`.",
+            "description": "Body shape, including `arrowhead`, `chat`, `connector` and `bulb` agent mascots. Default `clover`.",
             "kind": "select",
             "options": [
               "clover",
@@ -3392,7 +3396,11 @@
               "cloud",
               "pill",
               "pebble",
-              "puddle"
+              "puddle",
+              "arrowhead",
+              "chat",
+              "connector",
+              "bulb"
             ],
             "optional": true
           },

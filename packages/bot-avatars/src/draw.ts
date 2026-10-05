@@ -1,7 +1,7 @@
 import type { Pose } from './engine';
 import type { BotAvatarFace, BotAvatarShading } from './types';
 import { shade } from './color';
-import { drawPlasticCap, mulAffine, surfaceAt, type FurStyle } from './plastic';
+import { drawPlasticCap, mulAffine, reliefClip, surfaceAt, type FurStyle } from './plastic';
 import { drawGlasses, drawWearBehind, drawWearFront, type EyeSpot, type Wear, type WearRig } from './wear';
 export interface DrawConfig {
     path: Path2D;
@@ -335,11 +335,27 @@ export function draw(ctx: CanvasRenderingContext2D, box: number, pose: Pose, cfg
     const round = cfg.roundness ?? 1;
     const cushion = plasticDone;
     const sf = cushion ? 1 : profile(zf, cap);
-    const surface = (x: number, y: number) => (cushion ? surfaceAt(key, halfDepth, x, y, round) ?? 0.8 * halfDepth : halfDepth * sf);
+    const surface = (x: number, y: number) => (cushion ? surfaceAt(key, halfDepth, x, y, round, key === 'connector' ? box * dpr : undefined) ?? 0.8 * halfDepth : halfDepth * sf);
     const zFace = cushion ? 0.55 * surface(cfg.faceX, cfg.faceY) : halfDepth;
+    const contoured = cushion && cfg.typeKey === 'connector';
+    const faceDepth = contoured ? surface(cfg.faceX, cfg.faceY) : zFace;
     const fm0 = cy * sf, fm1 = sy * sp * sf, fm3 = cp * sf;
-    const fe = zf * sy * zFace - 50 * fm0;
-    const ffo = -zf * cy * sp * zFace - 50 * fm1 - 50 * fm3;
+    const fe = zf * sy * faceDepth - 50 * fm0;
+    const ffo = -zf * cy * sp * faceDepth - 50 * fm1 - 50 * fm3;
+    const faceDX = cfg.faceX - 50, faceDY = cfg.faceY - 50;
+    const faceZ = zf * faceDepth;
+    const faceX = contoured ? cy * faceDX + sy * faceZ : faceDX;
+    const faceY = contoured ? sy * sp * faceDX + cp * faceDY - cy * sp * faceZ : faceDY;
+    const volumeClip = contoured ? reliefClip(key, cfg.path, { dev: box * dpr, halfDepth, round, cy, sy, cp, sp }) : null;
+    const projectFace = contoured ? (x: number, y: number) => {
+        const X = cfg.faceX + x * cfg.faceScale, Y = cfg.faceY + y * cfg.faceScale;
+        const Z = zf * surface(X, Y);
+        return {
+            ...onSphere(x, y, pose.yaw, pose.pitch),
+            x: (cy * (X - 50) + sy * Z - faceX) / cfg.faceScale,
+            y: (sy * sp * (X - 50) + cp * (Y - 50) - cy * sp * Z - faceY) / cfg.faceScale,
+        };
+    } : undefined;
     let frontClip: Path2D | null = null;
     if (worn && typeof Path2D === 'function') {
         frontClip = new Path2D();
@@ -347,17 +363,19 @@ export function draw(ctx: CanvasRenderingContext2D, box: number, pose: Pose, cfg
     }
     if (facing > -0.2) {
         ctx.save();
-        {
+        if (volumeClip)
+            ctx.clip(volumeClip);
+        else {
             const [ca, cb, cc, cd, ce, cf] = body;
             ctx.setTransform(ca * fm0 + cc * fm1, cb * fm0 + cd * fm1, cc * fm3, cd * fm3, ca * fe + cc * ffo + ce, cb * fe + cd * ffo + cf);
             ctx.clip(cfg.path);
             ctx.setTransform(ca, cb, cc, cd, ce, cf);
         }
-        ctx.translate(cfg.faceX - 50, cfg.faceY - 50);
+        ctx.translate(faceX, faceY);
         ctx.scale(cfg.faceScale, cfg.faceScale);
         if (mode === 'plastic' && plasticDone)
             ctx.globalAlpha = 0.93;
-        const eyes = drawFace(ctx, pose, cfg);
+        const eyes = drawFace(ctx, pose, cfg, projectFace);
         ctx.globalAlpha = 1;
         const glasses = wear && wear.glasses !== 'none' ? wear.glasses : null;
         const turn = { yaw: pose.yaw, pitch: pose.pitch };
@@ -366,7 +384,7 @@ export function draw(ctx: CanvasRenderingContext2D, box: number, pose: Pose, cfg
         ctx.restore();
         if (glasses) {
             ctx.save();
-            ctx.translate(cfg.faceX - 50, cfg.faceY - 50);
+            ctx.translate(faceX, faceY);
             ctx.scale(cfg.faceScale, cfg.faceScale);
             drawGlasses(ctx, glasses, eyes, { lx, ly }, 'frame', turn);
             ctx.restore();
@@ -443,7 +461,7 @@ function mouthPath(m: Mouth): Path2D {
     mouthPaths.set(key, p);
     return p;
 }
-function drawFace(ctx: CanvasRenderingContext2D, pose: Pose, cfg: DrawConfig): [
+function drawFace(ctx: CanvasRenderingContext2D, pose: Pose, cfg: DrawConfig, project = onSphere): [
     EyeSpot,
     EyeSpot
 ] {
@@ -454,7 +472,7 @@ function drawFace(ctx: CanvasRenderingContext2D, pose: Pose, cfg: DrawConfig): [
     const lx = pose.lookX, ly = pose.lookY;
     const { yaw, pitch } = pose;
     const at = (x: number, y: number, fn: () => void, alpha = 1) => {
-        const q = onSphere(x, y, yaw, pitch);
+        const q = project(x, y, yaw, pitch);
         if (q.z <= 0.02 || alpha <= 0.01)
             return;
         ctx.save();
@@ -509,7 +527,7 @@ function drawFace(ctx: CanvasRenderingContext2D, pose: Pose, cfg: DrawConfig): [
         });
     }
     const spot = (x: number): EyeSpot => {
-        const q = onSphere(x, ey, yaw, pitch);
+        const q = project(x, ey, yaw, pitch);
         return { x: q.x, y: q.y, sx: q.sx, sy: q.sy, z: q.z, ox: x, oy: ey, fz: Math.sqrt(Math.max(0, FACE_R * FACE_R - x * x - ey * ey)) };
     };
     return [spot(-half), spot(half)];

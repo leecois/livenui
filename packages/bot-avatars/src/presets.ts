@@ -18,6 +18,10 @@ export const botAvatarPresets: Record<BotAvatarType, BotAvatarPreset> = {
     pill: { label: 'Pill', color: '#ACAAF3', face: 'eyes', faceX: 50, faceY: 50, faceScale: 0.9 },
     pebble: { label: 'Pebble', color: '#ABC793', face: 'eyes', faceX: 50, faceY: 50, faceScale: 0.95 },
     puddle: { label: 'Puddle', color: '#EE8BDB', face: 'eyes', faceX: 50, faceY: 50, faceScale: 0.95 },
+    arrowhead: { label: 'Arrowhead', color: '#41C4FF', face: 'eyes', faceX: 57.5, faceY: 50, faceScale: 0.75, brightness: 1.2, saturation: 1.59 },
+    chat: { label: 'Chat', color: '#ACAAF3', face: 'eyes', faceX: 50, faceY: 46, faceScale: 1 },
+    connector: { label: 'Connector', color: '#1ED3C6', face: 'eyes', faceX: 30, faceY: 50, faceScale: 0.72 },
+    bulb: { label: 'Bulb', color: '#EFDB8E', face: 'eyes', faceX: 50, faceY: 49, faceScale: 0.9, brightness: 1.1, saturation: 1.84 },
 };
 export const botAvatarTypes = Object.keys(botAvatarPresets) as BotAvatarType[];
 export const botAvatarFaces: BotAvatarFace[] = ['eyes', 'mouth'];

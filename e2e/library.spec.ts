@@ -324,9 +324,9 @@ test('all examples remain reachable and preview variants retain interactions', a
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto('/agents/gallery')
-  for (let count = 12; count < 83; count += 12) {
+  for (let count = 12; count < 87; count += 12) {
     await page.getByRole('button', { name: /Show \d+ more examples/ }).click()
-    await expect(page.locator('.example-card')).toHaveCount(Math.min(count + 12, 83))
+    await expect(page.locator('.example-card')).toHaveCount(Math.min(count + 12, 87))
   }
   await page.goto('/studio?library=metal')
   const components = page.getByRole('group', { name: 'Metal component' })
