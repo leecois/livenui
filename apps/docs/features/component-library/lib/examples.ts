@@ -1,13 +1,7 @@
 import { type Library, libraries, type Props, variantDefaults } from './config'
+import { optionLabel } from './content'
 
 export type Example = { id: string; library: string; name: string; variant: string; props: Props }
-
-function title(value: string | number) {
-  return String(value)
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
 
 function example(
   library: Library,
@@ -28,7 +22,9 @@ function example(
 function series(library: Library, field: string, group: string) {
   const options = library.fields.find((item) => item.name === field)?.options || []
   return options.map((value) =>
-    example(library, `${field}-${value}`, `${title(value)} ${group}`, { [field]: value })
+    example(library, `${field}-${value}`, `${optionLabel(field, value)} ${group}`, {
+      [field]: value,
+    })
   )
 }
 
@@ -46,7 +42,9 @@ export const examples: Example[] = libraries.flatMap((library) => {
       ]
     case 'gooey':
       return ['morph', 'move', 'melt', 'bend'].map((effect) =>
-        example(library, effect, `${title(effect)} shapes`, { item: { effect, radius: 999 } })
+        example(library, effect, `${optionLabel('effect', effect)} shapes`, {
+          item: { effect, radius: 999 },
+        })
       )
     case 'voice':
       return [
@@ -74,3 +72,26 @@ export const examples: Example[] = libraries.flatMap((library) => {
 export function findExample(library: string, id?: string) {
   return examples.find((example) => example.library === library && example.id === id)
 }
+
+export const avatarContexts = libraries
+  .filter((library) => library.id === 'avatars')
+  .flatMap((library) => [
+    {
+      example: example(library, 'context-inbox', 'Inbox assistant', {
+        type: 'star',
+        state: 'working',
+        size: 40,
+      }),
+      description: 'Sorting new messages',
+      status: 'Working',
+    },
+    {
+      example: example(library, 'context-research', 'Research assistant', {
+        type: 'ghost',
+        state: 'sleeping',
+        size: 40,
+      }),
+      description: 'Ready for the next task',
+      status: 'Sleeping',
+    },
+  ])
