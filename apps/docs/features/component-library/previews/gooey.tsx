@@ -383,10 +383,10 @@ function MeltScene({ group, item, paused, showcase }: SceneProps) {
 
 const scenes = { morph: MorphScene, move: MoveScene, bend: BendScene, melt: MeltScene }
 const hints = {
-  morph: 'Open the menu. Watch each action pull apart and flow back.',
-  move: 'Drag the thumb to feel the spring, stretch and trailing edge.',
-  bend: 'Drag the card, then release. Its surface bends and settles.',
-  melt: 'Drag the images together to blend their edges and colors.',
+  morph: 'Open the menu to pull the actions apart. Press Escape to close it.',
+  move: 'Drag the thumb or use arrow keys. Home and End move to the limits.',
+  bend: 'Drag the card or move it with arrow keys. Escape returns it home.',
+  melt: 'Drag the images together or use arrow keys. Home resets the position.',
 }
 
 export default function GooeyPreview({ props, paused, showcase, onPropsChange }: PreviewProps) {

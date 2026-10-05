@@ -40,8 +40,11 @@ for (const [id, renderer] of Object.entries(renderers)) {
     await expect(page.locator('.preview-stage [role="alert"]')).toHaveCount(0)
     await noOverflow(page)
     await accent(page.locator('.code-panel .button-accent'))
+    await accent(page.getByRole('tab', { name: 'Preview', exact: true }))
+    for (const pill of await page.locator('.field-option input:checked + span').all())
+      await accent(pill)
     const boxes = await page
-      .locator('.playground-column, .controls-panel, .integration-panel')
+      .locator('.playground-column, .controls-panel, .code-panel')
       .evaluateAll((nodes) =>
         nodes.map((node) => {
           const rect = node.getBoundingClientRect()
@@ -79,6 +82,53 @@ for (const [id, renderer] of Object.entries(renderers)) {
         return rect.left < box.left - 1 || rect.right > box.right + 1
       })
     ).toBe(false)
+    for (const [index, card] of (await page.locator('.showcase-example').all()).entries()) {
+      await card.scrollIntoViewIfNeeded()
+      await expect(
+        card.locator('[data-beam], canvas, .metal-fx-root, .gooey-demo, .voice-host').first()
+      ).toBeVisible()
+      if (id === 'beam') {
+        const bounds = await card.locator('.beam-host').evaluate((host) => {
+          const frame = host.closest('.card-preview')?.getBoundingClientRect()
+          if (!frame) throw new Error('Missing example frame')
+          const box = host.getBoundingClientRect()
+          return {
+            top: box.top,
+            bottom: box.bottom,
+            left: box.left,
+            right: box.right,
+            frame: { top: frame.top, bottom: frame.bottom, left: frame.left, right: frame.right },
+          }
+        })
+        expect(bounds.top).toBeGreaterThanOrEqual(bounds.frame.top - 1)
+        expect(bounds.bottom).toBeLessThanOrEqual(bounds.frame.bottom + 1)
+        expect(bounds.left).toBeGreaterThanOrEqual(bounds.frame.left - 1)
+        expect(bounds.right).toBeLessThanOrEqual(bounds.frame.right + 1)
+      }
+      if (id === 'gooey')
+        expect(
+          await card.locator('.card-preview').evaluate((frame) => {
+            const bounds = frame.getBoundingClientRect()
+            return [
+              ...frame.querySelectorAll(
+                '.liquid-menu-button:not([aria-hidden="true"]), .liquid-thumb, .liquid-drag-card'
+              ),
+            ].every((control) => {
+              const box = control.getBoundingClientRect()
+              return box.left >= bounds.left - 1 && box.right <= bounds.right + 1
+            })
+          })
+        ).toBe(true)
+      await card.screenshot({ path: testInfo.outputPath(`starting-example-${index}.png`) })
+    }
+    if (id === 'avatars') {
+      const context = page.getByRole('region', { name: 'Agent sidebar example' })
+      await context.scrollIntoViewIfNeeded()
+      await expect(context.locator('canvas')).toHaveCount(2)
+      await context.screenshot({ path: testInfo.outputPath('agent-sidebar.png') })
+    }
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await expect(page.locator('.showcase-example').first().locator(renderer).first()).toBeVisible()
     await page.screenshot({ path: testInfo.outputPath('full-page.png'), fullPage: true })
     expect(errors).toEqual([])
   })
@@ -166,6 +216,13 @@ test('JSON, local presets, installation and portable transfer', async ({ page })
   await page.goto('/studio?library=orbs')
   const code = page.locator('.code-panel code')
   await expect(page.locator('#prop-state')).toBeVisible()
+  for (const tab of await page
+    .getByRole('tablist', { name: 'Configuration view' })
+    .getByRole('tab')
+    .all()) {
+    const target = await tab.getAttribute('aria-controls')
+    await expect(page.locator(`[id="${target}"]`)).toHaveCount(1)
+  }
   await page.getByRole('tab', { name: 'Controls', exact: true }).focus()
   await page.keyboard.press('End')
   await expect(page.getByRole('tab', { name: 'JSON', exact: true })).toBeFocused()
@@ -177,19 +234,20 @@ test('JSON, local presets, installation and portable transfer', async ({ page })
   await page.getByLabel('Edit component props').fill('{"state":"listening","size":32}')
   await page.getByRole('button', { name: /Apply configuration/ }).click()
   await expect(code).toContainText('listening')
-  await page.getByRole('tab', { name: 'Examples & saved', exact: true }).click()
+  await page.getByRole('tab', { name: 'Saved', exact: true }).click()
   await page.getByLabel('Preset name', { exact: true }).fill('Device preset')
   await page.getByRole('button', { name: /Save preset/ }).click()
   await page.reload()
-  await page.getByRole('tab', { name: 'Examples & saved', exact: true }).click()
+  await page.getByRole('tab', { name: 'Saved', exact: true }).click()
   await page.getByRole('button', { name: /^Device preset/ }).click()
   await expect(code).toContainText('listening')
   await page.getByRole('button', { name: 'Delete Device preset', exact: true }).click()
+  await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
   await page.getByLabel('Package manager', { exact: true }).selectOption('pnpm')
   await expect(page.locator('.install-command code')).toHaveText(
     'pnpm dlx shadcn@latest add http://localhost:3000/r/orbs.json'
   )
-  await page.locator('summary').filter({ hasText: 'Save or hand off' }).click()
+  await page.locator('summary').filter({ hasText: 'Import & export' }).click()
   await accent(page.getByRole('button', { name: /Copy agent prompt/ }))
   const file = page.getByLabel('Import configuration file')
   await file.setInputFiles({
@@ -309,9 +367,9 @@ test('all examples remain reachable and preview variants retain interactions', a
   }
   await page.goto('/studio?library=avatars')
   await page
-    .getByRole('group', { name: 'Avatar activity' })
-    .getByRole('button', { name: 'Working', exact: true })
-    .click()
+    .getByRole('group', { name: 'Activity', exact: true })
+    .getByRole('radio', { name: 'Working', exact: true })
+    .check()
   await expect(page.locator('.code-panel code')).toContainText('working')
   await page.getByRole('button', { name: '▶ Play', exact: true }).click()
   await expect(page.locator('.preview-toolbar .eyebrow')).toHaveText('LIVE PREVIEW')
@@ -390,6 +448,7 @@ test('installation commands and copied code use maintained Liven UI source', asy
   request,
 }) => {
   await page.goto('/studio?library=orbs')
+  await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
   await expect(
     page.getByRole('heading', { name: '1. Add Liven UI source', exact: true })
   ).toBeVisible()

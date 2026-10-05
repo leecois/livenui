@@ -1,21 +1,55 @@
-import { Button, Select } from '@livenui/agent-ui'
+import { Button } from '@livenui/agent-ui'
+import type { ReactNode } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library, Preset } from '../lib/config'
-import { examples } from '../lib/examples'
+import { content } from '../lib/content'
 import type { Navigate } from '../lib/types'
 import { FieldControl } from './field-control'
 import { Link } from './link'
+
+function ControlContent({
+  studio,
+  tab,
+  children,
+}: {
+  studio: boolean
+  tab: string
+  children: ReactNode
+}) {
+  return studio ? (
+    ['controls', 'presets', 'json'].map((item) => (
+      <div
+        key={item}
+        className="control-content"
+        role="tabpanel"
+        id={`panel-${item}`}
+        aria-labelledby={`tab-${item}`}
+        hidden={tab !== item}
+      >
+        {tab === item && children}
+      </div>
+    ))
+  ) : (
+    <fieldset className="control-content" aria-label="Quick settings">
+      {children}
+    </fieldset>
+  )
+}
 
 export function ControlsPanel({
   library,
   presets,
   navigate,
   state,
+  studio = true,
+  studioLink,
 }: {
   library: Library
   presets: Preset[]
   navigate: Navigate
   state: PlaygroundState
+  studio?: boolean
+  studioLink?: string
 }) {
   const {
     controls,
@@ -31,8 +65,6 @@ export function ControlsPanel({
     setDraft,
     apply,
     notice,
-    startingPoint,
-    selectExample,
     presetName,
     setPresetName,
     save,
@@ -43,82 +75,102 @@ export function ControlsPanel({
   return (
     <aside className="controls-panel">
       <div className="controls-heading">
-        <h2>Customize</h2>
+        <div>
+          <h2>{studio ? 'Customize' : 'Quick settings'}</h2>
+          {studio && <p className="helper-text">Changes update the preview and code.</p>}
+        </div>
         <button type="button" className="text-button" onClick={reset}>
           Reset
         </button>
       </div>
-      <div className="control-tabs" role="tablist" aria-label="Configuration view">
-        {['controls', 'presets', 'json'].map((item) => (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === item}
-            id={`tab-${item}`}
-            aria-controls={`panel-${item}`}
-            key={item}
-            onClick={() => selectTab(item)}
-            tabIndex={tab === item ? 0 : -1}
-            onKeyDown={(event) => {
-              const tabs = ['controls', 'presets', 'json']
-              const index = tabs.indexOf(item)
-              const next =
-                event.key === 'ArrowRight'
-                  ? tabs[(index + 1) % tabs.length]
-                  : event.key === 'ArrowLeft'
-                    ? tabs[(index + tabs.length - 1) % tabs.length]
-                    : event.key === 'Home'
-                      ? tabs[0]
-                      : event.key === 'End'
-                        ? tabs[tabs.length - 1]
-                        : null
-              if (next) {
-                event.preventDefault()
-                selectTab(next)
-                document.getElementById(`tab-${next}`)?.focus()
-              }
-            }}
-          >
-            {item === 'json' ? 'JSON' : item === 'presets' ? 'Examples & saved' : 'Controls'}
-          </button>
-        ))}
-      </div>
-      <div
-        className="control-content"
-        role="tabpanel"
-        id={`panel-${tab}`}
-        aria-labelledby={`tab-${tab}`}
-      >
-        {tab === 'controls' && (
+      {studio && (
+        <div className="control-tabs" role="tablist" aria-label="Configuration view">
+          {['controls', 'presets', 'json'].map((item) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === item}
+              id={`tab-${item}`}
+              aria-controls={`panel-${item}`}
+              key={item}
+              onClick={() => selectTab(item)}
+              tabIndex={tab === item ? 0 : -1}
+              onKeyDown={(event) => {
+                const tabs = ['controls', 'presets', 'json']
+                const index = tabs.indexOf(item)
+                const next =
+                  event.key === 'ArrowRight'
+                    ? tabs[(index + 1) % tabs.length]
+                    : event.key === 'ArrowLeft'
+                      ? tabs[(index + tabs.length - 1) % tabs.length]
+                      : event.key === 'Home'
+                        ? tabs[0]
+                        : event.key === 'End'
+                          ? tabs[tabs.length - 1]
+                          : null
+                if (next) {
+                  event.preventDefault()
+                  selectTab(next)
+                  document.getElementById(`tab-${next}`)?.focus()
+                }
+              }}
+            >
+              {item === 'json' ? 'JSON' : item === 'presets' ? 'Saved' : 'Controls'}
+            </button>
+          ))}
+        </div>
+      )}
+      <ControlContent studio={studio} tab={tab}>
+        {(!studio || tab === 'controls') && (
           <>
-            <input
-              className="control-search"
-              type="search"
-              aria-label="Search controls"
-              placeholder="Find a setting…"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
+            {studio && all && (
+              <input
+                className="control-search"
+                type="search"
+                aria-label="Search controls"
+                placeholder="Find a setting…"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            )}
             <div className="fields">
               {controls.map((field) => (
                 <FieldControl
                   key={field.name}
                   field={field}
                   value={props[field.name]}
+                  label={content[library.id].labels?.[field.name]}
+                  choices={
+                    content[library.id].choices?.[field.name] ||
+                    (!studio && field.kind === 'select' && field.options.length <= 6
+                      ? field.options
+                      : undefined)
+                  }
                   set={(value) => update(field.name, value)}
                 />
               ))}
             </div>
             {controls.length === 0 && <p className="muted">No matching controls.</p>}
-            <button
-              type="button"
-              className="text-button all-controls"
-              aria-expanded={all}
-              onClick={() => setAll(!all)}
-            >
-              {all ? 'Show essential controls' : 'Show advanced settings'}{' '}
-              <span aria-hidden="true">↗</span>
-            </button>
+            {studio ? (
+              <button
+                type="button"
+                className="text-button all-controls"
+                aria-expanded={all}
+                onClick={() => {
+                  setAll(!all)
+                  setQuery('')
+                }}
+              >
+                {all ? 'Show essential controls' : 'Show advanced settings'}{' '}
+                <span aria-hidden="true">↗</span>
+              </button>
+            ) : studioLink ? (
+              <Link href={studioLink} navigate={navigate} className="text-button all-controls">
+                More settings in Studio <span aria-hidden="true">↗</span>
+              </Link>
+            ) : (
+              <p className="helper-text">Use the code below to keep this configuration.</p>
+            )}
           </>
         )}
         {tab === 'json' && (
@@ -138,36 +190,6 @@ export function ControlsPanel({
             </Button>
             <p className="helper-text">The preview updates only after validation.</p>
           </>
-        )}
-        {tab === 'presets' && (
-          <section className="example-presets" aria-label="Library examples">
-            <h3>Starting points</h3>
-            <p className="helper-text">Load an example, then tune it with the controls.</p>
-            <label className="sr-only" htmlFor="starting-example">
-              Choose a starting point
-            </label>
-            <Select
-              id="starting-example"
-              value={startingPoint}
-              onChange={(event) => selectExample(event.target.value)}
-            >
-              <option value="">Choose an example…</option>
-              {examples
-                .filter((example) => example.library === library.id)
-                .map((example) => (
-                  <option key={example.id} value={example.id}>
-                    {example.name}
-                  </option>
-                ))}
-            </Select>
-            <Link
-              href={`/agents/gallery?library=${library.id}`}
-              navigate={navigate}
-              className="text-button"
-            >
-              Compare all examples ↗
-            </Link>
-          </section>
         )}
         {tab === 'presets' && (
           <>
@@ -208,7 +230,7 @@ export function ControlsPanel({
             </div>
           </>
         )}
-      </div>
+      </ControlContent>
       <p className="control-notice" role="status">
         {notice}
       </p>

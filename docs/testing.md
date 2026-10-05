@@ -25,6 +25,7 @@ The browser runner owns a production server at `127.0.0.1:43187`, one worker, no
 | Bun tests | `tests/` | Valid/invalid configuration, examples, discovery, SDK ESM/CJS contracts, finite orb frames, source-registry installation, standalone compilation, legal-file retention, alias planning and installer cleanup/peers |
 | Build | Turbo and Next pre/post scripts | Package distributions, registry regeneration and all app targets |
 | Browser contracts | `e2e/library.spec.ts` | Render hosts, dimensions/alignment, design tokens, source order, navigation, JSON/preset/transfer workflows |
+| Component workflow | `e2e/component-workflow.spec.ts` | Quick choices, direct installation, variant/configuration handoff, reload and fragment history |
 | Visual review | Primary agent inspecting captures | Aesthetic defects that measurable contracts do not encode |
 
 Root lint is intentionally scoped. Passing it does not mean every vendored engine line was audited. The architecture gate checks declared static imports and workspace edges; it is not a general-purpose proof of all dynamic dependency behavior.
@@ -37,7 +38,11 @@ Journeys cover discovery empty/recovery states, URL-persisted example search, Me
 
 Rendered preview motion starts paused for reduced-motion runs, which gives reproducible composition captures. Paused rendering still uses real SDKs; tests check hosts and error/resource failures. Source lifecycle regressions in `tests/lifecycle.test.ts` use isolated subprocesses with deferred image loads and controlled frame/listener ownership. `tests/microphone.test.ts` checks shared in-flight requests and track/listener release. These probes isolate module mocks from the package contract suite. `tests/cli.test.ts` covers registry containment, custom config propagation and real nonzero subprocess exits.
 
-Browser regressions in `e2e/playground-state.spec.ts` check playback persistence, Voice activation/freeze independence and valid draft replacement. `e2e/microphone.spec.ts` controls deferred capture resolution after Pause, Replay and navigation, plus stale denials. The capture streams are test doubles; these cases prove hook ownership and state handling, not physical audio capture.
+Browser regressions in `e2e/playground-state.spec.ts` check playback persistence, Voice activation/freeze independence and valid draft replacement. `e2e/microphone.spec.ts` controls deferred capture resolution after Pause, Replay, navigation and switching to Install & Usage, plus stale denials. Leaving Preview also stops a live stream; returning requires an explicit new request. The capture streams are test doubles; these cases prove hook ownership and state handling, not physical audio capture.
+
+Component workflow regressions exercise native radio arrow keys, example selection and focus, task-tab keyboard navigation, direct installation access, all seven validated Studio handoffs and Metal component variants. They verify code equality across task switches, handoff and reload, safe invalid-fragment fallback, native Back/Forward restoration and stale-fragment removal when changing libraries. Install and Studio captures supplement guide captures; compact installation is checked at 320px.
+
+Beam and Voice starting-example journeys explicitly enable motion after paused startup and capture each active variant. These cases use the no-preference motion setting so CSS reductions do not hide the effect being inspected. Guide layout captures retain reduced motion. Individual starting-example and agent-sidebar captures record visible renderers separately, because offscreen examples intentionally unmount.
 
 Deferred file reads in the playground suite verify that late success/failure cannot replace a newer import, Reset or Metal variant selection. Image playback also exercises a real one-shot reveal/hide through Pause and Resume. Isolated cycle probes cover paused startup, preserved manual hold and one-shot versus continuous hide completion. Installer graph probes cover shared-child deduplication, circular dependency rejection before writes and retry after an invalid child payload.
 

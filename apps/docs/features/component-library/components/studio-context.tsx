@@ -1,18 +1,19 @@
 import { Select } from '@livenui/agent-ui'
+import type { PlaygroundState } from '../hooks/use-playground'
 import { type Library, libraries } from '../lib/config'
 import { content } from '../lib/content'
-import type { Example } from '../lib/examples'
+import { examples } from '../lib/examples'
 import type { Navigate } from '../lib/types'
 import { Link } from './link'
 
 export function StudioContext({
   library,
   navigate,
-  initialExample,
+  state,
 }: {
   library: Library
   navigate: Navigate
-  initialExample?: Example
+  state: PlaygroundState
 }) {
   return (
     <div className="studio-context">
@@ -30,12 +31,36 @@ export function StudioContext({
           ))}
         </Select>
       </div>
-      <span className="context-description">
-        {initialExample ? `Starting from ${initialExample.name}` : content[library.id].purpose}
-      </span>
+      <span className="context-description">{content[library.id].purpose}</span>
       <Link href={`/agents/${library.id}`} navigate={navigate} className="text-button">
         Read the guide ↗
       </Link>
+      <div className="studio-starting-point">
+        <label htmlFor="starting-example">Starting point</label>
+        <Select
+          id="starting-example"
+          value={state.startingPoint}
+          onChange={(event) => state.selectExample(event.target.value)}
+        >
+          <option value="" disabled>
+            Your configuration
+          </option>
+          {examples
+            .filter((example) => example.library === library.id)
+            .map((example) => (
+              <option key={example.id} value={example.id}>
+                {example.name}
+              </option>
+            ))}
+        </Select>
+        <Link
+          href={`/agents/gallery?library=${library.id}`}
+          navigate={navigate}
+          className="text-button"
+        >
+          Compare examples ↗
+        </Link>
+      </div>
     </div>
   )
 }

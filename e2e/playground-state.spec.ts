@@ -64,7 +64,7 @@ for (const library of ['orbs', 'beam', 'voice']) {
 test('saved presets restore playback after a reduced-motion reload', async ({ page }) => {
   await page.goto('/studio?library=orbs')
   await page.getByRole('button', { name: '▶ Play', exact: true }).click()
-  await page.getByRole('tab', { name: 'Examples & saved', exact: true }).click()
+  await page.getByRole('tab', { name: 'Saved', exact: true }).click()
   await page.getByLabel('Preset name', { exact: true }).fill('Playing configuration')
   await page.getByRole('button', { name: /Save preset/ }).click()
   await expect(page.locator('.control-notice')).toContainText('Preset saved')
@@ -73,7 +73,7 @@ test('saved presets restore playback after a reduced-motion reload', async ({ pa
   ).toMatchObject({ paused: false })
   await page.reload()
   await expect(page.getByRole('button', { name: '▶ Play', exact: true })).toBeVisible()
-  await page.getByRole('tab', { name: 'Examples & saved', exact: true }).click()
+  await page.getByRole('tab', { name: 'Saved', exact: true }).click()
   await page.getByRole('button', { name: /^Playing configuration/ }).click()
   await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toBeVisible()
   await expect(page.locator('.code-panel code')).toContainText('paused={false}')
@@ -144,7 +144,7 @@ test('import and reset update an already open JSON editor', async ({ page }) => 
   await page.getByRole('tab', { name: 'JSON', exact: true }).click()
   const editor = page.getByLabel('Edit component props')
   await editor.fill('{ invalid draft')
-  await page.locator('summary').filter({ hasText: 'Save or hand off' }).click()
+  await page.locator('summary').filter({ hasText: 'Import & export' }).click()
   await page.getByLabel('Import configuration file').setInputFiles({
     name: 'playing-orbs.json',
     mimeType: 'application/json',
@@ -171,7 +171,7 @@ for (const completion of ['resolve', 'reject'] as const) {
   }) => {
     await deferConfigurationReads(page)
     await page.goto('/studio?library=orbs')
-    await page.locator('summary').filter({ hasText: 'Save or hand off' }).click()
+    await page.locator('summary').filter({ hasText: 'Import & export' }).click()
     await importDeferred(page, { state: 'searching', paused: true })
     await importDeferred(page, { state: 'listening', paused: false })
     await expect.poll(() => page.evaluate(() => window.__configurationReads.length)).toBe(2)
@@ -187,7 +187,7 @@ for (const completion of ['resolve', 'reject'] as const) {
 test('reset cancels a pending configuration import', async ({ page }) => {
   await deferConfigurationReads(page)
   await page.goto('/studio?library=orbs')
-  await page.locator('summary').filter({ hasText: 'Save or hand off' }).click()
+  await page.locator('summary').filter({ hasText: 'Import & export' }).click()
   await importDeferred(page, { state: 'listening', paused: false })
   await expect.poll(() => page.evaluate(() => window.__configurationReads.length)).toBe(1)
   await page.getByRole('button', { name: 'Reset', exact: true }).click()
@@ -200,7 +200,7 @@ test('reset cancels a pending configuration import', async ({ page }) => {
 test('a component variant selection cancels a pending configuration import', async ({ page }) => {
   await deferConfigurationReads(page)
   await page.goto('/studio?library=metal')
-  await page.locator('summary').filter({ hasText: 'Save or hand off' }).click()
+  await page.locator('summary').filter({ hasText: 'Import & export' }).click()
   await importDeferred(page, { strength: 0.4 })
   await expect.poll(() => page.evaluate(() => window.__configurationReads.length)).toBe(1)
   await page.getByRole('button', { name: 'text', exact: true }).click()

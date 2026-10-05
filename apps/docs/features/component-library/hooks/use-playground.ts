@@ -5,6 +5,7 @@ import {
   type Library,
   type Preset,
   type Props,
+  parseConfiguration,
   parseProps,
   snippet,
   variantDefaults,
@@ -26,28 +27,51 @@ export function usePlayground({
   presets,
   savePresets,
   initialExample,
+  configuration,
 }: {
   library: Library
   theme: Theme
   presets: Preset[]
   savePresets: (presets: Preset[]) => boolean
   initialExample?: Example
+  configuration?: string
 }) {
-  const [variant, setVariant] = useState(initialExample?.variant || 'ring')
+  const [initial] = useState(() => {
+    const fallback = {
+      props: { ...(initialExample?.props || defaults[library.id]) },
+      variant: initialExample?.variant || 'ring',
+      notice: '',
+      shared: false,
+    }
+    if (!configuration) return fallback
+    try {
+      return {
+        ...parseConfiguration(configuration, library),
+        notice: 'Your preview configuration is ready.',
+        shared: true,
+      }
+    } catch (error) {
+      return {
+        ...fallback,
+        notice: error instanceof Error ? error.message : 'Could not load configuration.',
+      }
+    }
+  })
+  const [variant, setVariant] = useState(initial.variant)
   const activeLibrary = configuredLibrary(library, variant)
-  const [props, setProps] = useState<Props>({ ...(initialExample?.props || defaults[library.id]) })
+  const [props, setProps] = useState<Props>(initial.props)
   const [tab, setTab] = useState('controls')
   const [query, setQuery] = useState('')
   const [all, setAll] = useState(false)
   const [paused, setPaused] = useState(false)
-  const initialPlayback = playbackPaused(
-    library.id,
-    initialExample?.props || defaults[library.id],
-    false
-  )
+  const initialPlayback = playbackPaused(library.id, initial.props, false)
   useEffect(() => {
-    setPaused(matchMedia('(prefers-reduced-motion: reduce)').matches || initialPlayback)
-  }, [initialPlayback])
+    setPaused(
+      initial.shared
+        ? initialPlayback
+        : matchMedia('(prefers-reduced-motion: reduce)').matches || initialPlayback
+    )
+  }, [initialPlayback, initial.shared])
   const [draft, setDraftValue] = useState(JSON.stringify(props, null, 2))
   const configurationRevision = useRef(0)
   useEffect(
@@ -60,7 +84,7 @@ export function usePlayground({
     configurationRevision.current++
     setDraftValue(value)
   }
-  const [notice, setNotice] = useState('')
+  const [notice, setNotice] = useState(initial.notice)
   const [transferNotice, setTransferNotice] = useState('')
   const [startingPoint, setStartingPoint] = useState(initialExample?.id || '')
   const [presetName, setPresetName] = useState('')
@@ -79,7 +103,9 @@ export function usePlayground({
   const effectiveProps = playbackProps(props)
   const exportedProps = {
     ...effectiveProps,
-    theme: props.theme === 'light' || props.theme === 'dark' ? props.theme : theme,
+    ...(activeLibrary.fields.some((field) => field.name === 'theme')
+      ? { theme: props.theme === 'light' || props.theme === 'dark' ? props.theme : theme }
+      : {}),
   }
   const liveCode = snippet(activeLibrary, exportedProps)
   const chooseVariant = (next: string) => {
@@ -94,7 +120,7 @@ export function usePlayground({
   }
   const controls = activeLibrary.fields.filter(
     (field) =>
-      field.kind !== 'json' &&
+      (field.kind !== 'json' || content[library.id].choices?.[field.name]) &&
       field.name !== 'theme' &&
       (all || query.trim() || content[library.id].controls.includes(field.name)) &&
       matchesSearch(query, field.name, fieldLabel(field.name), field.description)
@@ -162,19 +188,7 @@ export function usePlayground({
       if (file.size > 65536) throw new Error('Use a configuration file smaller than 64 KB.')
       const text = await file.text()
       if (request !== configurationRevision.current) return
-      const data: unknown = JSON.parse(text)
-      if (!data || typeof data !== 'object' || Array.isArray(data))
-        throw new Error('Invalid configuration file.')
-      const envelope = data as Props
-      if (envelope.library !== undefined && envelope.library !== library.id)
-        throw new Error('Open the matching library before importing this configuration.')
-      const nextVariant = typeof envelope.variant === 'string' ? envelope.variant : variant
-      if (!library.variants.some((item) => item.id === nextVariant))
-        throw new Error('Unknown component variant.')
-      const next = parseProps(
-        JSON.stringify(envelope.props || envelope),
-        configuredLibrary(library, nextVariant)
-      )
+      const { props: next, variant: nextVariant } = parseConfiguration(text, library, variant)
       setStartingPoint('')
       setVariant(nextVariant)
       setProps(next)

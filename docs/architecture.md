@@ -64,6 +64,7 @@ flowchart TD
 | Defaults, validators, snippets and agent prompts | Feature `lib/config.ts` | Controls, JSON transfer, integration code, contract tests |
 | Discovery copy, essential settings, search and commands | Feature `lib/content.ts` | Overview, gallery, controls, installer commands |
 | Complete example configurations and stable IDs | Feature `lib/examples.ts` | Gallery, starting points, Studio deep links |
+| Featured example IDs, human control labels and explicit quick choices | Feature `lib/content.ts` | Guide showcases and control panels |
 | Documentation navigation | `content/docs/agents/meta.json` through `lib/source.ts` | Glass sidebar, route metadata |
 | Semantic geometry/type/emphasis | `packages/agent-ui/src/tokens.css` | Feature style files and browser contracts |
 | Render implementation and public exports | Each SDK's `src/` and manifest | Built ESM/CJS/types, adapters and consumers |
@@ -75,6 +76,10 @@ Catalog metadata is checked in and curated; it is **not automatically extracted 
 `useLibrarySession` owns the resolved app theme, router navigation and `livenui-presets` local storage. `usePlayground` owns props, variant, tabs, drafts, preview playback, validation notices and transfer actions. Controls, preview and integration consume the same state instance, so the code reflects the displayed configuration. Controls, JSON snapshots and saved presets use the effective playback props. Beam/Voice activation follows `active`; Voice retains its independent native `paused` freeze setting. Replacing a configuration or Metal variant updates the draft; ordinary toolbar actions preserve unfinished edits.
 
 Studio `library` and `example` query parameters initialize a keyed workbench; invalid selections fall back safely. Gallery `library` and `q` filters use native history integrated with the router. Typing replaces the current history entry; explicit filter selections push one. Results load 12 at a time while preserving all 83 examples and representing all seven libraries in the first batch.
+
+The workbench owns the Preview / Install & Usage task switch while retaining one `usePlayground` instance. Inactive task contents unmount, releasing their preview scenes and microphone state. Switching back recreates the preview with retained props/playback and requires an explicit new microphone request. Guides use a small showcase and quick settings; Studio adds full controls, Saved and JSON views. Both reuse the same code panel and integration composition.
+
+Guide-to-Studio handoff uses a validated configuration in the URL fragment, with `library` in the existing query parameter. The client reads the fragment on initial navigation, reload and native hash/history events; the serialized props are not sent as a server query. `parseConfiguration` validates both imported files and handoff envelopes against the selected component variant. Raw props remain supported, including Metal's shape `variant` prop, which is distinct from an envelope's component variant. Invalid handoffs report a notice and preserve safe defaults. Oversized or nonserializable application references require integration through code instead of a Studio link.
 
 `Preview` imports adapters dynamically with SSR disabled. `PreviewBoundary` catches render errors. Replay remounts only this boundary. Cards use IntersectionObserver and pause offscreen previews; example cards release their mounted scenes offscreen. Reduced motion initially pauses effects. Renderers, animation frames, observers and microphone tracks must be released by their owners on teardown. Image cycle callbacks belong to their reveal generation; stale loading, completion and failure callbacks cannot mutate a replacement cycle. Avatar global listeners exist only while ticker subscribers remain.
 
@@ -88,7 +93,7 @@ JSON configuration is untrusted input. Parsing rejects unknown props, non-finite
 
 Only the current file import may replace configuration or report a result. A newer import, draft edit, applied configuration, field edit, preset/example load, Reset, variant selection, playback action or unmount invalidates pending reads. Capture the selected file and clear the input before reading so the same file can be selected again. Invalidating a read prevents state updates; it does not cancel the browser's file operation.
 
-Presets stay in this browser; unavailable or corrupt storage is handled without crashing. Exported JSON includes library, component, variant and effective theme/playback props. Microphone access is click-initiated and local. Pending capture requests are shared and invalidated on stop or unmount; late streams are stopped before they can become live. Hosted accounts, billing, cloud presets and agent chat are not connected.
+Presets stay in this browser; unavailable or corrupt storage is handled without crashing. Exported JSON includes library, component, variant and effective playback props, plus theme only when the selected API supports it. Files and shared fragments are limited to 64 KB measured as UTF-8. Microphone access is click-initiated and local. Pending capture requests are shared and invalidated on stop or unmount; late streams are stopped before they can become live. Hosted accounts, billing, cloud presets and agent chat are not connected.
 
 ## Build and compatibility contracts
 

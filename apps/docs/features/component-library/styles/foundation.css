@@ -101,7 +101,8 @@
   color: var(--foreground);
 }
 .agent-libraries .pill[aria-pressed="true"],
-.agent-libraries .control-tabs button[aria-selected="true"] {
+.agent-libraries .control-tabs button[aria-selected="true"],
+.agent-libraries .workbench-tabs button[aria-selected="true"] {
   background: var(--gradient-accent);
   color: white;
   border-color: transparent;

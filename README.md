@@ -41,7 +41,7 @@ bun run test:ui
 
 `apps/docs` owns the site, feature modules, MDX and source registry definitions. `packages/agent-ui` owns shared controls/tokens. Seven SDK packages implement border beam, thinking orbs, Metal Fx/Text/Badge, liquid morph/move/melt/bend, voice, image reveal and bot avatars. Existing `ui`, `cli` and `tsconfig` workspaces retain installer/build contracts. SDK builds provide ESM, CJS and declarations; the application and declaration compiler retain their existing compatibility split.
 
-`/` opens `/agents`. `/agents/gallery` offers URL-shareable filters and progressive example loading. `/studio?library=orbs` opens the same playground; example links also select an initial configuration. Each component has a guide at `/agents/{id}`, and `/agents/integration` explains setup.
+`/` opens `/agents`. `/agents/gallery` offers URL-shareable filters and progressive example loading. Each `/agents/{id}` guide starts with examples and quick settings, with direct **Preview / Install & Usage** views. **Open in Studio** carries its configuration into `/studio?library={id}` through a validated URL fragment. Studio adds advanced controls, JSON editing and browser-local saved presets. Example links also select an initial configuration, and `/agents/integration` explains setup.
 
 Playgrounds support essential/advanced controls, validated JSON, starting examples, browser-local presets, pause/replay, generated code, agent prompts and portable import/export. Microphone access is optional and click-initiated. Reduced motion pauses effects; offscreen previews release or pause their scenes. Hosted accounts, billing, cloud presets and agent chat are not connected.
 

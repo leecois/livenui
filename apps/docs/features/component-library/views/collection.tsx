@@ -108,7 +108,10 @@ export function AgentCollection() {
           <span>3</span>
           <div>
             <h3>Bring it to your app</h3>
-            <p>Install one package and copy the code. Keep your own content and design tokens.</p>
+            <p>
+              Install the component source and copy the code. Keep your own content and design
+              tokens.
+            </p>
           </div>
         </li>
       </ol>

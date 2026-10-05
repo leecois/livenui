@@ -35,7 +35,7 @@ async function controlledMicrophone(page: Page) {
   await expect.poll(() => page.evaluate(() => window.__captureRequests.length)).toBe(1)
 }
 
-for (const action of ['pause', 'replay', 'navigate']) {
+for (const action of ['pause', 'replay', 'navigate', 'install']) {
   test(`microphone releases permission completed after ${action}`, async ({ page }) => {
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
@@ -43,7 +43,10 @@ for (const action of ['pause', 'replay', 'navigate']) {
     if (action === 'pause') await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
     else if (action === 'replay')
       await page.getByRole('button', { name: '↻ Replay', exact: true }).click()
-    else {
+    else if (action === 'install') {
+      await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
+      await expect(page.locator('.voice-host')).toHaveCount(0)
+    } else {
       await page.getByLabel('Component', { exact: true }).selectOption('orbs')
       await expect(page.locator('.stage-orbs')).toBeVisible()
     }
@@ -53,6 +56,25 @@ for (const action of ['pause', 'replay', 'navigate']) {
     expect(errors).toEqual([])
   })
 }
+
+test('leaving Preview stops live capture and returning requires a new explicit request', async ({
+  page,
+}) => {
+  await controlledMicrophone(page)
+  await page.evaluate(() => window.__captureRequests[0].resolve())
+  await expect(page.getByRole('button', { name: 'Stop microphone', exact: true })).toBeVisible()
+  await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
+  await expect.poll(() => page.evaluate(() => window.__captureRequests[0].stops)).toBe(1)
+  await page.getByRole('tab', { name: 'Preview', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Use microphone', exact: true })).toBeVisible()
+  expect(await page.evaluate(() => window.__captureRequests.length)).toBe(1)
+  await page.getByRole('button', { name: 'Use microphone', exact: true }).click()
+  await expect.poll(() => page.evaluate(() => window.__captureRequests.length)).toBe(2)
+  await page.evaluate(() => window.__captureRequests[1].resolve())
+  await expect(page.getByRole('button', { name: 'Stop microphone', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Stop microphone', exact: true }).click()
+  await expect.poll(() => page.evaluate(() => window.__captureRequests[1].stops)).toBe(1)
+})
 
 test('late microphone denial cannot replace a newer live request', async ({ page }) => {
   await controlledMicrophone(page)

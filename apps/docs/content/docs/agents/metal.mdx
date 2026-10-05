@@ -4,20 +4,3 @@ description: Add reflective rings, text and badges to actions or labels. Try mat
 ---
 
 <AgentWorkbench library="metal" />
-
-
-## Interactions
-
-The ring preview supports a circular action and a pill button. Move the pointer around its edge
-to deform the metal and see its reflection on the adjacent label in dark mode.
-The action copies the current configuration.
-
-Text uses a compact glyph mask with a neighboring text reflection. The badge uses the short
-label `New` to fit its fixed pill geometry. All three components support Pause and reduced motion,
-and each gallery preset keeps its own material without changing neighboring samples.
-
-Keep `normalizeHostStyles={false}` when the child uses your accent gradient. The shader sits
-above the host content and preserves its fill. Use `useMetalBend` on the component reference
-to enable pointer deformation in your application.
-
-[Installation and usage guide](/agents/integration) · [Explore examples](/agents/gallery?library=metal)

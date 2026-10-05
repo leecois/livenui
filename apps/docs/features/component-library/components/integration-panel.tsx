@@ -1,9 +1,10 @@
 import { Button, Select } from '@livenui/agent-ui'
 import { siteUrl } from '../../../lib/site'
 import type { PlaygroundState } from '../hooks/use-playground'
-import { type Library, prompt } from '../lib/config'
-import { installCommand } from '../lib/content'
+import type { Library } from '../lib/config'
+import { content, installCommand } from '../lib/content'
 import type { Navigate } from '../lib/types'
+import { CodePanel } from './code-panel'
 import { Copy } from './copy'
 import { Link } from './link'
 import { PropsTable } from './props-table'
@@ -12,26 +13,21 @@ export function IntegrationPanel({
   library,
   navigate,
   state,
+  studio = true,
 }: {
   library: Library
   navigate: Navigate
   state: PlaygroundState
+  studio?: boolean
 }) {
-  const {
-    activeLibrary,
-    exportedProps,
-    liveCode,
-    manager,
-    setManager,
-    importInput,
-    importConfiguration,
-    download,
-    transferNotice,
-  } = state
+  const { manager, setManager } = state
   return (
     <section className="integration-panel" aria-label="Use in your project">
       <div className="integration-heading">
-        <h2>Use in your project</h2>
+        <div>
+          <h2>Use in your project</h2>
+          <p className="helper-text">Install the source, then copy the code you just configured.</p>
+        </div>
         <Link href="/agents/integration" navigate={navigate} className="text-button">
           Installation guide ↗
         </Link>
@@ -62,44 +58,54 @@ export function IntegrationPanel({
           alias in the import below.
         </p>
       </div>
-      <div className="code-panel">
-        <div className="code-heading">
-          <h3>2. Copy the component</h3>
-          <Copy emphasis text={liveCode} />
-        </div>
-        <pre>
-          <code>{liveCode}</code>
-        </pre>
-      </div>
-      <details className="integration-details">
-        <summary>
-          Save or hand off <span>JSON & coding agent</span>
-        </summary>
-        <p className="helper-text">
-          Export a portable configuration, import one from another device, or give a coding agent
-          the component and its API.
-        </p>
-        <div className="export-actions">
-          <Copy emphasis text={prompt(activeLibrary, exportedProps, siteUrl.origin)}>
-            Copy agent prompt
-          </Copy>
-          <input
-            className="sr-only"
-            tabIndex={-1}
-            ref={importInput}
-            type="file"
-            accept="application/json,.json"
-            aria-label="Import configuration file"
-            onChange={(event) => void importConfiguration(event.target.files?.[0])}
-          />
-          <Button onClick={() => importInput.current?.click()}>
-            Import JSON <span aria-hidden="true">↑</span>
-          </Button>
-          <Button onClick={download}>
-            Export JSON <span aria-hidden="true">↓</span>
-          </Button>
-        </div>
-      </details>
+      <CodePanel state={state} installation />
+      {content[library.id].integration && (
+        <p className="helper-text integration-guidance">{content[library.id].integration}</p>
+      )}
+      <ConfigurationDetails library={library} state={state} transfer={studio} />
+    </section>
+  )
+}
+
+export function ConfigurationDetails({
+  library,
+  state,
+  transfer = true,
+}: {
+  library: Library
+  state: PlaygroundState
+  transfer?: boolean
+}) {
+  const { activeLibrary, importInput, importConfiguration, download, transferNotice } = state
+  return (
+    <div className="configuration-details">
+      {transfer && (
+        <details className="integration-details">
+          <summary>
+            Import & export <span>Portable JSON</span>
+          </summary>
+          <p className="helper-text">
+            Export a configuration to keep a portable copy, or import one from another device.
+          </p>
+          <div className="export-actions">
+            <input
+              className="sr-only"
+              tabIndex={-1}
+              ref={importInput}
+              type="file"
+              accept="application/json,.json"
+              aria-label="Import configuration file"
+              onChange={(event) => void importConfiguration(event.target.files?.[0])}
+            />
+            <Button onClick={() => importInput.current?.click()}>
+              Import JSON <span aria-hidden="true">↑</span>
+            </Button>
+            <Button onClick={download}>
+              Export JSON <span aria-hidden="true">↓</span>
+            </Button>
+          </div>
+        </details>
+      )}
       <details className="integration-details">
         <summary>
           API reference <span>All props and types</span>
@@ -115,6 +121,6 @@ export function IntegrationPanel({
       <p className="transfer-notice" role="status">
         {transferNotice}
       </p>
-    </section>
+    </div>
   )
 }

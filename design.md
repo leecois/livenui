@@ -4,9 +4,11 @@ This is the visual contract for the developer component library, including its a
 
 ## Product structure
 
-Keep Fumadocs Glass as the application shell. One page-tree entry owns each navigation destination; do not add a second shortcut that activates for the same route. Overview explains the task each component serves. Examples compare configurations. Studio offers the same playground with shareable library/example selection. Component guides explain integration and API behavior.
+Keep Fumadocs Glass as the application shell. One page-tree entry owns each navigation destination; do not add a second shortcut that activates for the same route. Overview explains the task each component serves. Examples compare configurations. Component guides show a few starting examples and essential settings. Studio offers complete customization, JSON editing and browser-local saved presets, with a visible starting-point selector.
 
-Playground source order is context → preview → controls → installation/code → optional transfer/API. Desktop places preview and controls side by side with aligned top and bottom edges; the preview stage absorbs extra height rather than leaving a gap beneath it. Narrow containers stack them in this same order. The preview is a stable stage; controls must not compete with the effect for emphasis.
+Preview / Install & Usage is the primary task switch on guides and Studio. Keep Open in Studio and Copy agent prompt beside it. Preview source order is starting examples on guides → preview → controls → current React code; Studio begins with component and starting-point context instead of a showcase. Install & Usage contains the source command, current code, integration guidance and optional API disclosure. Import/export stays in Studio. Switching views preserves configuration and releases hidden preview resources.
+
+Desktop places preview and controls side by side with aligned top and bottom edges; the preview stage absorbs extra height rather than leaving a gap beneath it. Narrow containers stack them in this same order. The preview is a stable stage; controls must not compete with the effect for emphasis. Guides keep administrative tabs and advanced control search out of the quick-settings panel. Their Studio links carry validated props, variant, effective theme when supported and playback.
 
 ## Token source
 
@@ -44,6 +46,7 @@ Use 24px between primary panels, 20px inside panels, 16px between fields and 8px
 - Secondary action: neutral surface, border and foreground. Text action: muted text, minimum target height, clear hover/focus state.
 - Selected tabs/pills: gradient fill, white text; inactive states remain neutral. A label badge is not a selected control and stays muted.
 - Field: visible associated label, 8px gap, rounded-full 44px control. Numeric values use tabular figures. Checkbox labels enlarge the hit target to 44px.
+- Short enumerations use native radio inputs inside labeled rounded-full pills. Preserve native arrow-key selection and a visible focus ring. Long lists remain native selects. Human labels such as Idle map to API values without changing exported props; size presets retain their numeric types, and custom values remain visible.
 - Search: accessible name, neutral rounded-full track, focus ring around the composed field. Empty results include an actionable reset.
 - JSON/code areas: readable monospace, scroll locally. Multiline editors use a 16px radius rather than capsule geometry. API tables scroll inside their container instead of widening the page.
 - Feedback: adjacent `role="status"` or `aria-live` text. Invalid JSON must leave the last valid preview/code intact. Do not convey success or failure only through color.
@@ -56,13 +59,13 @@ Use the **feature container width**, not viewport width: the Glass sidebar chang
 | --- | --- |
 | Below 900px | Gallery becomes two columns |
 | Below 760px | Preview/controls stack; control content loses its inner scroll limit; workflow stacks |
-| Below 550px | Cards become one column; heading/search stack; Studio context gets a separate help row; command and transfer actions wrap |
+| Below 550px | Catalog/gallery cards become one column; guide starting examples use two columns except Liquid's full-width interaction scenes; heading/search stack; Studio context gets a separate help row; command and transfer actions wrap |
 
 At viewport widths 320, 390, 768, 1024 and 1440px, no document overflow is allowed. Image, voice, beam and liquid hosts fit their stage. Native selectors, command text, tabs and long preset names must not force the page wider. Zoom and longer labels are checked manually when changing composition.
 
 ## Motion and accessibility
 
-Prefer reduced motion in regression captures; real effects initially pause when reduced motion is requested. Play explicitly enables preview motion. Replay replaces only the current preview instance. Lazy cards mount around the viewport; do not allocate all 83 GPU scenes at once.
+Prefer reduced motion in regression captures; real effects initially pause when reduced motion is requested. Play enables the preview; SDKs may still reduce CSS motion according to the system preference. Replay replaces only the current preview instance. Lazy cards mount around the viewport; do not allocate all 83 GPU scenes at once.
 
 Controls remain keyboard reachable. Tabs implement ArrowLeft/Right and Home/End with one tab stop. Mobile navigation contains focus, supports Escape and restores the opener. Focus rings use `--ring`; visible focus must survive clipping and theme changes. Decorative symbols/chevrons use `aria-hidden` and never become standalone focus targets.
 

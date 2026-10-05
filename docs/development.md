@@ -48,7 +48,7 @@ The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUB
 
 ## Add or change an example
 
-Edit `lib/examples.ts`, preserving existing stable IDs. Configurations must parse with their exact library/variant and generate the correct public component import. Search names and use cases should be understandable to developers. Do not fork a separate list in gallery or Studio. Run `bun test tests/examples.test.ts tests/discovery.test.ts`; then run full checks and affected browser journeys.
+Edit `lib/examples.ts`, preserving existing stable IDs. Configurations must parse with their exact library/variant and generate the correct public component import. Search names and use cases should be understandable to developers. Do not fork a separate catalog in gallery or Studio. Guide showcases select existing IDs through `lib/content.ts`; application-context demonstrations live in `lib/examples.ts` and receive the same validation. Run `bun test tests/examples.test.ts tests/discovery.test.ts`; then run full checks and affected browser journeys.
 
 ## Change a component API
 
@@ -63,6 +63,10 @@ Copy an existing SDK package structure when adding an entirely new package. Matc
 ## Work on hooks and panels
 
 Keep configuration behavior in `usePlayground`, session persistence/theme/router in `useLibrarySession`, and panel rendering in `components/`. Pass the single state instance from the view. Keep parsing/discovery pure so Bun tests can run without a browser. Do not let controls and exported code create separate props stores.
+
+Guide quick settings use `lib/content.ts` essential fields, human labels and optional typed choices. Short enum fields can become native radio pills; long lists stay selects. Studio retains advanced settings, Saved and JSON while its starting-point selector shares the gallery examples. Place guide integration prose in the content metadata when it must appear beside installation rather than repeat after the playground.
+
+Use `studioHref` and `parseConfiguration` for portable guide-to-Studio links. Serialize effective props and the selected component variant into the fragment; do not introduce a second persistence store or send configuration as a server query. Task switching must preserve the configuration owner while unmounting inactive renderers. Check pending and live microphone teardown when changing this composition.
 
 Async configuration input must be validated before changing state. File import notices belong beside transfer actions. Tab validation notices belong in controls. Storage failures must offer a portable alternative instead of pretending a preset was saved.
 

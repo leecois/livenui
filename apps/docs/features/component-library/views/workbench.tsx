@@ -1,45 +1,166 @@
 'use client'
 
+import { useEffect, useId, useRef, useState } from 'react'
+import { siteUrl } from '../../../lib/site'
+import { CodePanel } from '../components/code-panel'
+import { ComponentShowcase } from '../components/component-showcase'
 import { ControlsPanel } from '../components/controls-panel'
-import { IntegrationPanel } from '../components/integration-panel'
+import { Copy } from '../components/copy'
+import { ConfigurationDetails, IntegrationPanel } from '../components/integration-panel'
+import { Link } from '../components/link'
 import { PreviewPanel } from '../components/preview-panel'
 import { StudioContext } from '../components/studio-context'
 import { useLibrarySession } from '../hooks/use-library-session'
 import { usePlayground } from '../hooks/use-playground'
-import { type Library, libraries } from '../lib/config'
+import { type Library, libraries, prompt, studioHref } from '../lib/config'
 import { type Example, findExample } from '../lib/examples'
 
 function Workbench({
   library,
   studio,
   initialExample,
+  configuration,
   ...session
 }: ReturnType<typeof useLibrarySession> & {
   library: Library
   studio: boolean
   initialExample?: Example
+  configuration?: string
 }) {
-  const state = usePlayground({ library, initialExample, ...session })
+  const state = usePlayground({ library, initialExample, configuration, ...session })
+  const [view, setView] = useState('preview')
+  const id = useId()
+  const playground = useRef<HTMLHeadingElement>(null)
+  const installPanel = useRef<HTMLDivElement>(null)
+  let studioLink: string | undefined
+  try {
+    studioLink = studioHref(library, state.exportedProps, state.variant)
+  } catch {}
+  const tabs = ['preview', 'install']
+  const install = () => {
+    setView('install')
+    requestAnimationFrame(() => installPanel.current?.focus())
+  }
   return (
     <section
-      className={`workbench ${studio ? 'workbench-studio' : ''}`}
+      className={`workbench ${studio ? 'workbench-studio' : 'workbench-guide'}`}
       aria-label={`${library.name} playground`}
     >
-      {studio && (
-        <StudioContext
-          library={library}
-          initialExample={initialExample}
-          navigate={session.navigate}
-        />
-      )}
-      <PreviewPanel library={library} theme={session.theme} state={state} />
-      <ControlsPanel
-        library={library}
-        presets={session.presets}
-        navigate={session.navigate}
-        state={state}
-      />
-      <IntegrationPanel library={library} navigate={session.navigate} state={state} />
+      {studio && <StudioContext library={library} navigate={session.navigate} state={state} />}
+      <div className="workbench-navigation">
+        <div className="workbench-tabs" role="tablist" aria-label="Component workflow">
+          {tabs.map((tab) => (
+            <button
+              type="button"
+              role="tab"
+              key={tab}
+              className="pill"
+              id={`${id}-tab-${tab}`}
+              aria-selected={view === tab}
+              aria-controls={`${id}-panel-${tab}`}
+              tabIndex={view === tab ? 0 : -1}
+              onClick={() => setView(tab)}
+              onKeyDown={(event) => {
+                const next =
+                  event.key === 'ArrowRight' || event.key === 'ArrowLeft'
+                    ? tabs[(tabs.indexOf(tab) + 1) % tabs.length]
+                    : event.key === 'Home'
+                      ? tabs[0]
+                      : event.key === 'End'
+                        ? tabs[1]
+                        : null
+                if (next) {
+                  event.preventDefault()
+                  setView(next)
+                  document.getElementById(`${id}-tab-${next}`)?.focus()
+                }
+              }}
+            >
+              {tab === 'preview' ? 'Preview' : 'Install & Usage'}
+            </button>
+          ))}
+        </div>
+        <div className="workbench-actions">
+          {!studio && studioLink && (
+            <Link href={studioLink} navigate={session.navigate} className="button">
+              Open in Studio <span aria-hidden="true">↗</span>
+            </Link>
+          )}
+          <Copy emphasis text={prompt(state.activeLibrary, state.exportedProps, siteUrl.origin)}>
+            Copy agent prompt
+          </Copy>
+        </div>
+      </div>
+      <div
+        className="workbench-view"
+        role="tabpanel"
+        id={`${id}-panel-preview`}
+        aria-labelledby={`${id}-tab-preview`}
+        hidden={view !== 'preview'}
+        tabIndex={-1}
+      >
+        {view === 'preview' && (
+          <>
+            {!studio && (
+              <ComponentShowcase
+                library={library}
+                theme={session.theme}
+                navigate={session.navigate}
+                state={state}
+                onSelect={(example) => {
+                  state.selectExample(example)
+                  requestAnimationFrame(() => {
+                    playground.current?.scrollIntoView({
+                      block: 'start',
+                      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                        ? 'instant'
+                        : 'smooth',
+                    })
+                    playground.current?.focus({ preventScroll: true })
+                  })
+                }}
+              />
+            )}
+            {!studio && (
+              <div className="playground-heading">
+                <h2 ref={playground} tabIndex={-1}>
+                  Make it yours
+                </h2>
+                <p className="helper-text">Adjust the quick settings and try the interaction.</p>
+              </div>
+            )}
+            <PreviewPanel library={library} theme={session.theme} state={state} />
+            <ControlsPanel
+              library={library}
+              presets={session.presets}
+              navigate={session.navigate}
+              state={state}
+              studio={studio}
+              studioLink={studioLink}
+            />
+            <CodePanel state={state} onInstall={install} />
+            {studio && <ConfigurationDetails library={library} state={state} />}
+          </>
+        )}
+      </div>
+      <div
+        ref={installPanel}
+        className="workbench-view"
+        role="tabpanel"
+        id={`${id}-panel-install`}
+        aria-labelledby={`${id}-tab-install`}
+        hidden={view !== 'install'}
+        tabIndex={-1}
+      >
+        {view === 'install' && (
+          <IntegrationPanel
+            library={library}
+            navigate={session.navigate}
+            state={state}
+            studio={studio}
+          />
+        )}
+      </div>
     </section>
   )
 }
@@ -54,16 +175,50 @@ export function AgentWorkbench({
   example?: string
 }) {
   const state = useLibrarySession()
+  const [handoff, setHandoff] = useState<{
+    library: string
+    example?: string
+    configuration?: string
+  }>()
+  const configuration =
+    handoff?.library === id && handoff.example === example ? handoff.configuration : undefined
+  const [ready, setReady] = useState(!studio)
+  useEffect(() => {
+    if (!studio) return
+    const read = () => {
+      setHandoff({
+        library: id,
+        example,
+        configuration:
+          new URLSearchParams(window.location.hash.slice(1)).get('config') || undefined,
+      })
+      setReady(true)
+    }
+    read()
+    window.addEventListener('hashchange', read)
+    window.addEventListener('popstate', read)
+    return () => {
+      window.removeEventListener('hashchange', read)
+      window.removeEventListener('popstate', read)
+    }
+  }, [studio, id, example])
   const library = libraries.find((item) => item.id === id) || libraries[1]
   return (
     <div className="agent-libraries not-prose">
-      <Workbench
-        key={`${id}:${example || 'default'}`}
-        library={library}
-        studio={studio}
-        initialExample={findExample(library.id, example)}
-        {...state}
-      />
+      {ready ? (
+        <Workbench
+          key={`${id}:${example || 'default'}:${configuration || ''}`}
+          library={library}
+          studio={studio}
+          initialExample={configuration ? undefined : findExample(library.id, example)}
+          configuration={configuration}
+          {...state}
+        />
+      ) : (
+        <p className="helper-text" role="status">
+          Preparing your playground…
+        </p>
+      )}
     </div>
   )
 }

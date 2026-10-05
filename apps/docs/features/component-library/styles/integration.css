@@ -28,8 +28,28 @@
   align-items: center;
   gap: var(--livenui-space-3);
 }
+.agent-libraries .code-panel,
+.agent-libraries .configuration-details,
+.agent-libraries .integration-guidance {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
 .agent-libraries .code-heading h3 {
   font-size: 15px;
+}
+.agent-libraries .code-heading .helper-text,
+.agent-libraries .integration-heading .helper-text {
+  margin-top: var(--livenui-space-2);
+}
+.agent-libraries .code-next-step {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--livenui-space-3);
+  margin-top: var(--livenui-space-4);
+  padding-top: var(--livenui-space-3);
+  border-top: 1px solid var(--border);
 }
 .agent-libraries .code-panel pre {
   max-height: 360px;

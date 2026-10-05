@@ -1,22 +1,49 @@
 import { Select } from '@livenui/agent-ui'
 import type { Library } from '../lib/config'
-import { fieldLabel } from '../lib/content'
+import { fieldLabel, optionLabel } from '../lib/content'
 
 export function FieldControl({
   field,
   value,
   set,
+  label = fieldLabel(field.name),
+  choices,
 }: {
   field: Library['fields'][number]
   value: unknown
   set: (value: unknown) => void
+  label?: string
+  choices?: (string | number)[]
 }) {
   const id = `prop-${field.name}`
+  if (choices?.length)
+    return (
+      <fieldset className="field field-choice" aria-label={label}>
+        <legend>{label}</legend>
+        <div className="field-options">
+          {choices.map((option) => (
+            <label className="field-option" key={String(option)}>
+              <input
+                type="radio"
+                name={id}
+                value={String(option)}
+                checked={value === option}
+                onChange={() => set(option)}
+              />
+              <span>{optionLabel(field.name, option)}</span>
+            </label>
+          ))}
+        </div>
+        {value !== undefined && !choices.includes(value as string | number) && (
+          <p className="helper-text">Custom value: {String(value).slice(0, 80)}</p>
+        )}
+      </fieldset>
+    )
   if (field.kind === 'select')
     return (
       <div className="field">
         <label htmlFor={id} title={field.description}>
-          {fieldLabel(field.name)}
+          {label}
         </label>
         <Select
           id={id}
@@ -26,10 +53,10 @@ export function FieldControl({
             set(next)
           }}
         >
-          <option value="">Default</option>
+          <option value="">Use default</option>
           {field.options.map((option) => (
             <option key={String(option)} value={String(option)}>
-              {option}
+              {optionLabel(field.name, option)}
             </option>
           ))}
         </Select>
@@ -39,7 +66,7 @@ export function FieldControl({
     return (
       <div className="field field-switch">
         <label htmlFor={id} title={field.description}>
-          {fieldLabel(field.name)}
+          {label}
         </label>
         <input
           id={id}
@@ -53,7 +80,7 @@ export function FieldControl({
     return (
       <div className="field">
         <label htmlFor={id} title={field.description}>
-          {fieldLabel(field.name)}
+          {label}
           <span>{value === undefined ? 'default' : String(value)}</span>
         </label>
         <input
@@ -73,7 +100,7 @@ export function FieldControl({
   return (
     <div className="field">
       <label htmlFor={id} title={field.description}>
-        {fieldLabel(field.name)}
+        {label}
       </label>
       <input
         id={id}
