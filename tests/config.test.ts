@@ -5,9 +5,11 @@ import {
   configuredLibrary,
   defaults,
   libraries,
+  parseConfiguration,
   parseProps,
   readPresets,
   snippet,
+  studioHref,
   variantDefaults,
 } from '../apps/docs/features/component-library/lib/config'
 
@@ -21,6 +23,49 @@ const metal = libraryFor('metal')
 const gooey = libraryFor('gooey')
 
 describe('configuration import and export', () => {
+  test('Studio handoff keeps validated props and component variants in the URL fragment', () => {
+    for (const library of libraries) {
+      for (const { id: variant } of library.variants) {
+        const props = {
+          ...variantDefaults(library, variant),
+          ...(configuredLibrary(library, variant).fields.some((field) => field.name === 'theme')
+            ? { theme: 'dark' }
+            : {}),
+        }
+        const url = new URL(studioHref(library, props, variant), 'http://localhost:3000')
+        expect(url.searchParams.get('library')).toBe(library.id)
+        expect(url.searchParams.has('config')).toBe(false)
+        const configuration = new URLSearchParams(url.hash.slice(1)).get('config')
+        expect(parseConfiguration(configuration || '', library)).toEqual({ props, variant })
+      }
+    }
+    expect(parseConfiguration('{"state":"listening"}', orb)).toEqual({
+      props: { state: 'listening' },
+      variant: 'ring',
+    })
+    expect(parseConfiguration('{"variant":"circle"}', metal)).toEqual({
+      props: { variant: 'circle' },
+      variant: 'ring',
+    })
+  })
+  test('shared configurations reject incompatible envelopes, unsafe props and oversized UTF-8 payloads', () => {
+    for (const text of [
+      '[]',
+      'null',
+      '{"library":"voice","props":{"state":"working"}}',
+      '{"variant":"missing","props":{}}',
+      '{"props":{"__proto__":{}}}',
+      '{"props":{},"constructor":{}}',
+      '{"props":{"state":"invalid"}}',
+      '{"props":[1]}',
+      JSON.stringify({ props: { color: '🌈'.repeat(20000) } }),
+    ])
+      expect(() => parseConfiguration(text, orb)).toThrow()
+    expect(() => studioHref(orb, { state: 'invalid' }, 'ring')).toThrow()
+    expect(
+      parseConfiguration('{"props":{"font":"500 24px system-ui"},"variant":"text"}', metal)
+    ).toEqual({ props: { font: '500 24px system-ui' }, variant: 'text' })
+  })
   test('rejects malformed, unknown and incompatible configurations', () => {
     for (const text of [
       '[]',

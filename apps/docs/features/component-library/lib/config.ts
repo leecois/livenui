@@ -118,6 +118,39 @@ export function parseProps(text: string, library: Library): Props {
   return result
 }
 
+export function parseConfiguration(text: string, library: Library, fallbackVariant = 'ring') {
+  if (new TextEncoder().encode(text).byteLength > 65536)
+    throw new Error('Use a configuration smaller than 64 KB.')
+  const data: unknown = JSON.parse(text)
+  if (!data || typeof data !== 'object' || Array.isArray(data))
+    throw new Error('Invalid configuration file.')
+  const envelope = data as Props
+  if (envelope.library !== undefined && envelope.library !== library.id)
+    throw new Error('Open the matching library before importing this configuration.')
+  const variant =
+    envelope.props !== undefined && typeof envelope.variant === 'string'
+      ? envelope.variant
+      : fallbackVariant
+  if (!library.variants.some((item) => item.id === variant))
+    throw new Error('Unknown component variant.')
+  if (envelope.props !== undefined) {
+    for (const key of Object.keys(envelope))
+      if (!['library', 'component', 'variant', 'props'].includes(key))
+        throw new Error(`Unsupported configuration key: ${key}`)
+  }
+  const props = parseProps(
+    JSON.stringify(envelope.props ?? envelope),
+    configuredLibrary(library, variant)
+  )
+  return { props, variant }
+}
+
+export function studioHref(library: Library, props: Props, variant: string) {
+  const configuration = JSON.stringify({ library: library.id, variant, props })
+  parseConfiguration(configuration, library)
+  return `/studio?library=${library.id}#${new URLSearchParams({ config: configuration })}`
+}
+
 export function snippet(library: Library, props: Props): string {
   const { item, ...groupProps } = props
   const attributes = Object.entries(groupProps)
