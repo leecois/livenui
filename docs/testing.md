@@ -58,6 +58,8 @@ Add targeted moving-scene tests for animation-engine changes: time-varying frame
 
 ## Evidence
 
+`e2e/demo-images.spec.ts` verifies that all five original demo assets decode from local WebP responses, retired photograph URLs return 404, Image renders each replacement through its native reveal pipeline, and Melt cards use the same image paths as exported code. Inspect the art, revealed-image and melt captures described in [demo media](demo-media.md).
+
 `playwright-report/` contains the browser HTML report; `test-results/` contains per-test full-page/context/variant images and failure traces. Overview capture scrolls each library into view and waits for its real renderer before recording the complete page. Gallery records visible upper/lower windows separately because offscreen example scenes intentionally unmount. Both are ignored build artifacts. Inspect captures for desktop light, desktop dark, mobile light and mobile dark before accepting any UI change. Also inspect narrower widths when composition changes.
 
 Use `bunx playwright show-report` to review a run interactively. Add one-shot focused tests to the checked-in suite when a regression matters; do not leave the only repeatable evidence in a workstation-specific `/tmp` script. There is no automatic screenshot baseline acceptance: existing effects animate and GPU rendering varies, so layout contracts are asserted directly and raster captures receive human/agent visual review.

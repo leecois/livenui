@@ -1,6 +1,7 @@
 import { ImageGeneration, type ImageGenerationHandle, type ImageGenerationProps } from 'img-fx'
 import { useRef, useState } from 'react'
 import type { Props } from '../lib/config'
+import { imageDemoSources } from '../lib/media'
 
 export default function ImagePreview({
   props,
@@ -20,13 +21,7 @@ export default function ImagePreview({
         ref={ref}
         theme={theme}
         paused={paused}
-        images={
-          (props.images as string[] | undefined) ?? [
-            '/agent-images/gen-1.jpg',
-            '/agent-images/gen-2.jpg',
-            '/agent-images/gen-3.jpg',
-          ]
-        }
+        images={(props.images as string[] | undefined) ?? imageDemoSources}
         borderRadius={typeof props.borderRadius === 'number' ? props.borderRadius : 24}
         onCycle={(event) => setCycle(event.phase)}
       >

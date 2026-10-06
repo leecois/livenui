@@ -12,6 +12,7 @@ import {
   useState,
 } from 'react'
 import type { PreviewProps } from '../components/preview'
+import { meltDemoImages } from '../lib/media'
 
 type Point = { x: number; y: number }
 type SceneProps = { group: LiquidProps; item: LiquidItemProps; paused: boolean; showcase?: boolean }
@@ -344,11 +345,7 @@ function MeltCard({
             drag.handlers.onPointerDown(event)
           }}
         >
-          <img
-            src={`/agent-images/melt-${index === 0 ? 'a' : 'b'}.jpg`}
-            alt={index === 0 ? 'Abstract warm form' : 'Abstract blue form'}
-            draggable={false}
-          />
+          <img src={meltDemoImages[index].src} alt={meltDemoImages[index].alt} draggable={false} />
         </button>
       </Liquid.Item>
       {focused && (

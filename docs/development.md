@@ -54,6 +54,8 @@ The owned drawer class keeps the existing shell header and footer fixed in its f
 
 ## Add or change an example
 
+Image reveal and liquid melt demonstrations use the original local artwork documented in [demo media](demo-media.md). Update `lib/media.ts` when replacing these assets so previews and exported melt snippets share the same paths. Keep demo media local; do not restore copied reference photographs.
+
 Edit `lib/examples.ts`, preserving existing stable IDs. Configurations must parse with their exact library/variant and generate the correct public component import. Search names and use cases should be understandable to developers. Do not fork a separate catalog in gallery or Studio. Guide showcases select existing IDs through `lib/content.ts`; application-context demonstrations live in `lib/examples.ts` and receive the same validation. Run `bun test tests/examples.test.ts tests/discovery.test.ts`; then run full checks and affected browser journeys.
 
 ## Change a bot mascot

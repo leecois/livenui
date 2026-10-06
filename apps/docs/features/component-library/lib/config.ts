@@ -1,5 +1,6 @@
 import catalog from '../data/catalog.json'
 import { sourceImport, sourceInstallCommand } from './distribution'
+import { meltDemoImages } from './media'
 
 export type Props = Record<string, unknown>
 export type Field = {
@@ -165,7 +166,7 @@ export function snippet(library: Library, props: Props): string {
   if (library.id === 'gooey') {
     const itemProps = { effect: 'morph', ...(item as Props) }
     if (itemProps.effect === 'melt') {
-      return `${start}<Liquid\n${attributes}\n>\n  ${['/agent-images/melt-a.jpg', '/agent-images/melt-b.jpg'].map((src) => `<Liquid.Item {...${JSON.stringify(itemProps)}}>\n    <img src="${src}" alt="Abstract form" style={{ width: 84, height: 84, borderRadius: 24 }} />\n  </Liquid.Item>`).join('\n  ')}\n</Liquid>`
+      return `${start}<Liquid\n${attributes}\n>\n  ${meltDemoImages.map(({ src, alt }) => `<Liquid.Item {...${JSON.stringify(itemProps)}}>\n    <img src="${src}" alt="${alt}" style={{ width: 84, height: 84, borderRadius: 24 }} />\n  </Liquid.Item>`).join('\n  ')}\n</Liquid>`
     }
     return `${start}<Liquid\n${attributes}\n>\n  <Liquid.Item {...${JSON.stringify(itemProps)}}>\n    <button type="button">Your content</button>\n  </Liquid.Item>\n</Liquid>`
   }
