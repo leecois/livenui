@@ -53,13 +53,9 @@ for (const [id, renderer] of Object.entries(renderers)) {
           return { x: rect.x, y: rect.y, right: rect.right, bottom: rect.bottom }
         })
       )
-    if (testInfo.project.use.viewport?.width === 1440) {
-      expect(boxes[1].x).toBeGreaterThanOrEqual(boxes[0].right)
-      expect(Math.abs(boxes[0].y - boxes[1].y)).toBeLessThan(2)
-      expect(Math.abs(boxes[0].bottom - boxes[1].bottom)).toBeLessThan(2)
-    } else {
-      expect(boxes[1].y).toBeGreaterThanOrEqual(boxes[0].bottom)
-    }
+    expect(boxes[1].y).toBeGreaterThanOrEqual(boxes[0].bottom)
+    expect(Math.abs(boxes[0].x - boxes[1].x)).toBeLessThan(2)
+    expect(Math.abs(boxes[0].right - boxes[1].right)).toBeLessThan(2)
     expect(boxes[2].y).toBeGreaterThanOrEqual(boxes[1].bottom)
     const controls = await page
       .locator('.controls-panel input:not([type="checkbox"]), .controls-panel select')
@@ -375,9 +371,9 @@ test('all examples remain reachable and preview variants retain interactions', a
     .check()
   await expect(page.locator('.code-panel code')).toContainText('working')
   await page.getByRole('button', { name: '▶ Play', exact: true }).click()
-  await expect(page.locator('.preview-toolbar .eyebrow')).toHaveText('LIVE PREVIEW')
+  await expect(page.locator('.preview-caption .eyebrow')).toHaveText('LIVE PREVIEW')
   await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
-  await expect(page.locator('.preview-toolbar .eyebrow')).toHaveText('PREVIEW PAUSED')
+  await expect(page.locator('.preview-caption .eyebrow')).toHaveText('PREVIEW PAUSED')
   expect(errors).toEqual([])
 })
 

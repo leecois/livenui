@@ -8,7 +8,9 @@ Keep Fumadocs Glass as the application shell. One page-tree entry owns each navi
 
 Preview / Install & Usage is the primary task switch on guides and Studio. Keep Open in Studio and Copy agent prompt beside it. Preview source order is starting examples on guides → preview → controls → current React code; Studio begins with component and starting-point context instead of a showcase. Install & Usage contains the source command, current code, integration guidance and optional API disclosure. Import/export stays in Studio. Switching views preserves configuration and releases hidden preview resources.
 
-Desktop places preview and controls side by side with aligned top and bottom edges; the preview stage absorbs extra height rather than leaving a gap beneath it. Narrow containers stack them in this same order. The preview is a stable stage; controls must not compete with the effect for emphasis. Guides keep administrative tabs and advanced control search out of the quick-settings panel. Their Studio links carry validated props, variant, effective theme when supported and playback.
+Preview spans the available content width, followed by customization and current code. Fields use three columns on wide containers, two below 900px and one below 550px. The stage keeps a stable minimum height instead of stretching to the number of settings. Guides keep administrative tabs and advanced control search out of the quick-settings panel. Their Studio links carry validated props, variant, effective theme when supported and playback.
+
+Desktop, Tablet (768px) and Mobile (375px) presets sit beside playback above the stage. A native width slider supports intermediate sizes from 320px to the available width. All presets remain accessible on compact screens; the stage caps its width to available space and reports its actual size. Device selection survives task switches, changes neither SDK props nor exported code, and does not remount the renderer. This is a container-width preview, not browser or hardware emulation. See [preview layout research](docs/preview-layout.md).
 
 ## Token source
 
@@ -62,8 +64,8 @@ Use the **feature container width**, not viewport width: the Glass sidebar chang
 | Container | Contract |
 | --- | --- |
 | Below 900px | Gallery becomes two columns |
-| Below 760px | Preview/controls stack; control content loses its inner scroll limit; workflow stacks |
-| Below 550px | Catalog/gallery cards become one column; guide starting examples use two columns except Liquid's full-width interaction scenes; heading/search stack; Studio context gets a separate help row; command and transfer actions wrap |
+| Below 900px | Customization fields become two columns |
+| Below 550px | Customization fields and catalog/gallery cards become one column; device controls show labeled icons; guide starting examples use two columns except Liquid's full-width interaction scenes; heading/search stack; Studio context gets a separate help row; command and transfer actions wrap |
 
 At viewport widths 320, 390, 768, 1024 and 1440px, no document overflow is allowed. Image, voice, beam and liquid hosts fit their stage. Native selectors, command text, tabs and long preset names must not force the page wider. Zoom and longer labels are checked manually when changing composition.
 

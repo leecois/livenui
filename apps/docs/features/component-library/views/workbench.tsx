@@ -29,6 +29,7 @@ function Workbench({
 }) {
   const state = usePlayground({ library, initialExample, configuration, ...session })
   const [view, setView] = useState('preview')
+  const [previewWidth, setPreviewWidth] = useState<number | null>(null)
   const id = useId()
   const playground = useRef<HTMLHeadingElement>(null)
   const installPanel = useRef<HTMLDivElement>(null)
@@ -129,7 +130,13 @@ function Workbench({
                 <p className="helper-text">Adjust the quick settings and try the interaction.</p>
               </div>
             )}
-            <PreviewPanel library={library} theme={session.theme} state={state} />
+            <PreviewPanel
+              library={library}
+              theme={session.theme}
+              state={state}
+              width={previewWidth}
+              onWidthChange={setPreviewWidth}
+            />
             <ControlsPanel
               library={library}
               presets={session.presets}
