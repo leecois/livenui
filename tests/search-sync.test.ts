@@ -1,6 +1,48 @@
 import { expect, test } from 'bun:test'
 import { fileURLToPath } from 'node:url'
 
+for (const fail of [false, true]) {
+  test(`post-build ${fail ? 'failure produces a failing process exit' : 'success preserves a successful process exit'}`, async () => {
+    const child = Bun.spawn(
+      [
+        process.execPath,
+        '--eval',
+        `
+import assert from 'node:assert/strict';
+import { mock } from 'bun:test';
+const errors = [];
+let calls = 0;
+console.error = (...args) => errors.push(args);
+mock.module('@next/env', () => ({ default: { loadEnvConfig() {} } }));
+mock.module('./scripts/update-orama-index.ts', () => ({ updateSearchIndexes: async () => {
+  calls++;
+  if (${fail}) throw new Error('controlled sync failure');
+} }));
+await import('./scripts/post-build.ts');
+assert.equal(calls, 1);
+assert.equal(errors.length, ${fail ? 1 : 0});
+console.log('passed');
+`,
+      ],
+      {
+        cwd: fileURLToPath(new URL('../apps/docs', import.meta.url)),
+        stdout: 'pipe',
+        stderr: 'pipe',
+      }
+    )
+    const [exitCode, output, errors] = await Promise.all([
+      child.exited,
+      new Response(child.stdout).text(),
+      new Response(child.stderr).text(),
+    ])
+    expect({ exitCode, output, errors }).toEqual({
+      exitCode: fail ? 1 : 0,
+      output: 'passed\n',
+      errors: '',
+    })
+  })
+}
+
 test('remote search sync requires opt-in, credentials and an operator-supplied index', async () => {
   const child = Bun.spawn(
     [

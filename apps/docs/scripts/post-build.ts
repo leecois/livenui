@@ -9,4 +9,5 @@ async function main() {
 
 await main().catch((e) => {
   console.error('Failed to run post build script', e)
+  process.exitCode = 1
 })
