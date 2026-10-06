@@ -23,6 +23,94 @@ const metal = libraryFor('metal')
 const gooey = libraryFor('gooey')
 
 describe('configuration import and export', () => {
+  test('structured props reject incompatible shapes before rendering', () => {
+    const invalid: [string, string, object][] = [
+      ['voice', 'ring', { colors: { core: 'red' } }],
+      ['voice', 'ring', { colors: [null] }],
+      ['voice', 'ring', { bandColors: { core: 42 } }],
+      ['avatars', 'ring', { size: { width: 96 } }],
+      ['avatars', 'ring', { pose: { yaw: 'left' } }],
+      ['avatars', 'ring', { pose: { unknown: 1 } }],
+      ['image', 'ring', { revealDelayRange: { min: 2 } }],
+      ['image', 'ring', { revealDelayRange: [1] }],
+      ['image', 'ring', { revealHoldMs: [1, 'two'] }],
+      ['image', 'ring', { colors: [42] }],
+      ['orbs', 'ring', { opts: { density: 'dense' } }],
+      ['orbs', 'ring', { gravity: { sprite: { src: '/cursor.svg' } } }],
+      ['metal', 'ring', { mask: 'bad' }],
+      ['metal', 'ring', { innerShadow: { blur: 'soft' } }],
+      ['metal', 'text', { theme: 'invalid' }],
+      ['metal', 'text', { innerShadow: { blur: 1 } }],
+      ['metal', 'text', { innerShadow: true }],
+      ['metal', 'badge', { core: { r: 4 } }],
+      ['gooey', 'ring', { item: { morph: { advanced: { evolve: { cornerEase: 3 } } } } }],
+      ['gooey', 'ring', { item: { move: { advanced: { damping: 'slow' } } } }],
+      ['gooey', 'ring', { item: { bend: { vertical: false } } }],
+      ['gooey', 'ring', { item: { melt: { src: 1 } } }],
+      ['gooey', 'ring', { item: { dissolve: { warpStyle: 'invalid' } } }],
+      ['gooey', 'ring', { item: { radius: [1, 2, 3] } }],
+      ['gooey', 'ring', { item: { transition: { ease: 'linear' } } }],
+    ]
+    for (const [id, variant, props] of invalid)
+      expect(() =>
+        parseProps(JSON.stringify(props), configuredLibrary(libraryFor(id), variant))
+      ).toThrow()
+  })
+
+  test('structured validation preserves supported SDK unions and nested tuning', () => {
+    const valid: [string, string, object][] = [
+      ['voice', 'ring', { colors: ['red', 'blue'], bandColors: { core: 'red' } }],
+      ['avatars', 'ring', { size: '6rem', pose: { yaw: -0.6, pitch: 0.2, roll: 0 } }],
+      [
+        'image',
+        'ring',
+        {
+          colors: ['red', null],
+          revealDelayRange: [0, 2],
+          revealHoldMs: 5,
+          revealInitialDelay: [1, 2],
+        },
+      ],
+      ['orbs', 'ring', { opts: { custom: 1 }, gravity: true }],
+      [
+        'orbs',
+        'ring',
+        {
+          gravity: {
+            strength: 2,
+            sprite: { src: '/cursor.svg', width: 32, height: 32, hotX: 0, hotY: 0 },
+          },
+        },
+      ],
+      ['metal', 'ring', { innerShadow: { color: 'red', blur: 0.5 } }],
+      ['metal', 'text', { theme: 'dark', innerShadow: null }],
+      ['metal', 'text', { innerShadow: { offsetY: 1, blur: 0.5, alpha: 0.9 } }],
+      ['metal', 'badge', { core: { r: 46, blur: 100, a: 0.94, size: 49 } }],
+      [
+        'gooey',
+        'ring',
+        {
+          item: {
+            morph: { shape: true, advanced: { evolve: { travel: 1, cornerEase: 'ease-in' } } },
+            move: { advanced: { damping: 20 } },
+            bend: { vertical: 0.5 },
+            melt: { src: '/image.webp', gravity: 1 },
+            dissolve: { active: false, warpStyle: 'turbulence', surface: 'image' },
+            radius: [1, 2, 3, 4],
+            transition: { duration: 0.3, ease: 'linear' },
+          },
+        },
+      ],
+    ]
+    for (const [id, variant, props] of valid)
+      expect(parseProps(JSON.stringify(props), configuredLibrary(libraryFor(id), variant))).toEqual(
+        props
+      )
+    for (const transition of ['snappy', {}, { stiffness: 200 }, { duration: 0.5 }])
+      expect(
+        parseProps(JSON.stringify({ item: { transition, dissolve: 0.5, radius: 12 } }), gooey)
+      ).toEqual({ item: { transition, dissolve: 0.5, radius: 12 } })
+  })
   test('Studio handoff keeps validated props and component variants in the URL fragment', () => {
     for (const library of libraries) {
       for (const { id: variant } of library.variants) {

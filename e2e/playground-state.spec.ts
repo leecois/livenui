@@ -35,6 +35,36 @@ test.beforeEach(async ({ page }, testInfo) => {
   await page.addInitScript((value) => localStorage.setItem('theme', value), theme)
 })
 
+test('malformed structured JSON and imports preserve the working Voice preview and code', async ({
+  page,
+}) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  await page.goto('/studio?library=voice')
+  const code = page.locator('.code-panel code')
+  await expect(page.locator('.preview-stage [data-voice-beam]')).toBeVisible()
+  const before = await code.textContent()
+  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  const editor = page.getByLabel('Edit component props')
+  await editor.fill('{"colors":{"core":"red"}}')
+  await page.getByRole('button', { name: /Apply configuration/ }).click()
+  await expect(page.locator('.control-notice')).toContainText('colors has an incompatible value')
+  await expect(code).toHaveText(before || '')
+  await page.locator('summary').filter({ hasText: 'Import & export' }).click()
+  await page.getByLabel('Import configuration file').setInputFiles({
+    name: 'invalid-voice.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{"library":"voice","props":{"bandColors":{"core":42}}}'),
+  })
+  await expect(page.locator('.transfer-notice')).toContainText(
+    'bandColors has an incompatible value'
+  )
+  await expect(code).toHaveText(before || '')
+  await expect(page.locator('.preview-stage [data-voice-beam]')).toBeVisible()
+  await expect(page.locator('.preview-stage [role="alert"]')).toHaveCount(0)
+  expect(errors).toEqual([])
+})
+
 for (const library of ['orbs', 'beam', 'voice']) {
   test(`${library}: playback controls and JSON match the preview`, async ({ page }) => {
     await page.goto(`/studio?library=${library}`)

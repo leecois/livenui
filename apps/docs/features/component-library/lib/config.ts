@@ -1,6 +1,7 @@
 import catalog from '../data/catalog.json'
 import { sourceImport, sourceInstallCommand } from './distribution'
 import { meltDemoImages } from './media'
+import { validateStructuredProp } from './structured-props'
 
 export type Props = Record<string, unknown>
 export type Field = {
@@ -99,7 +100,7 @@ export function parseProps(text: string, library: Library): Props {
     if (typeof value === 'number' && Math.abs(value) > 10000) {
       throw new Error(`${key} exceeds the playground limit of 10000.`)
     }
-    if (['stream', 'audio', 'frame', 'excludeSrcs', 'reflectionTargets'].includes(key)) {
+    if (['stream', 'audio', 'frame', 'excludeSrcs', 'reflectionTargets', 'mask'].includes(key)) {
       throw new Error(`${key} requires an application reference; use it in your code instead.`)
     }
     if (
@@ -114,6 +115,8 @@ export function parseProps(text: string, library: Library): Props {
       const effect = (value as Props).effect
       if (effect !== undefined && !['morph', 'move', 'melt', 'bend'].includes(String(effect)))
         throw new Error('Unknown liquid effect.')
+    } else if (field.kind === 'json') {
+      validateStructuredProp(library.component, key, value)
     }
   }
   return result
