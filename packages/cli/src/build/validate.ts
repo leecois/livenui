@@ -5,9 +5,19 @@ export function validateOutput(registry: Output) {
     comp: OutputComponent,
     ctx: {
       stack?: Map<string, Set<string>>
+      ancestors?: Set<string>
+      visited?: Set<string>
     } = {}
   ) {
-    const { stack = new Map<string, Set<string>>() } = ctx
+    const {
+      stack = new Map<string, Set<string>>(),
+      ancestors = new Set<string>(),
+      visited = new Set<string>(),
+    } = ctx
+    if (ancestors.has(comp.name))
+      throw new Error(`Circular registry dependency: ${comp.name}`)
+    if (visited.has(comp.name)) return
+    ancestors.add(comp.name)
 
     for (const file of comp.files) {
       const parents = stack.get(file.path)
@@ -28,8 +38,12 @@ export function validateOutput(registry: Output) {
 
       validateComponent(subComp, {
         stack,
+        ancestors,
+        visited,
       })
     }
+    ancestors.delete(comp.name)
+    visited.add(comp.name)
 
     for (const file of comp.files) {
       const parents = stack.get(file.path)

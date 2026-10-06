@@ -60,6 +60,12 @@ export function createComponentInstaller(options: {
       for (const file of fileList) {
         const outputPath = this.resolveOutputPath(file)
         await assertContainedPath(projectDir, outputPath)
+        const existing = await fs.stat(outputPath).catch((error: NodeJS.ErrnoException) => {
+          if (error.code === 'ENOENT') return undefined
+          throw error
+        })
+        if (existing && !existing.isFile())
+          throw new Error(`Output target is not a file: ${outputPath}`)
         outputPaths.push({ file, outPath: outputPath })
       }
 
@@ -79,8 +85,10 @@ export function createComponentInstaller(options: {
           })
           .catch(() => 'write')
 
-        installedFiles.add(filePath)
-        if (status === 'ignore') continue
+        if (status === 'ignore') {
+          installedFiles.add(filePath)
+          continue
+        }
 
         if (status === 'need-update') {
           const override = await confirm({
@@ -93,13 +101,17 @@ export function createComponentInstaller(options: {
             process.exit(0)
           }
 
-          if (!override) continue
+          if (!override) {
+            installedFiles.add(filePath)
+            continue
+          }
         }
 
         await assertContainedPath(projectDir, outPath)
         await fs.mkdir(path.dirname(outPath), { recursive: true })
         await assertContainedPath(projectDir, outPath)
         await fs.writeFile(outPath, output)
+        installedFiles.add(filePath)
         log.step(`downloaded ${outPath}`)
       }
 
@@ -145,7 +157,7 @@ export function createComponentInstaller(options: {
           const target = fileList.find((item) => {
             const filePath = item.target ?? item.path
 
-            return filePath === lookup
+            return path.posix.normalize(registryPath(filePath)) === lookup
           })
 
           if (!target) {

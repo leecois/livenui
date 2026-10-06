@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spinner } from '@clack/prompts'
 import { x } from 'tinyexec'
+import { validateOutput } from '../packages/cli/src/build/validate'
 import { createOrLoadConfig, type LoadedConfig } from '../packages/cli/src/config'
 import { createProgram } from '../packages/cli/src/program'
 import type { OutputComponent, OutputFile } from '../packages/cli/src/registry/schema'
@@ -53,6 +54,52 @@ async function inProject(run: (project: string, outside: string) => Promise<void
 }
 
 describe('registry installation containment', () => {
+  test('preflights directory targets and can retry after the blocker is removed', async () => {
+    await inProject(async (project) => {
+      const blocked = join(project, 'src/blocked.txt')
+      await mkdir(blocked, { recursive: true })
+      const installer = createComponentInstaller({
+        projectDir: project,
+        config,
+        resolver: async () => component([file('first.txt'), file('blocked.txt')]),
+      })
+      await expect(installer.install('sample')).rejects.toThrow('Output target is not a file')
+      expect(await readdir(join(project, 'src'))).toEqual(['blocked.txt'])
+      await rm(blocked, { recursive: true })
+      await installer.install('sample')
+      expect(await readFile(join(project, 'src/first.txt'), 'utf8')).toBe('installed')
+      expect(await readFile(blocked, 'utf8')).toBe('installed')
+    })
+  })
+
+  test('resolves registry references to dot-prefixed output targets', async () => {
+    await inProject(async (project) => {
+      const installer = createComponentInstaller({
+        projectDir: project,
+        config,
+        resolver: async () =>
+          component([
+            {
+              type: 'components',
+              path: 'sample.ts',
+              target: './components/sample.ts',
+              content: "import { value } from '@/lib/value.ts'; export { value };",
+            },
+            {
+              type: 'lib',
+              path: 'value.ts',
+              target: './lib/value.ts',
+              content: 'export const value = 42;',
+            },
+          ]),
+      })
+      await installer.install('sample')
+      expect(await readFile(join(project, 'src/components/sample.ts'), 'utf8')).toContain(
+        '../lib/value'
+      )
+      expect(await readFile(join(project, 'src/lib/value.ts'), 'utf8')).toContain('value = 42')
+    })
+  })
   test('downloads shared child components once in dependency order', async () => {
     const requests: string[] = []
     const children: Record<string, string[]> = {
@@ -230,6 +277,48 @@ describe('registry installation containment', () => {
     ])
       await expect(resolve(target)).rejects.toThrow('Unsafe registry path')
   })
+})
+
+test('partial aliases retain the same omitted defaults as an absent aliases object', async () => {
+  await inProject(async (project) => {
+    const selected = join(project, 'config.json')
+    await writeFile(selected, '{}')
+    const defaults = (await createOrLoadConfig(selected)).aliases
+    expect(defaults.componentsDir).toBe('./components')
+    expect(defaults.cssDir).toBe('./styles')
+    for (const aliases of [{}, { uiDir: './custom/ui' }]) {
+      await writeFile(selected, JSON.stringify({ aliases }))
+      expect((await createOrLoadConfig(selected)).aliases).toEqual({ ...defaults, ...aliases })
+    }
+  })
+})
+
+test('registry production rejects cycles while preserving shared-child and duplicate-file checks', () => {
+  const comp = (name: string, subComponents: string[], files: OutputFile[] = []) => ({
+    ...component(files),
+    name,
+    subComponents,
+  })
+  const output = (components: OutputComponent[]) => ({ name: 'test', index: [], components })
+  expect(() => validateOutput(output([comp('self', ['self'])]))).toThrow(
+    'Circular registry dependency'
+  )
+  expect(() => validateOutput(output([comp('a', ['b']), comp('b', ['a'])]))).toThrow(
+    'Circular registry dependency'
+  )
+  expect(() =>
+    validateOutput(
+      output([
+        comp('root', ['left', 'right']),
+        comp('left', ['shared']),
+        comp('right', ['shared']),
+        comp('shared', [], [file('shared.txt')]),
+      ])
+    )
+  ).not.toThrow()
+  expect(() =>
+    validateOutput(output([comp('a', ['b'], [file('a.txt')]), comp('b', [], [file('b.txt')])]))
+  ).toThrow('Duplicated file')
 })
 
 describe('dependency subprocess results', () => {

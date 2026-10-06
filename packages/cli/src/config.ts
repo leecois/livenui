@@ -15,9 +15,9 @@ function createConfigSchema(isSrc: boolean) {
     aliases: z
       .object({
         uiDir: z.string().default(defaultAliases.uiDir),
-        componentsDir: z.string().default(defaultAliases.uiDir),
+        componentsDir: z.string().default(defaultAliases.componentsDir),
         blockDir: z.string().default(defaultAliases.blockDir),
-        cssDir: z.string().default(defaultAliases.componentsDir),
+        cssDir: z.string().default(defaultAliases.cssDir),
         libDir: z.string().default(defaultAliases.libDir),
       })
       .default(defaultAliases),
