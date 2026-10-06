@@ -20,8 +20,9 @@ export const content: Record<string, ComponentContent> = {
     purpose: 'Draw attention',
     description:
       'Highlight a primary action, focused input or important card with a moving border.',
-    hint: 'Change Size and Color variant, then press Play to compare the border.',
+    hint: 'Change Style and Color variant, then press Play to compare the border.',
     controls: ['size', 'colorVariant', 'duration', 'glowSize'],
+    labels: { size: 'Style' },
     featured: ['beam-size-md', 'beam-size-line', 'beam-size-pulse-outside'],
   },
   orbs: {
@@ -79,7 +80,7 @@ export const content: Record<string, ComponentContent> = {
     controls: ['type', 'state', 'shading', 'size'],
     labels: { type: 'Shape', state: 'Activity', shading: 'Material' },
     choices: {
-      size: [96, 64, 32],
+      size: [32, 64, 96],
       state: ['default', 'working', 'sleeping'],
       shading: ['fabric', 'plastic', 'crisp', 'smooth', 'flat'],
     },

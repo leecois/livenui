@@ -303,7 +303,7 @@
 }
 .agent-libraries .fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--livenui-space-3);
   align-items: start;
 }
@@ -311,6 +311,24 @@
   display: flex;
   flex-direction: column;
   gap: var(--livenui-space-2);
+  min-width: 0;
+  grid-column: span 2;
+}
+.agent-libraries .field-choice,
+.agent-libraries .field-select,
+.agent-libraries .field-switch {
+  grid-column: span 3;
+}
+.agent-libraries .choice-row,
+.agent-libraries .field-select,
+.agent-libraries .field-switch {
+  display: grid;
+  grid-template-columns: calc(var(--livenui-space-8) * 3 + var(--livenui-space-4)) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--livenui-space-3);
+  min-height: calc(var(--livenui-control-height) + var(--livenui-space-2) + 2px);
+}
+.agent-libraries .choice-row {
   min-width: 0;
 }
 .agent-libraries .field label {
@@ -324,7 +342,14 @@
 .agent-libraries .field .field-heading {
   min-height: calc(var(--livenui-font-label) * 1.5);
   align-items: baseline;
+  font-size: var(--livenui-font-label);
+  line-height: 1.5;
   color: var(--foreground);
+}
+.agent-libraries .choice-row .field-heading,
+.agent-libraries .field-select .field-heading,
+.agent-libraries .field-switch .field-heading {
+  color: var(--muted);
 }
 .agent-libraries .field-range {
   flex: none;
@@ -334,9 +359,7 @@
 }
 .agent-libraries .number-row,
 .agent-libraries .color-row,
-.agent-libraries .text-row,
-.agent-libraries .switch-row,
-.agent-libraries .field-select > .select-control {
+.agent-libraries .text-row {
   display: flex;
   align-items: center;
   min-width: 0;
@@ -348,42 +371,37 @@
 }
 .agent-libraries .field-select > .select-control {
   width: 100%;
+  max-width: 240px;
+  border-radius: var(--livenui-radius-control);
 }
-.agent-libraries .field-select select,
 .agent-libraries .field .text-row input {
   background: transparent;
   border: 0;
 }
 .agent-libraries .field-select select {
   padding-inline-end: var(--livenui-space-8);
+  background: var(--track);
+  transition: border-color 160ms;
+}
+.agent-libraries .field-select select:hover {
+  border-color: var(--ring);
 }
 .agent-libraries .field-select .select-control svg {
   inset-inline-end: var(--livenui-space-3);
 }
-.agent-libraries .control-groups {
-  display: grid;
-  gap: var(--livenui-space-5);
+.agent-libraries .control-divider {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--border);
 }
-.agent-libraries .control-groups:not([data-advanced]) {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--livenui-space-3);
-  align-items: start;
-}
-.agent-libraries .control-groups:not([data-advanced]) .control-group,
-.agent-libraries .control-groups:not([data-advanced]) .fields {
-  display: contents;
-}
-.agent-libraries .control-groups:not([data-advanced]) .control-group h3 {
-  display: none;
-}
-.agent-libraries .control-group {
-  min-width: 0;
-}
-.agent-libraries .control-group h3 {
-  margin: 0 0 var(--livenui-space-3);
+.agent-libraries .control-group-heading {
+  grid-column: 1 / -1;
+  margin: var(--livenui-space-2) 0 0;
   color: var(--muted);
   font-size: var(--livenui-font-caption);
   font-weight: 550;
+}
+.agent-libraries .control-group-heading:first-child {
+  margin-top: 0;
 }
 .agent-libraries .number-track {
   position: relative;
@@ -532,10 +550,14 @@
   background: var(--swatch);
 }
 .agent-libraries .switch-row {
-  justify-content: space-between;
-  padding-inline-start: var(--livenui-space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--livenui-space-2);
+  min-width: 0;
+  min-height: var(--livenui-control-height);
 }
 .agent-libraries .switch-status {
+  order: 1;
   color: var(--muted);
   font-size: var(--livenui-font-label);
 }
@@ -667,22 +689,20 @@
 }
 .agent-libraries .field-choice legend {
   padding: 0;
-  margin-bottom: var(--livenui-space-2);
-  color: var(--foreground);
-  font-size: var(--livenui-font-label);
-  line-height: 1.5;
 }
 .agent-libraries .field-choice[data-wide] {
-  grid-column: span 2;
+  grid-column: 1 / -1;
 }
 .agent-libraries .field-options {
   display: flex;
+  width: fit-content;
+  max-width: 100%;
   flex-wrap: wrap;
   gap: var(--livenui-space-1);
   padding: var(--livenui-space-1);
   min-height: calc(var(--livenui-control-height) + var(--livenui-space-2) + 2px);
   border: 1px solid var(--border);
-  border-radius: var(--livenui-radius-panel);
+  border-radius: var(--livenui-radius-control);
   background: var(--track);
 }
 .agent-libraries .field-choice .field-option {
@@ -710,6 +730,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--livenui-space-2);
   min-height: var(--livenui-control-height);
   min-width: var(--livenui-control-height);
   padding: var(--livenui-space-2);
@@ -719,6 +740,15 @@
   background: transparent;
   color: var(--foreground);
   line-height: 1.5;
+  transition: background 160ms;
+}
+.agent-libraries .field-option input:not(:checked):hover + span {
+  background: var(--surface);
+}
+.agent-libraries .field-choice .size-preview {
+  width: var(--livenui-space-4);
+  height: var(--livenui-space-4);
+  flex: none;
 }
 .agent-libraries .field-option input:checked + span {
   background: var(--gradient-accent);
@@ -733,18 +763,24 @@
   margin-top: var(--livenui-space-2);
 }
 @container (width < 900px) {
-  .agent-libraries .fields,
-  .agent-libraries .control-groups:not([data-advanced]) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .agent-libraries .field {
+    grid-column: span 3;
+  }
+  .agent-libraries .field-choice,
+  .agent-libraries .field-select,
+  .agent-libraries .field-switch {
+    grid-column: 1 / -1;
   }
 }
 @container (width < 550px) {
-  .agent-libraries .fields,
-  .agent-libraries .control-groups:not([data-advanced]) {
-    grid-template-columns: minmax(0, 1fr);
+  .agent-libraries .field {
+    grid-column: 1 / -1;
   }
-  .agent-libraries .field-choice[data-wide] {
-    grid-column: auto;
+  .agent-libraries .choice-row,
+  .agent-libraries .field-select,
+  .agent-libraries .field-switch {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--livenui-space-2);
   }
   .agent-libraries .controls-heading {
     grid-template-columns: minmax(0, 1fr) auto;

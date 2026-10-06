@@ -34,39 +34,51 @@ export function FieldControl({
         aria-label={label}
         data-wide={choices.length > 3 || undefined}
       >
-        <legend className="field-heading" title={field.description}>
-          {label}
-        </legend>
-        <div className="field-options">
-          {choices.map((option) => (
-            <label className="field-option" key={String(option)}>
-              <input
-                type="radio"
-                name={id}
-                value={String(option)}
-                checked={value === option && (!sizeSpec || !customSize)}
-                onChange={() => {
-                  setCustomSize(false)
-                  set(option)
-                }}
-              />
-              <span>{optionLabel(field.name, option)}</span>
-            </label>
-          ))}
-          {sizeSpec && (
-            <label className="field-option">
-              <input
-                type="radio"
-                name={id}
-                checked={customSize || (value !== undefined && !choices.includes(value as number))}
-                onChange={() => {
-                  onDraft()
-                  setCustomSize(true)
-                }}
-              />
-              <span>Custom</span>
-            </label>
-          )}
+        <legend className="sr-only">{label}</legend>
+        <div className="choice-row">
+          <span className="field-heading" title={field.description} aria-hidden="true">
+            {label}
+          </span>
+          <div className="field-options">
+            {choices.map((option) => (
+              <label className="field-option" key={String(option)}>
+                <input
+                  type="radio"
+                  name={id}
+                  value={String(option)}
+                  checked={value === option && (!sizeSpec || !customSize)}
+                  onChange={() => {
+                    setCustomSize(false)
+                    set(option)
+                  }}
+                />
+                <span>
+                  {sizeSpec && typeof option === 'number' && (
+                    <svg className="size-preview" viewBox="0 0 16 16" aria-hidden="true">
+                      <circle cx="8" cy="8" r={option / 16} fill="currentColor" />
+                    </svg>
+                  )}
+                  {optionLabel(field.name, option)}
+                </span>
+              </label>
+            ))}
+            {sizeSpec && (
+              <label className="field-option">
+                <input
+                  type="radio"
+                  name={id}
+                  checked={
+                    customSize || (value !== undefined && !choices.includes(value as number))
+                  }
+                  onChange={() => {
+                    onDraft()
+                    setCustomSize(true)
+                  }}
+                />
+                <span>Custom</span>
+              </label>
+            )}
+          </div>
         </div>
         {sizeSpec &&
           (customSize || (value !== undefined && !choices.includes(value as number))) && (

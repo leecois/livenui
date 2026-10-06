@@ -23,17 +23,26 @@ test.beforeEach(async ({ page }, testInfo) => {
 async function alignedFields(panel: Locator) {
   const fields = await panel.locator('.fields > .field').evaluateAll((nodes) =>
     nodes.map((node) => {
-      const heading = node.querySelector('.field-heading')?.getBoundingClientRect()
+      const label = node.querySelector('.field-heading')
+      const heading = label?.getBoundingClientRect()
       const shell = node
         .querySelector(
           '.field-options,.number-row,.color-row,.switch-row,.text-row,.select-control'
         )
         ?.getBoundingClientRect()
-      if (!heading || !shell) throw new Error('Incomplete settings field')
+      if (!label || !heading || !shell) throw new Error('Incomplete settings field')
       const targets = [...node.querySelectorAll('input,select')].map(
         (target) => target.getBoundingClientRect().height
       )
       return {
+        labelFont: getComputedStyle(label).fontSize,
+        labelLine: getComputedStyle(label).lineHeight,
+        categorical: node.matches('.field-choice,.field-select,.field-switch'),
+        inset: shell.left - heading.right,
+        centered: Math.abs(heading.top + heading.height / 2 - (shell.top + shell.height / 2)),
+        minimumHeight: node.matches('.field-select,.field-switch') ? 44 : 54,
+        top: node.getBoundingClientRect().top,
+        bottom: node.getBoundingClientRect().bottom,
         headingTop: heading.top,
         gap: shell.top - heading.bottom,
         shellTop: shell.top,
@@ -44,13 +53,37 @@ async function alignedFields(panel: Locator) {
   )
   expect(fields.length).toBeGreaterThan(0)
   for (const field of fields) {
-    expect(field.gap).toBeCloseTo(8, 0)
-    expect(field.shellHeight).toBeGreaterThanOrEqual(54)
+    expect(field.labelFont).toBe('13px')
+    expect(field.labelLine).toBe('19.5px')
+    if (field.categorical && field.inset >= 0) {
+      expect(field.inset).toBeCloseTo(12, 0)
+      expect(field.centered).toBeLessThan(1)
+    } else {
+      expect(field.gap).toBeCloseTo(8, 0)
+    }
+    expect(field.shellHeight).toBeGreaterThanOrEqual(field.minimumHeight)
     for (const height of field.targets) expect(height).toBeGreaterThanOrEqual(44)
     for (const sibling of fields) {
-      if (Math.abs(field.headingTop - sibling.headingTop) < 1) {
+      if (
+        !field.categorical &&
+        !sibling.categorical &&
+        Math.abs(field.headingTop - sibling.headingTop) < 1
+      ) {
         expect(Math.abs(field.shellTop - sibling.shellTop)).toBeLessThan(1)
       }
+    }
+  }
+  if (!(await panel.locator('[data-advanced]').count())) {
+    expect(fields.map((field) => field.top)).toEqual(
+      [...fields.map((field) => field.top)].sort((a, b) => a - b)
+    )
+    const categories = fields.filter((field) => field.categorical)
+    const values = fields.filter((field) => !field.categorical)
+    if (categories.length && values.length) {
+      expect(
+        Math.min(...values.map((field) => field.top)) -
+          Math.max(...categories.map((field) => field.bottom))
+      ).toBeGreaterThanOrEqual(24)
     }
   }
 }
@@ -68,7 +101,7 @@ async function fullCapture(page: Page, path: string) {
   await page.screenshot({ path, fullPage: true })
 }
 
-test('all settings use aligned labels and controls across Guide and Studio libraries', async ({
+test('categorical rows and value grids align across Guide and Studio libraries', async ({
   page,
 }, testInfo) => {
   for (const library of ['beam', 'orbs', 'metal', 'gooey', 'voice', 'image', 'avatars']) {
@@ -83,9 +116,7 @@ test('all settings use aligned labels and controls across Guide and Studio libra
       ).toBeVisible()
       await contained(panel)
       await alignedFields(panel)
-      for (const heading of await panel.locator('.control-group > h3').all()) {
-        await expect(heading).toBeHidden()
-      }
+      await expect(panel.locator('.control-group-heading')).toHaveCount(0)
       await expect(panel.getByRole('tablist')).toHaveCount(view === 'studio' ? 1 : 0)
       if (view === 'studio') {
         const heading = await panel.locator('.controls-heading').boundingBox()
@@ -107,7 +138,7 @@ test('all settings use aligned labels and controls across Guide and Studio libra
         await panel.getByRole('button', { name: 'Show advanced settings' }).click()
         await contained(panel)
         await alignedFields(panel)
-        for (const heading of await panel.locator('.control-group > h3').all()) {
+        for (const heading of await panel.locator('.control-group-heading').all()) {
           await expect(heading).toBeVisible()
         }
         await panel.screenshot({ path: testInfo.outputPath(`settings-${library}-advanced.png`) })
@@ -152,10 +183,49 @@ test('numeric focus has one indicator and keeps quick settings geometry stable',
   await panel.screenshot({ path: testInfo.outputPath('metal-focused-settings.png') })
 })
 
+test('Guide and Studio share direct style choices and compact native selects', async ({ page }) => {
+  for (const path of ['/agents/beam', '/studio?library=beam']) {
+    await page.goto(path)
+    const panel = page.locator('.controls-panel')
+    const styles = panel.getByRole('group', { name: 'Style', exact: true })
+    await expect(styles.getByRole('radio')).toHaveCount(5)
+    const line = styles.getByRole('radio', { name: 'Line', exact: true })
+    await line.check()
+    await expect(page.locator('.code-panel code')).toContainText('size={"line"}')
+    await line.focus()
+    await line.press('ArrowRight')
+    await expect(styles.getByRole('radio', { name: 'Outer pulse', exact: true })).toBeChecked()
+    await expect(page.locator('.code-panel code')).toContainText('size={"pulse-outside"}')
+    const select = panel.getByRole('combobox', { name: 'Color Variant', exact: true })
+    await select.selectOption('sunset')
+    await expect(page.locator('.code-panel code')).toContainText('colorVariant={"sunset"}')
+    await select.focus()
+    expect(
+      await select.locator('..').evaluate((element) => ({
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
+        rings: [element, ...element.querySelectorAll('*')].filter(
+          (node) => getComputedStyle(node).outlineStyle === 'solid'
+        ).length,
+        chevron: getComputedStyle(element.querySelector('svg') as SVGElement).pointerEvents,
+      }))
+    ).toEqual({ width: expect.any(Number), height: 44, rings: 1, chevron: 'none' })
+    expect(
+      await select.evaluate((element) => element.getBoundingClientRect().width)
+    ).toBeLessThanOrEqual(240)
+    await contained(panel)
+  }
+})
+
 test('numbers, switches and radio tracks preserve typed configuration and keyboard focus', async ({
   page,
 }, testInfo) => {
   await page.goto('/studio?library=image')
+  await page.getByRole('radio', { name: 'Organic pixels', exact: true }).focus()
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('checkbox', { name: 'Auto Reveal', exact: true })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('slider', { name: 'Adjust Strength', exact: true })).toBeFocused()
   const speed = page.getByRole('spinbutton', { name: 'Speed', exact: true })
   await speed.fill('1.75')
   await speed.press('Enter')
@@ -207,7 +277,7 @@ test('advanced settings and configuration tabs fit narrow widths and long saved 
   await page.goto('/studio?library=metal')
   const panel = page.locator('.controls-panel')
   await panel.getByRole('button', { name: 'Show advanced settings' }).click()
-  await expect(panel.locator('.control-group')).not.toHaveCount(0)
+  await expect(panel.locator('.control-group-heading')).not.toHaveCount(0)
   for (const width of [1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 })
     await contained(panel)

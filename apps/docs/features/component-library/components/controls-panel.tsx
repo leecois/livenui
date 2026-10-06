@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library, Preset } from '../lib/config'
 import { content } from '../lib/content'
-import { type ControlGroup, controlGroup } from '../lib/controls'
+import { controlGroup } from '../lib/controls'
 import type { Navigate } from '../lib/types'
 import { FieldControl } from './field-control'
 import { Link } from './link'
@@ -74,28 +74,16 @@ export function ControlsPanel({
     deletePreset,
     reset,
   } = state
-  const fields = (items: Library['fields']) => (
-    <div className="fields">
-      {items.map((field) => (
-        <FieldControl
-          key={`${field.name}-${state.controlVersion}`}
-          library={state.activeLibrary}
-          field={field}
-          value={props[field.name]}
-          label={content[library.id].labels?.[field.name]}
-          choices={
-            content[library.id].choices?.[field.name] ||
-            (field.kind === 'select' && field.options.length <= 3
-              ? field.options
-              : !studio && field.kind === 'select' && field.options.length <= 6
-                ? field.options
-                : undefined)
-          }
-          set={(value) => update(field.name, value)}
-          onDraft={state.editControl}
-        />
-      ))}
-    </div>
+  const groups = ['Appearance', 'Motion', 'Interaction']
+  const categorical = (field: Library['fields'][number]) =>
+    field.kind === 'select' ||
+    field.kind === 'boolean' ||
+    !!content[library.id].choices?.[field.name]?.length
+  const advanced = studio && all
+  const ordered = [...controls].sort(
+    (first, second) =>
+      (advanced ? groups.indexOf(controlGroup(first)) - groups.indexOf(controlGroup(second)) : 0) ||
+      Number(categorical(second)) - Number(categorical(first))
   )
   return (
     <aside className="controls-panel">
@@ -156,17 +144,48 @@ export function ControlsPanel({
                 onChange={(event) => setQuery(event.target.value)}
               />
             )}
-            <div className="control-groups" data-advanced={(studio && all) || undefined}>
-              {(['Appearance', 'Motion', 'Interaction'] as ControlGroup[]).map((group) => {
-                const items = controls.filter((field) => controlGroup(field) === group)
-                if (!items.length) return null
-                return (
-                  <section className="control-group" key={group} aria-label={`${group} settings`}>
-                    <h3>{group}</h3>
-                    {fields(items)}
-                  </section>
-                )
-              })}
+            <div className="control-groups" data-advanced={advanced || undefined}>
+              <div className="fields">
+                {ordered.flatMap((field, index) => {
+                  const group = controlGroup(field)
+                  const previous = ordered[index - 1]
+                  const startsGroup = advanced && (!previous || controlGroup(previous) !== group)
+                  const divider =
+                    !categorical(field) &&
+                    previous &&
+                    categorical(previous) &&
+                    (!advanced || controlGroup(previous) === group)
+                  return [
+                    startsGroup && (
+                      <h3 className="control-group-heading" key={`heading-${group}`}>
+                        {group}
+                      </h3>
+                    ),
+                    divider && (
+                      <div
+                        className="control-divider"
+                        aria-hidden="true"
+                        key={`divider-${group}`}
+                      />
+                    ),
+                    <FieldControl
+                      key={`${field.name}-${state.controlVersion}`}
+                      library={state.activeLibrary}
+                      field={field}
+                      value={props[field.name]}
+                      label={content[library.id].labels?.[field.name]}
+                      choices={
+                        content[library.id].choices?.[field.name] ||
+                        (field.kind === 'select' && field.options.length <= 6
+                          ? field.options
+                          : undefined)
+                      }
+                      set={(value) => update(field.name, value)}
+                      onDraft={state.editControl}
+                    />,
+                  ]
+                })}
+              </div>
             </div>
             {controls.length === 0 && <p className="muted">No matching controls.</p>}
             <div className="control-footer">
