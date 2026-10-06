@@ -25,12 +25,17 @@ async function alignedFields(panel: Locator) {
     nodes.map((node) => {
       const label = node.querySelector('.field-heading')
       const heading = label?.getBoundingClientRect()
-      const shell = node
-        .querySelector(
-          '.field-options,.number-row,.color-row,.switch-row,.text-row,.select-control'
-        )
-        ?.getBoundingClientRect()
+      const shell = (
+        node.matches('.field-select')
+          ? node
+          : node.querySelector(
+              '.field-options,.number-row,.color-row,.switch-row,.text-row,.select-control'
+            )
+      )?.getBoundingClientRect()
       if (!label || !heading || !shell) throw new Error('Incomplete settings field')
+      const exact = node
+        .querySelector('.number-value,.color-row > input,.text-row > input,select')
+        ?.getBoundingClientRect()
       const targets = [...node.querySelectorAll('input,select')].map(
         (target) => target.getBoundingClientRect().height
       )
@@ -38,9 +43,16 @@ async function alignedFields(panel: Locator) {
         labelFont: getComputedStyle(label).fontSize,
         labelLine: getComputedStyle(label).lineHeight,
         categorical: node.matches('.field-choice,.field-select,.field-switch'),
+        inline: node.matches('.field-numeric,.field-color,.field-text,.field-select'),
+        valueGap: exact ? exact.left - heading.right : undefined,
+        contained:
+          heading.left >= shell.left &&
+          heading.right <= shell.right &&
+          heading.top >= shell.top &&
+          heading.bottom <= shell.bottom,
         inset: shell.left - heading.right,
         centered: Math.abs(heading.top + heading.height / 2 - (shell.top + shell.height / 2)),
-        minimumHeight: node.matches('.field-select,.field-switch') ? 44 : 54,
+        minimumHeight: node.matches('.field-switch') ? 44 : node.matches('.field-choice') ? 46 : 54,
         top: node.getBoundingClientRect().top,
         bottom: node.getBoundingClientRect().bottom,
         headingTop: heading.top,
@@ -55,7 +67,11 @@ async function alignedFields(panel: Locator) {
   for (const field of fields) {
     expect(field.labelFont).toBe('13px')
     expect(field.labelLine).toBe('19.5px')
-    if (field.categorical && field.inset >= 0) {
+    if (field.inline) {
+      expect(field.contained).toBe(true)
+      expect(field.centered).toBeLessThan(1)
+      expect(field.valueGap).toBeGreaterThanOrEqual(0)
+    } else if (field.categorical && field.inset >= 0) {
       expect(field.inset).toBeCloseTo(12, 0)
       expect(field.centered).toBeLessThan(1)
     } else {
@@ -183,12 +199,23 @@ test('numeric focus has one indicator and keeps quick settings geometry stable',
   await panel.screenshot({ path: testInfo.outputPath('metal-focused-settings.png') })
 })
 
-test('Guide and Studio share direct style choices and compact native selects', async ({ page }) => {
+test('Guide and Studio share joined style choices and compound native selects', async ({
+  page,
+}) => {
   for (const path of ['/agents/beam', '/studio?library=beam']) {
     await page.goto(path)
     const panel = page.locator('.controls-panel')
     const styles = panel.getByRole('group', { name: 'Style', exact: true })
     await expect(styles.getByRole('radio')).toHaveCount(5)
+    expect(
+      await styles.locator('.field-options').evaluate((element) => ({
+        gap: getComputedStyle(element).gap,
+        padding: getComputedStyle(element).padding,
+        rowHeight:
+          (element.getBoundingClientRect().height - 2) /
+          new Set([...element.children].map((child) => child.getBoundingClientRect().top)).size,
+      }))
+    ).toEqual({ gap: '0px', padding: '0px', rowHeight: 44 })
     const line = styles.getByRole('radio', { name: 'Line', exact: true })
     await line.check()
     await expect(page.locator('.code-panel code')).toContainText('size={"line"}')
@@ -201,18 +228,25 @@ test('Guide and Studio share direct style choices and compact native selects', a
     await expect(page.locator('.code-panel code')).toContainText('colorVariant={"sunset"}')
     await select.focus()
     expect(
-      await select.locator('..').evaluate((element) => ({
-        width: element.getBoundingClientRect().width,
-        height: element.getBoundingClientRect().height,
-        rings: [element, ...element.querySelectorAll('*')].filter(
-          (node) => getComputedStyle(node).outlineStyle === 'solid'
-        ).length,
-        chevron: getComputedStyle(element.querySelector('svg') as SVGElement).pointerEvents,
-      }))
-    ).toEqual({ width: expect.any(Number), height: 44, rings: 1, chevron: 'none' })
-    expect(
-      await select.evaluate((element) => element.getBoundingClientRect().width)
-    ).toBeLessThanOrEqual(240)
+      await select
+        .locator('..')
+        .locator('..')
+        .evaluate((element) => ({
+          width: element.getBoundingClientRect().width,
+          height: element.getBoundingClientRect().height,
+          targetHeight: element.querySelector('select')?.getBoundingClientRect().height,
+          rings: [element, ...element.querySelectorAll('*')].filter(
+            (node) => getComputedStyle(node).outlineStyle === 'solid'
+          ).length,
+          chevron: getComputedStyle(element.querySelector('svg') as SVGElement).pointerEvents,
+        }))
+    ).toEqual({
+      width: expect.any(Number),
+      height: 54,
+      targetHeight: 44,
+      rings: 1,
+      chevron: 'none',
+    })
     await contained(panel)
   }
 })

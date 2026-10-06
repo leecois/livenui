@@ -66,7 +66,7 @@ test('numeric drafts, limits, custom values and default use one configuration', 
   await expect(code).toContainText('strength={3}')
 })
 
-test('neutral tracks drag live, keep the renderer and support keyboard cancellation', async ({
+test('filled dials drag without jumping, keep the renderer and support cancellation', async ({
   page,
 }, testInfo) => {
   await page.goto('/studio?library=image')
@@ -92,12 +92,41 @@ test('neutral tracks drag live, keep the renderer and support keyboard cancellat
   expect(box.height).toBeGreaterThanOrEqual(44)
   await page.mouse.move(box.x + box.width * 0.2, box.y + box.height / 2)
   await page.mouse.down()
+  await expect(speed).toHaveValue('2.45')
   await page.mouse.move(box.x + box.width * 0.8, box.y + box.height / 2, { steps: 6 })
   await expect(speed).not.toHaveValue('2.45')
   await page.keyboard.press('Escape')
   await page.mouse.move(box.x + box.width * 0.7, box.y + box.height / 2)
   await page.mouse.up()
   await expect(speed).toHaveValue('2.45')
+  await range.dblclick({ position: { x: box.width * 0.2, y: box.height / 2 } })
+  await expect(speed).toHaveValue('')
+  await expect(page.locator('.code-panel code')).not.toContainText('speed={')
+  await speed.fill('1.75')
+  await range.evaluate((input) => {
+    input.addEventListener(
+      'gotpointercapture',
+      (event) => {
+        ;(input as HTMLElement).dataset.probePointer = String((event as PointerEvent).pointerId)
+      },
+      { once: true }
+    )
+  })
+  await page.mouse.move(box.x + box.width * 0.2, box.y + box.height / 2)
+  await page.mouse.down()
+  await expect(speed).toHaveValue('1.75')
+  await expect(page.locator('.code-panel code')).toContainText('speed={1.75}')
+  await range.dispatchEvent('pointerup', { pointerId: 7, isPrimary: false })
+  await page.mouse.move(box.x + box.width + 40, box.y + box.height / 2)
+  await expect(speed).toHaveValue('3')
+  await range.evaluate((input) => {
+    const element = input as HTMLInputElement
+    const pointer = Number(element.dataset.probePointer)
+    if (!element.hasPointerCapture(pointer)) throw new Error('Missing dial pointer capture')
+    element.releasePointerCapture(pointer)
+  })
+  await page.mouse.up()
+  await expect(speed).toHaveValue('1.75')
   await expect(host).toHaveAttribute('data-control-probe', 'retained')
   await range.focus()
   expect(
@@ -113,11 +142,13 @@ test('neutral tracks drag live, keep the renderer and support keyboard cancellat
   })
 })
 
-test('touch dragging updates values and cancellation restores the prior value', async ({
+test('touch dials drag relatively, restore on cancellation and retain released values', async ({
   page,
 }) => {
   await page.goto('/studio?library=image')
   const range = page.getByRole('slider', { name: 'Adjust Speed', exact: true })
+  await page.locator('.preview-stage').scrollIntoViewIfNeeded()
+  await expect(page.locator('.preview-stage canvas').first()).toBeVisible()
   await range.scrollIntoViewIfNeeded()
   const box = await range.boundingBox()
   if (!box) throw new Error('Missing numeric track')
@@ -127,6 +158,7 @@ test('touch dragging updates values and cancellation restores the prior value', 
       type: 'touchStart',
       touchPoints: [{ x: box.x + box.width * 0.2, y: box.y + box.height / 2 }],
     })
+    await expect(page.locator('#prop-speed')).toHaveValue('1')
     await session.send('Input.dispatchTouchEvent', {
       type: 'touchMove',
       touchPoints: [{ x: box.x + box.width * 0.8, y: box.y + box.height / 2 }],
@@ -134,6 +166,19 @@ test('touch dragging updates values and cancellation restores the prior value', 
     await expect(page.locator('#prop-speed')).not.toHaveValue('1')
     await session.send('Input.dispatchTouchEvent', { type: 'touchCancel', touchPoints: [] })
     await expect(page.locator('#prop-speed')).toHaveValue('1')
+    await session.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: box.x + box.width * 0.2, y: box.y + box.height / 2 }],
+    })
+    await expect(page.locator('#prop-speed')).toHaveValue('1')
+    await session.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ x: box.x + box.width * 0.4, y: box.y + box.height / 2 }],
+    })
+    await expect(page.locator('#prop-speed')).toHaveValue('1.55')
+    await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await expect(page.locator('#prop-speed')).toHaveValue('1.55')
+    await expect(page.locator('.code-panel code')).toContainText('speed={1.55}')
   } finally {
     await session.detach()
   }
@@ -188,6 +233,7 @@ test('color drafts preserve CSS expressions and reject unsupported input before 
   const color = 'color-mix(in srgb, var(--foreground) 25%, var(--surface))'
   await fill.fill(color)
   await fill.press('Enter')
+  await expect(fill).toHaveAttribute('title', color)
   await expect(code).toContainText(`fill={"${color}"}`)
   await fill.fill('invalid-color')
   await fill.press('Enter')

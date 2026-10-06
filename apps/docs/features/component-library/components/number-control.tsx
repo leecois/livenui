@@ -25,8 +25,16 @@ export function NumberControl({
   const [draft, setDraft] = useState(text)
   const [previous, setPrevious] = useState(value)
   const [error, setError] = useState('')
+  const [dragging, setDragging] = useState(false)
   const invalidNumber = useRef(false)
-  const gesture = useRef<{ value: unknown; cancelled?: boolean } | null>(null)
+  const gesture = useRef<{
+    value: unknown
+    start: number
+    x: number
+    width: number
+    pointer: number
+    cancelled?: boolean
+  } | null>(null)
   if (previous !== value) {
     setPrevious(value)
     setDraft(text)
@@ -38,19 +46,19 @@ export function NumberControl({
   const position = Math.max(0, Math.min(1, (numeric - spec.min) / (spec.max - spec.min)))
   const custom = typeof value === 'number' && (value < spec.min || value > spec.max)
   const range = `${spec.min}–${spec.max}${spec.unit || ''}`
-  const hint = `${range} while dragging, in steps of ${spec.step}. Arrow keys adjust; Shift uses larger steps. Enter applies a typed value; Escape cancels. Default omits this prop.`
+  const hint = `${range} while dragging, in steps of ${spec.step}. Drag left or right to adjust without jumping. Arrow keys adjust; Shift uses larger steps. Enter applies a typed value; Escape cancels. Double-click or Default omits this prop.`
 
   const commit = () => {
     const input = draft.trim()
     if (input === text && !invalidNumber.current) {
       setError('')
-      return
+      return value
     }
     const next = input === '' ? undefined : Number(input)
     if (allowLength && input && !Number.isFinite(next) && CSS.supports('width', input)) {
       if (value !== input) set(input)
       setError('')
-      return
+      return input
     }
     const message = invalidNumber.current
       ? 'Enter a valid number.'
@@ -59,73 +67,119 @@ export function NumberControl({
         : numberError(next, spec)
     if (message) {
       setError(message)
-      return
+      return value
     }
     if (value !== next) set(next)
     setDraft(next === undefined ? '' : String(next))
     setError('')
+    return next
+  }
+  const reset = () => {
+    gesture.current = null
+    setDragging(false)
+    invalidNumber.current = false
+    setDraft('')
+    setError('')
+    set(undefined)
+  }
+  const finish = (input: HTMLInputElement, pointer: number, cancel = false) => {
+    const active = gesture.current
+    if (!active || active.pointer !== pointer) return
+    gesture.current = null
+    setDragging(false)
+    if (cancel && !active.cancelled) set(active.value)
+    if (input.hasPointerCapture(active.pointer)) input.releasePointerCapture(active.pointer)
   }
   return (
     <div className="field field-numeric">
-      <label className="field-heading" htmlFor={id} title={`${description} ${hint}`}>
-        <span>{label}</span>
-        <span className="field-range" aria-hidden="true">
-          {range}
-        </span>
-      </label>
       <div
         className="number-row"
+        data-dragging={dragging || undefined}
         data-auto={value === undefined || undefined}
         data-custom={custom || undefined}
         data-invalid={!!error || undefined}
         style={{ '--number-fill': `${value === undefined ? 0 : position * 100}%` } as CSSProperties}
       >
-        <div className="number-track">
-          <input
-            type="range"
-            id={`${id}-range`}
-            aria-label={`Adjust ${label}`}
-            aria-describedby={`${id}-hint`}
-            title={hint}
-            aria-valuetext={
-              value === undefined
-                ? 'Auto; drag to set a value'
-                : `${text}${typeof value === 'number' ? spec.unit || '' : ''}${custom ? '; outside drag range' : ''}`
+        <span className="number-meter" aria-hidden="true" />
+        <input
+          className="number-track"
+          type="range"
+          id={`${id}-range`}
+          aria-label={`Adjust ${label}`}
+          aria-describedby={`${id}-hint`}
+          title={`${description} ${hint}`}
+          aria-valuetext={
+            value === undefined
+              ? 'Auto; drag to set a value'
+              : `${text}${typeof value === 'number' ? spec.unit || '' : ''}${custom ? '; outside drag range' : ''}`
+          }
+          min={spec.min}
+          max={spec.max}
+          step={spec.step}
+          value={Math.max(spec.min, Math.min(spec.max, numeric))}
+          onChange={(event) => {
+            if (gesture.current) {
+              event.currentTarget.value = String(Math.max(spec.min, Math.min(spec.max, numeric)))
+            } else {
+              set(snapNumber(Number(event.target.value), spec))
             }
-            min={spec.min}
-            max={spec.max}
-            step={spec.step}
-            value={Math.max(spec.min, Math.min(spec.max, numeric))}
-            onChange={(event) => {
-              if (!gesture.current?.cancelled) set(snapNumber(Number(event.target.value), spec))
-            }}
-            onPointerDown={() => {
-              gesture.current = { value }
-            }}
-            onPointerUp={() => {
-              gesture.current = null
-            }}
-            onPointerCancel={() => {
-              if (gesture.current) set(gesture.current.value)
-              gesture.current = null
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape' && gesture.current) {
-                event.preventDefault()
-                set(gesture.current.value)
-                gesture.current.cancelled = true
-              } else if (
-                event.shiftKey &&
-                ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
-              ) {
-                event.preventDefault()
-                const sign = ['ArrowLeft', 'ArrowDown'].includes(event.key) ? -1 : 1
-                set(snapNumber(numeric + sign * spec.step * 10, spec))
-              }
-            }}
-          />
-          <span className="number-meter" aria-hidden="true" />
-        </div>
+          }}
+          onPointerDown={(event) => {
+            if (event.button !== 0 || !event.isPrimary) return
+            event.preventDefault()
+            const initial = commit()
+            const input = event.currentTarget
+            input.focus({ preventScroll: true })
+            input.setPointerCapture(event.pointerId)
+            gesture.current = {
+              value: initial,
+              start:
+                typeof initial === 'number'
+                  ? Math.max(spec.min, Math.min(spec.max, initial))
+                  : spec.min,
+              x: event.clientX,
+              width: input.getBoundingClientRect().width,
+              pointer: event.pointerId,
+            }
+            onDraft()
+            setDragging(true)
+          }}
+          onPointerMove={(event) => {
+            const active = gesture.current
+            if (!active || active.cancelled || event.pointerId !== active.pointer) return
+            const delta = ((event.clientX - active.x) / active.width) * (spec.max - spec.min)
+            set(snapNumber(active.start + delta, spec))
+          }}
+          onPointerUp={(event) => finish(event.currentTarget, event.pointerId)}
+          onPointerCancel={(event) => finish(event.currentTarget, event.pointerId, true)}
+          onLostPointerCapture={(event) => finish(event.currentTarget, event.pointerId, true)}
+          onDoubleClick={reset}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape' && gesture.current) {
+              event.preventDefault()
+              set(gesture.current.value)
+              gesture.current.cancelled = true
+              setDragging(false)
+            } else if (
+              event.shiftKey &&
+              ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)
+            ) {
+              event.preventDefault()
+              const sign = ['ArrowLeft', 'ArrowDown'].includes(event.key) ? -1 : 1
+              set(snapNumber(numeric + sign * spec.step * 10, spec))
+            }
+          }}
+        />
+        <label
+          className="field-heading number-heading"
+          htmlFor={id}
+          title={`${description} ${hint}`}
+        >
+          <span>{label}</span>
+          <span className="field-range" aria-hidden="true">
+            {range}
+          </span>
+        </label>
         <div className="number-value">
           <input
             id={id}
@@ -171,13 +225,7 @@ export function NumberControl({
           aria-label={`Use default for ${label}`}
           title="Use component default"
           onMouseDown={(event) => event.preventDefault()}
-          onClick={() => {
-            gesture.current = null
-            invalidNumber.current = false
-            setDraft('')
-            setError('')
-            set(undefined)
-          }}
+          onClick={reset}
         >
           <RotateCcw size={13} aria-hidden="true" />
         </button>

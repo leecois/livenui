@@ -371,20 +371,37 @@
 }
 .agent-libraries .field-select > .select-control {
   width: 100%;
-  max-width: 240px;
   border-radius: var(--livenui-radius-control);
+}
+.agent-libraries .field-select {
+  padding: var(--livenui-space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--livenui-radius-control);
+  background: var(--track);
+  transition: border-color 160ms;
+}
+.agent-libraries .field-select .field-heading {
+  padding-inline-start: var(--livenui-space-3);
+}
+.agent-libraries .field-select:hover {
+  border-color: var(--ring);
 }
 .agent-libraries .field .text-row input {
   background: transparent;
   border: 0;
 }
+.agent-libraries .field .color-heading,
+.agent-libraries .field .text-heading {
+  flex: 0 0 calc(var(--livenui-space-8) * 2 + var(--livenui-space-4));
+  min-width: 0;
+  padding-inline-start: var(--livenui-space-3);
+}
 .agent-libraries .field-select select {
   padding-inline-end: var(--livenui-space-8);
-  background: var(--track);
-  transition: border-color 160ms;
-}
-.agent-libraries .field-select select:hover {
-  border-color: var(--ring);
+  border: 0;
+  background: transparent;
+  text-align: right;
+  text-align-last: right;
 }
 .agent-libraries .field-select .select-control svg {
   inset-inline-end: var(--livenui-space-3);
@@ -403,16 +420,11 @@
 .agent-libraries .control-group-heading:first-child {
   margin-top: 0;
 }
-.agent-libraries .number-track {
+.agent-libraries .number-row {
   position: relative;
-  flex: 1;
-  min-width: 0;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  padding-inline: var(--livenui-space-3);
+  isolation: isolate;
 }
-.agent-libraries .field .number-track input {
+.agent-libraries .field .number-track {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -425,32 +437,33 @@
   touch-action: pan-y;
 }
 .agent-libraries .number-meter {
-  position: relative;
-  width: 100%;
-  height: var(--livenui-space-1);
-  border-radius: var(--livenui-radius-control);
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background: linear-gradient(
     to right,
-    var(--muted) var(--number-fill),
-    var(--border) var(--number-fill)
+    color-mix(in srgb, var(--foreground) 10%, var(--track)) var(--number-fill),
+    transparent var(--number-fill)
   );
   pointer-events: none;
 }
-.agent-libraries .number-meter::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: var(--number-fill);
-  width: var(--livenui-space-3);
-  height: var(--livenui-space-3);
-  border-radius: var(--livenui-radius-control);
-  background: var(--foreground);
-  transform: translate(-50%, -50%);
+.agent-libraries .field .number-heading {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  padding-inline-start: var(--livenui-space-3);
+  pointer-events: none;
 }
-.agent-libraries .number-row[data-auto] .number-meter::after {
-  background: var(--muted);
+.agent-libraries .number-row[data-dragging] {
+  border-color: var(--ring);
 }
 .agent-libraries .number-value {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   flex: 0 0 88px;
@@ -496,10 +509,14 @@
   color: var(--foreground);
   background: var(--surface);
 }
+.agent-libraries .number-row .field-default {
+  position: relative;
+  z-index: 1;
+}
 .agent-libraries .number-row:has(input:focus-visible),
 .agent-libraries .color-row:has(input:focus-visible),
 .agent-libraries .text-row:has(input:focus-visible),
-.agent-libraries .field-select > .select-control:has(select:focus-visible) {
+.agent-libraries .field-select:has(select:focus-visible) {
   outline: 2px solid var(--ring);
   outline-offset: 4px;
 }
@@ -698,9 +715,9 @@
   width: fit-content;
   max-width: 100%;
   flex-wrap: wrap;
-  gap: var(--livenui-space-1);
-  padding: var(--livenui-space-1);
-  min-height: calc(var(--livenui-control-height) + var(--livenui-space-2) + 2px);
+  gap: 0;
+  padding: 0;
+  min-height: calc(var(--livenui-control-height) + 2px);
   border: 1px solid var(--border);
   border-radius: var(--livenui-radius-control);
   background: var(--track);
@@ -777,10 +794,15 @@
     grid-column: 1 / -1;
   }
   .agent-libraries .choice-row,
-  .agent-libraries .field-select,
   .agent-libraries .field-switch {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--livenui-space-2);
+  }
+  .agent-libraries .field-select {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .agent-libraries .field-choice .field-option span {
+    padding-inline: var(--livenui-space-1);
   }
   .agent-libraries .controls-heading {
     grid-template-columns: minmax(0, 1fr) auto;

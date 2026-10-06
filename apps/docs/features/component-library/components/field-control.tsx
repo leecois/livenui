@@ -173,13 +173,14 @@ export function FieldControl({
     )
   return (
     <div className="field field-text">
-      <label className="field-heading" htmlFor={id} title={field.description}>
-        {label}
-      </label>
       <div className="text-row">
+        <label className="field-heading text-heading" htmlFor={id} title={field.description}>
+          {label}
+        </label>
         <input
           id={id}
           placeholder="Default"
+          title={typeof value === 'string' ? value : 'Use component default'}
           value={typeof value === 'string' ? value : ''}
           onChange={(event) => set(event.target.value || undefined)}
         />

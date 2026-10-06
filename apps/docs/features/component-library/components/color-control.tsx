@@ -63,10 +63,10 @@ export function ColorControl({
   }
   return (
     <div className="field field-color">
-      <label className="field-heading" htmlFor={id} title={description}>
-        {label}
-      </label>
       <div className="color-row" data-invalid={!!error || undefined}>
+        <label className="field-heading color-heading" htmlFor={id} title={description}>
+          {label}
+        </label>
         <span
           className="color-picker"
           style={{ '--swatch': text || 'var(--surface)' } as CSSProperties}
@@ -88,6 +88,7 @@ export function ColorControl({
           id={id}
           type="text"
           placeholder="Auto"
+          title={draft || 'Use component default'}
           spellCheck={false}
           aria-invalid={!!error}
           aria-describedby={`${id}-hint${error ? ` ${id}-error` : ''}`}
