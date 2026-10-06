@@ -11,6 +11,7 @@ import {
   variantDefaults,
 } from '../lib/config'
 import { content, fieldLabel, matchesSearch } from '../lib/content'
+import { controlVisible } from '../lib/controls'
 import { type Example, findExample } from '../lib/examples'
 import type { Theme } from '../lib/types'
 
@@ -89,6 +90,10 @@ export function usePlayground({
   const [startingPoint, setStartingPoint] = useState(initialExample?.id || '')
   const [presetName, setPresetName] = useState('')
   const [revision, setRevision] = useState(0)
+  const [controlVersion, setControlVersion] = useState(0)
+  const editControl = () => {
+    configurationRevision.current++
+  }
   const [manager, setManager] = useState<'npm' | 'pnpm' | 'bun'>('npm')
   const importInput = useRef<HTMLInputElement>(null)
   const playbackProps = (values: Props, playback = paused): Props => ({
@@ -116,12 +121,14 @@ export function usePlayground({
     setProps(nextProps)
     setDraft(JSON.stringify(playbackProps(nextProps), null, 2))
     setRevision((value) => value + 1)
+    setControlVersion((value) => value + 1)
     setNotice('')
   }
   const controls = activeLibrary.fields.filter(
     (field) =>
       (field.kind !== 'json' || content[library.id].choices?.[field.name]) &&
       field.name !== 'theme' &&
+      controlVisible(activeLibrary, field, props) &&
       (all || query.trim() || content[library.id].controls.includes(field.name)) &&
       matchesSearch(query, field.name, fieldLabel(field.name), field.description)
   )
@@ -149,6 +156,7 @@ export function usePlayground({
       setPaused(configurationPlayback(next))
       setNotice('Configuration applied.')
       setRevision((value) => value + 1)
+      setControlVersion((value) => value + 1)
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Invalid configuration.')
     }
@@ -194,6 +202,7 @@ export function usePlayground({
       setProps(next)
       setDraftValue(JSON.stringify(playbackProps(next, configurationPlayback(next)), null, 2))
       setRevision((value) => value + 1)
+      setControlVersion((value) => value + 1)
       setPaused(configurationPlayback(next))
       setTransferNotice('Configuration imported.')
     } catch (error) {
@@ -235,6 +244,7 @@ export function usePlayground({
     setProps(next)
     setDraft(JSON.stringify(playbackProps(next), null, 2))
     setRevision((value) => value + 1)
+    setControlVersion((value) => value + 1)
     setNotice('Reset to defaults.')
   }
   const load = (next: { props: Props; variant: string; name: string }, exampleId = '') => {
@@ -244,6 +254,7 @@ export function usePlayground({
     setPaused(configurationPlayback(next.props))
     setDraft(JSON.stringify(playbackProps(next.props, configurationPlayback(next.props)), null, 2))
     setRevision((value) => value + 1)
+    setControlVersion((value) => value + 1)
     setNotice(`Loaded ${next.name}.`)
   }
   const selectExample = (id: string) => {
@@ -260,6 +271,8 @@ export function usePlayground({
   }
   return {
     activeLibrary,
+    controlVersion,
+    editControl,
     props: effectiveProps,
     variant,
     paused,

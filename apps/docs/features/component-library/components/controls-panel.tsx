@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library, Preset } from '../lib/config'
 import { content } from '../lib/content'
+import { type ControlGroup, controlGroup } from '../lib/controls'
 import type { Navigate } from '../lib/types'
 import { FieldControl } from './field-control'
 import { Link } from './link'
@@ -132,22 +133,40 @@ export function ControlsPanel({
                 onChange={(event) => setQuery(event.target.value)}
               />
             )}
-            <div className="fields">
-              {controls.map((field) => (
-                <FieldControl
-                  key={field.name}
-                  field={field}
-                  value={props[field.name]}
-                  label={content[library.id].labels?.[field.name]}
-                  choices={
-                    content[library.id].choices?.[field.name] ||
-                    (!studio && field.kind === 'select' && field.options.length <= 6
-                      ? field.options
-                      : undefined)
-                  }
-                  set={(value) => update(field.name, value)}
-                />
-              ))}
+            <div className="control-groups">
+              <p className="control-instructions helper-text">
+                Drag a number’s track or type a value. Enter applies; Escape cancels.
+              </p>
+              {(['Appearance', 'Motion', 'Interaction'] as ControlGroup[]).map((group) => {
+                const fields = controls.filter((field) => controlGroup(field) === group)
+                if (!fields.length) return null
+                return (
+                  <section className="control-group" key={group} aria-label={`${group} settings`}>
+                    <h3>{group}</h3>
+                    <div className="fields">
+                      {fields.map((field) => (
+                        <FieldControl
+                          key={`${field.name}-${state.controlVersion}`}
+                          library={state.activeLibrary}
+                          field={field}
+                          value={props[field.name]}
+                          label={content[library.id].labels?.[field.name]}
+                          choices={
+                            content[library.id].choices?.[field.name] ||
+                            (field.kind === 'select' && field.options.length <= 3
+                              ? field.options
+                              : !studio && field.kind === 'select' && field.options.length <= 6
+                                ? field.options
+                                : undefined)
+                          }
+                          set={(value) => update(field.name, value)}
+                          onDraft={state.editControl}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )
+              })}
             </div>
             {controls.length === 0 && <p className="muted">No matching controls.</p>}
             <div className="control-footer">

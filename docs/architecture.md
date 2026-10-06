@@ -63,6 +63,7 @@ flowchart TD
 | Package identity, versions, variant APIs and field metadata | Feature `data/catalog.json` | Config types, API tables, installer registry |
 | Defaults, parsing, snippets and agent prompts | Feature `lib/config.ts` | Controls, JSON transfer, integration code, contract tests |
 | Structured JSON prop schemas | Feature `lib/structured-props.ts`, called by `lib/config.ts` | Imports, presets, Studio handoffs and nested Liquid.Item tuning |
+| Numeric drag windows, editing limits, units, grouping and contextual visibility | Feature `lib/controls.ts` | Settings panels and domain/browser contracts |
 | Discovery copy, essential settings, search and commands | Feature `lib/content.ts` | Overview, gallery, controls, installer commands |
 | Complete example configurations and stable IDs | Feature `lib/examples.ts` | Gallery, starting points, Studio deep links |
 | Featured example IDs, human control labels and explicit quick choices | Feature `lib/content.ts` | Guide showcases and control panels |
@@ -75,7 +76,7 @@ Catalog metadata is checked in and curated; it is **not automatically extracted 
 
 ## State and lifecycle
 
-`useLibrarySession` owns the resolved app theme, router navigation and `livenui-presets` local storage. `usePlayground` owns props, variant, tabs, drafts, preview playback, validation notices and transfer actions. Controls, preview and integration consume the same state instance, so the code reflects the displayed configuration. Controls, JSON snapshots and saved presets use the effective playback props. Beam/Voice activation follows `active`; Voice retains its independent native `paused` freeze setting. Replacing a configuration or Metal variant updates the draft; ordinary toolbar actions preserve unfinished edits.
+`useLibrarySession` owns the resolved app theme, router navigation and `livenui-presets` local storage. `usePlayground` owns props, variant, tabs, drafts, preview playback, validation notices and transfer actions. Controls, preview and integration consume the same state instance, so the code reflects the displayed configuration. Controls, JSON snapshots and saved presets use the effective playback props. Beam/Voice activation follows `active`; Voice retains its independent native `paused` freeze setting. Replacing a configuration or Metal variant updates the JSON draft and increments a control version that discards transient numeric/color field drafts. Ordinary toolbar actions preserve unfinished edits. Field components own only unapplied text and active native gestures; committed values always flow through the single playground owner. Editing field drafts advances the existing asynchronous import guard, preventing a pending import from replacing newer input.
 
 The workbench owns presentation-only preview width so it survives task switches without entering shared configuration or SDK props. `PreviewPanel` observes available space and caps the selected width; its nested inline-size container lets scene presentation respond to the actual frame width. Width changes keep the existing preview boundary and renderer instance. Replay and leaving Preview retain their existing teardown behavior. See [preview layout](preview-layout.md).
 

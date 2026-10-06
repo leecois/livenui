@@ -227,6 +227,30 @@ test('reset cancels a pending configuration import', async ({ page }) => {
   await expect(page.locator('.transfer-notice')).toBeEmpty()
 })
 
+test('an unapplied numeric draft cancels a pending import and a same-value replacement clears it', async ({
+  page,
+}) => {
+  await deferConfigurationReads(page)
+  await page.goto('/studio?library=image')
+  await page.locator('summary').filter({ hasText: 'Import & export' }).click()
+  await importDeferred(page, { speed: 2, strength: 0.5 })
+  await expect.poll(() => page.evaluate(() => window.__configurationReads.length)).toBe(1)
+  const speed = page.getByRole('spinbutton', { name: 'Speed', exact: true })
+  await speed.fill('1.7')
+  await page.evaluate(() => window.__configurationReads[0].resolve())
+  await expect(speed).toHaveValue('1.7')
+  await expect(page.locator('.code-panel code')).toContainText('speed={1}')
+  await expect(page.locator('.transfer-notice')).toBeEmpty()
+  await importDeferred(page, { speed: 1, strength: 1 })
+  await expect.poll(() => page.evaluate(() => window.__configurationReads.length)).toBe(2)
+  await expect(speed).toHaveValue('1.7')
+  await page.evaluate(() => window.__configurationReads[1].resolve())
+  await expect(page.locator('.transfer-notice')).toHaveText('Configuration imported.')
+  await expect(speed).toHaveValue('1')
+  await speed.press('Enter')
+  await expect(page.locator('.code-panel code')).toContainText('speed={1}')
+})
+
 test('a component variant selection cancels a pending configuration import', async ({ page }) => {
   await deferConfigurationReads(page)
   await page.goto('/studio?library=metal')

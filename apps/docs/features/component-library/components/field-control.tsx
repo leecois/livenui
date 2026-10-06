@@ -1,6 +1,10 @@
 import { Select } from '@livenui/agent-ui'
+import { useState } from 'react'
 import type { Library } from '../lib/config'
 import { fieldLabel, optionLabel } from '../lib/content'
+import { booleanDefault, isColorField, numberSpec } from '../lib/controls'
+import { ColorControl } from './color-control'
+import { NumberControl } from './number-control'
 
 export function FieldControl({
   field,
@@ -8,14 +12,21 @@ export function FieldControl({
   set,
   label = fieldLabel(field.name),
   choices,
+  library,
+  onDraft,
 }: {
   field: Library['fields'][number]
   value: unknown
   set: (value: unknown) => void
   label?: string
   choices?: (string | number)[]
+  library: Library
+  onDraft: () => void
 }) {
   const id = `prop-${field.name}`
+  const [customSize, setCustomSize] = useState(false)
+  const sizeSpec =
+    library.id === 'avatars' && field.name === 'size' ? numberSpec(library, 'size') : undefined
   if (choices?.length)
     return (
       <fieldset
@@ -31,14 +42,44 @@ export function FieldControl({
                 type="radio"
                 name={id}
                 value={String(option)}
-                checked={value === option}
-                onChange={() => set(option)}
+                checked={value === option && (!sizeSpec || !customSize)}
+                onChange={() => {
+                  setCustomSize(false)
+                  set(option)
+                }}
               />
               <span>{optionLabel(field.name, option)}</span>
             </label>
           ))}
+          {sizeSpec && (
+            <label className="field-option">
+              <input
+                type="radio"
+                name={id}
+                checked={customSize || (value !== undefined && !choices.includes(value as number))}
+                onChange={() => {
+                  onDraft()
+                  setCustomSize(true)
+                }}
+              />
+              <span>Custom</span>
+            </label>
+          )}
         </div>
-        {value !== undefined && !choices.includes(value as string | number) && (
+        {sizeSpec &&
+          (customSize || (value !== undefined && !choices.includes(value as number))) && (
+            <NumberControl
+              name={field.name}
+              label="Custom size"
+              description={field.description}
+              value={value}
+              spec={sizeSpec}
+              set={set}
+              onDraft={onDraft}
+              allowLength
+            />
+          )}
+        {!sizeSpec && value !== undefined && !choices.includes(value as string | number) && (
           <p className="helper-text">Custom value: {String(value).slice(0, 80)}</p>
         )}
       </fieldset>
@@ -76,32 +117,37 @@ export function FieldControl({
           <input
             id={id}
             type="checkbox"
-            checked={value === true}
+            checked={value === undefined ? booleanDefault(library, field.name) : value === true}
             onChange={(event) => set(event.target.checked)}
           />
           <span className="field-toggle-track" aria-hidden="true" />
         </span>
       </div>
     )
-  if (field.kind === 'number')
+  const spec = numberSpec(library, field.name)
+  if (field.kind === 'number' && spec)
     return (
-      <div className="field field-inline field-number">
-        <label htmlFor={id} title={field.description}>
-          {label}
-        </label>
-        <input
-          id={id}
-          type="number"
-          step="any"
-          min="-10000"
-          max="10000"
-          placeholder="Default"
-          value={typeof value === 'number' ? value : ''}
-          onChange={(event) =>
-            set(event.target.value === '' ? undefined : Number(event.target.value))
-          }
-        />
-      </div>
+      <NumberControl
+        name={field.name}
+        label={label}
+        description={field.description}
+        value={value}
+        spec={spec}
+        set={set}
+        onDraft={onDraft}
+      />
+    )
+  if (isColorField(field))
+    return (
+      <ColorControl
+        name={field.name}
+        label={label}
+        description={field.description}
+        value={value}
+        set={set}
+        onDraft={onDraft}
+        format={library.id === 'orbs' ? 'rgb' : library.id === 'avatars' ? 'rgb-hsl' : 'css'}
+      />
     )
   return (
     <div className="field field-inline">
