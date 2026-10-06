@@ -113,22 +113,42 @@
   gap: var(--livenui-space-2);
 }
 .agent-libraries .preview-devices {
+  gap: var(--livenui-space-1);
   min-width: 0;
   border: 0;
-  padding: 0;
+  padding: var(--livenui-space-1);
   margin: 0;
+  border-radius: var(--livenui-radius-control);
+  background: var(--track);
+}
+.agent-libraries .preview-devices .pill {
+  width: var(--livenui-control-height);
+  padding: 0;
+  transition-property: background-color, border-color;
+}
+.agent-libraries .preview-devices .pill:not([aria-pressed="true"]) {
+  border-color: transparent;
+  background: transparent;
 }
 .agent-libraries .preview-playback {
   margin-inline-start: auto;
 }
 .agent-libraries .preview-viewport {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  justify-items: center;
+  justify-items: start;
   border: 1px solid var(--border);
   border-top: 0;
   background: var(--track);
   overflow: hidden;
+}
+.agent-libraries .preview-viewport[data-resizing] {
+  cursor: ew-resize;
+  user-select: none;
+}
+.agent-libraries .preview-viewport[data-resizing] .preview-frame {
+  pointer-events: none;
 }
 .agent-libraries .preview-frame {
   container-type: inline-size;
@@ -141,31 +161,81 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--livenui-space-8) var(--livenui-space-6);
+  padding: var(--livenui-space-8) var(--livenui-space-6)
+    calc(var(--livenui-space-8) + var(--livenui-space-4));
   overflow: hidden;
   background: var(--surface-glass);
 }
-.agent-libraries .preview-sizing {
+.agent-libraries .preview-viewport[data-resizable] .preview-stage {
+  padding-right: calc(var(--livenui-control-height) + var(--livenui-space-2));
+}
+.agent-libraries .preview-resize-handle {
+  position: absolute;
+  top: var(--livenui-space-8);
+  bottom: var(--livenui-space-8);
+  width: var(--livenui-control-height);
+  height: auto;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: var(--livenui-space-2) var(--livenui-space-3);
-  padding: var(--livenui-space-2) var(--livenui-space-4);
-  border: 1px solid var(--border);
-  border-top: 0;
-  background: var(--surface);
-  font-size: var(--livenui-font-caption);
+  justify-content: center;
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
+  border-radius: var(--livenui-radius-control);
   color: var(--muted);
-}
-.agent-libraries .preview-sizing input {
-  flex: 1;
-  min-width: 80px;
-  width: 100px;
-  height: var(--livenui-control-height);
+  border: 0;
+  margin: 0;
   padding: 0;
-  accent-color: var(--accent);
 }
-.agent-libraries .preview-sizing output {
+.agent-libraries .preview-resize-handle[aria-disabled="true"] {
+  visibility: hidden;
+}
+.agent-libraries .preview-resize-handle::before {
+  content: "";
+  width: var(--livenui-space-1);
+  height: 100%;
+  border-radius: var(--livenui-radius-control);
+  background: var(--border);
+}
+.agent-libraries .preview-resize-handle::after {
+  content: "⠿";
+  font-size: 20px;
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: var(--livenui-space-6);
+  height: calc(var(--livenui-space-8) + var(--livenui-space-4));
+  border: 1px solid var(--border);
+  border-radius: var(--livenui-radius-control);
+  background: var(--surface);
+}
+.agent-libraries .preview-resize-handle:is(:hover, :focus-visible),
+.agent-libraries .preview-viewport[data-resizing] .preview-resize-handle {
+  color: var(--foreground);
+}
+.agent-libraries .preview-resize-handle:is(:hover, :focus-visible)::before,
+.agent-libraries .preview-viewport[data-resizing] .preview-resize-handle::before {
+  background: var(--gradient-accent);
+}
+.agent-libraries .preview-width-indicator {
+  position: absolute;
+  bottom: var(--livenui-space-2);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--livenui-space-1) var(--livenui-space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--livenui-radius-control);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: var(--livenui-font-caption);
+  pointer-events: none;
+  visibility: hidden;
+}
+.agent-libraries .preview-width-indicator[data-visible] {
+  visibility: visible;
+}
+.agent-libraries .preview-dimensions,
+.agent-libraries .preview-width-indicator {
   font-variant-numeric: tabular-nums;
 }
 .agent-libraries .preview-caption {
@@ -444,19 +514,10 @@
     gap: var(--livenui-space-2);
     flex-wrap: wrap;
   }
-  .agent-libraries .preview-devices .pill {
-    min-width: var(--livenui-control-height);
-  }
-  .agent-libraries .preview-device-name {
-    display: none;
-  }
   .agent-libraries .preview-toolbar .pill {
     padding-inline: 10px;
   }
   .agent-libraries .preview-stage {
     padding-inline: var(--livenui-space-3);
-  }
-  .agent-libraries .preview-sizing output {
-    flex-basis: 100%;
   }
 }

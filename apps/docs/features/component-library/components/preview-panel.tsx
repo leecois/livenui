@@ -1,10 +1,11 @@
 import { Monitor, Smartphone, Tablet } from 'lucide-react'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library } from '../lib/config'
 import { content } from '../lib/content'
 import type { Theme } from '../lib/types'
 import { Preview, PreviewBoundary } from './preview'
+import { PreviewResizer } from './preview-resizer'
 
 const devices = [
   { name: 'Desktop', width: null, icon: Monitor },
@@ -28,7 +29,7 @@ export function PreviewPanel({
   const { paused, setPaused, revision, props, variant, chooseVariant, update, replay } = state
   const viewport = useRef<HTMLDivElement>(null)
   const [available, setAvailable] = useState(0)
-  const id = useId()
+  const [resizing, setResizing] = useState(false)
   useEffect(() => {
     const element = viewport.current
     if (!element) return
@@ -55,7 +56,6 @@ export function PreviewPanel({
               onClick={() => onWidthChange(device.width)}
             >
               <device.icon size={16} aria-hidden="true" />
-              <span className="preview-device-name">{device.name}</span>
             </button>
           ))}
         </fieldset>
@@ -73,7 +73,12 @@ export function PreviewPanel({
           </button>
         </div>
       </div>
-      <div className="preview-viewport" ref={viewport}>
+      <div
+        className="preview-viewport"
+        ref={viewport}
+        data-resizing={resizing || undefined}
+        data-resizable={available > 320 || undefined}
+      >
         <div className="preview-frame" style={{ width: width === null ? '100%' : width }}>
           <div className={`preview-stage stage-${library.id}`}>
             <PreviewBoundary key={revision}>
@@ -89,26 +94,26 @@ export function PreviewPanel({
             </PreviewBoundary>
           </div>
         </div>
-      </div>
-      <div className="preview-sizing">
-        <label htmlFor={`${id}-width`}>Preview width</label>
-        <input
-          id={`${id}-width`}
-          type="range"
-          min={Math.min(320, available)}
-          max={available}
-          value={actualWidth}
-          disabled={!available || available <= 320}
-          aria-valuetext={`${actualWidth} pixels`}
-          onChange={(event) => onWidthChange(Number(event.target.value))}
+        <PreviewResizer
+          width={width}
+          available={available}
+          onWidthChange={onWidthChange}
+          onResizingChange={setResizing}
         />
-        <output htmlFor={`${id}-width`}>
-          {selected} · {actualWidth}px
-          {width !== null && width > available ? ' · Fits available space' : ''}
+        <output
+          className="preview-width-indicator"
+          aria-live="off"
+          data-visible={width !== null || resizing || undefined}
+        >
+          {actualWidth}px
         </output>
       </div>
       <div className="preview-caption">
         <span className="eyebrow">{paused ? 'PREVIEW PAUSED' : 'LIVE PREVIEW'}</span>
+        <span className="preview-dimensions">
+          {selected} · {actualWidth}px
+          {width !== null && width > available ? ' · Fits available space' : ''}
+        </span>
         <span>{content[library.id].hint}</span>
       </div>
     </div>

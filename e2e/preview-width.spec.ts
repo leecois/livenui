@@ -37,7 +37,7 @@ test('device widths resize every live adapter without changing integration code'
           }, requested)
         )
         .toBeLessThan(1)
-      await expect(page.locator('.preview-sizing output')).toContainText(name)
+      await expect(page.locator('.preview-dimensions')).toContainText(name)
       await expect(page.locator('.code-panel code')).toHaveText(code || '')
       await expect(stage.locator('[role="alert"]')).toHaveCount(0)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
@@ -54,6 +54,28 @@ test('device widths resize every live adapter without changing integration code'
       expect(style.fill).toContain('linear-gradient')
       expect(style.color).toBe('rgb(255, 255, 255)')
       expect(style.height).toBeGreaterThanOrEqual(44)
+      expect(
+        await stage.evaluate((element) => {
+          const handle = element
+            .closest('.preview-viewport')
+            ?.querySelector('.preview-resize-handle')
+          if (!handle || handle.getAttribute('aria-disabled') === 'true') return false
+          const grip = handle.getBoundingClientRect()
+          return [
+            ...element.querySelectorAll(
+              '.beam-host,.voice-host,.image-host,.gooey-demo,.demo-actions button'
+            ),
+          ].some((node) => {
+            const box = node.getBoundingClientRect()
+            return (
+              box.right > grip.left + 1 &&
+              box.left < grip.right - 1 &&
+              box.bottom > grip.top + 1 &&
+              box.top < grip.bottom - 1
+            )
+          })
+        })
+      ).toBe(false)
     }
     if (library === 'avatars') {
       const canvas = await stage.locator('canvas').elementHandle()
@@ -74,17 +96,17 @@ test('custom width and device choice survive task switches and compact layouts',
   const original = await page.locator('.code-panel code').textContent()
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.getByRole('button', { name: 'Desktop', exact: true }).click()
-  const slider = page.getByRole('slider', { name: 'Preview width' })
-  await slider.focus()
+  const resizer = page.getByRole('separator', { name: 'Resize preview', includeHidden: true })
+  await resizer.focus()
   await page.keyboard.press('Home')
-  await expect(slider).toHaveValue('320')
-  await expect(page.locator('.preview-sizing output')).toContainText('Custom · 320px')
+  await expect(resizer).toHaveAttribute('aria-valuenow', '320')
+  await expect(page.locator('.preview-dimensions')).toContainText('Custom · 320px')
   await page.keyboard.press('ArrowRight')
-  await expect(slider).toHaveValue('321')
+  await expect(resizer).toHaveAttribute('aria-valuenow', '330')
   await page.getByRole('tab', { name: 'Install & Usage' }).click()
   await expect(page.locator('.preview-stage')).toHaveCount(0)
   await page.getByRole('tab', { name: 'Preview', exact: true }).click()
-  await expect(slider).toHaveValue('321')
+  await expect(resizer).toHaveAttribute('aria-valuenow', '330')
   await page.getByRole('button', { name: 'Tablet', exact: true }).click()
   for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 })
@@ -107,9 +129,10 @@ test('custom width and device choice survive task switches and compact layouts',
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await expect(page.getByRole('button', { name: 'Mobile', exact: true })).toBeVisible()
     if (width <= 390) {
-      await expect(page.locator('.preview-sizing output')).toContainText('Fits available space')
-      if (Number(await slider.getAttribute('max')) <= 320) await expect(slider).toBeDisabled()
-      else await expect(slider).toBeEnabled()
+      await expect(page.locator('.preview-dimensions')).toContainText('Fits available space')
+      if (Number(await resizer.getAttribute('aria-valuemax')) <= 320)
+        await expect(resizer).toHaveAttribute('aria-disabled', 'true')
+      else await expect(resizer).toHaveAttribute('aria-disabled', 'false')
     }
   }
   await page.setViewportSize(testInfo.project.use.viewport || { width: 1440, height: 1000 })
@@ -144,7 +167,7 @@ test('resizing a paused held image retains its canvas and painted content', asyn
   const canvas = page.locator('.preview-stage .image-gen-overlay')
   const instance = await canvas.elementHandle()
   const before = await canvas.evaluate((node: HTMLCanvasElement) => [node.width, node.height])
-  await page.getByRole('slider', { name: 'Preview width' }).focus()
+  await page.getByRole('separator', { name: 'Resize preview' }).focus()
   await page.keyboard.press('Home')
   await expect
     .poll(() => canvas.evaluate((node: HTMLCanvasElement) => [node.width, node.height]))
@@ -167,4 +190,123 @@ test('resizing a paused held image retains its canvas and painted content', asyn
   await page
     .locator('.playground-column')
     .screenshot({ path: testInfo.outputPath('held-image-resize.png') })
+})
+
+test('edge dragging captures the pointer, clamps widths and supports reset and cancellation', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/studio?library=avatars')
+  const resizer = page.getByRole('separator', { name: 'Resize preview' })
+  await expect(resizer).toHaveAttribute('aria-disabled', 'false')
+  const original = await page.locator('.code-panel code').textContent()
+  const canvas = await page.locator('.preview-stage canvas').elementHandle()
+  const drag = async (delta: number, outside = false) => {
+    await resizer.scrollIntoViewIfNeeded()
+    const box = await resizer.boundingBox()
+    if (!box) throw new Error('Missing resize handle')
+    const x = box.x + box.width / 2
+    const y = box.y + box.height / 2
+    await page.mouse.move(x, y)
+    await page.mouse.down()
+    await page.mouse.move(x + delta, outside ? 5 : y, { steps: 8 })
+  }
+  const full = Number(await resizer.getAttribute('aria-valuemax'))
+  await drag(-200, true)
+  await expect(page.locator('.preview-viewport')).toHaveAttribute('data-resizing', 'true')
+  await expect(resizer).toHaveAttribute('aria-valuenow', String(full - 200))
+  await page.mouse.up()
+  await expect(page.locator('.preview-viewport')).not.toHaveAttribute('data-resizing')
+  expect(await canvas?.evaluate((element) => element.isConnected)).toBe(true)
+  await expect(page.locator('.code-panel code')).toHaveText(original || '')
+  await drag(-2000)
+  await page.mouse.up()
+  await expect(resizer).toHaveAttribute('aria-valuenow', '320')
+  await drag(100)
+  await page.keyboard.press('Escape')
+  await page.mouse.up()
+  await expect(resizer).toHaveAttribute('aria-valuenow', '320')
+  await expect(page.locator('.preview-viewport')).not.toHaveAttribute('data-resizing')
+  await drag(2000)
+  await page.mouse.up()
+  await expect(resizer).toHaveAttribute('aria-valuenow', String(full))
+  await resizer.focus()
+  await page.keyboard.press('Home')
+  await resizer.focus()
+  await page.keyboard.press('Shift+ArrowRight')
+  await expect(resizer).toHaveAttribute('aria-valuenow', '370')
+  await page.keyboard.press('End')
+  await expect(page.getByRole('button', { name: 'Desktop', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  )
+  await drag(-150)
+  await page.mouse.up()
+  await resizer.dblclick()
+  await expect(resizer).toHaveAttribute('aria-valuenow', String(full))
+  await expect(resizer).toBeFocused()
+  await drag(-100)
+  await page.getByRole('tab', { name: 'Install & Usage' }).focus()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('.preview-viewport')).toHaveCount(0)
+  await page.mouse.up()
+  await page.getByRole('tab', { name: 'Preview', exact: true }).click()
+  await expect(page.locator('.preview-viewport')).not.toHaveAttribute('data-resizing')
+  await expect(page.locator('.code-panel code')).toHaveText(original || '')
+  await page.getByRole('button', { name: 'Mobile', exact: true }).click()
+  await page
+    .locator('.playground-column')
+    .screenshot({ path: testInfo.outputPath('edge-resize.png') })
+})
+
+test('touch dragging resizes without scrolling and pointer cancellation restores the preset', async ({
+  browser,
+  baseURL,
+}, testInfo) => {
+  const context = await browser.newContext({
+    viewport: { width: 768, height: 1000 },
+    hasTouch: true,
+    isMobile: true,
+    reducedMotion: 'reduce',
+    colorScheme: testInfo.project.name.endsWith('dark') ? 'dark' : 'light',
+  })
+  try {
+    const touchPage = await context.newPage()
+    await touchPage.goto(`${baseURL}/studio?library=avatars`)
+    const resizer = touchPage.getByRole('separator', { name: 'Resize preview' })
+    await expect(resizer).toHaveAttribute('aria-disabled', 'false')
+    await resizer.scrollIntoViewIfNeeded()
+    const box = await resizer.boundingBox()
+    if (!box) throw new Error('Missing touch handle')
+    const client = await context.newCDPSession(touchPage)
+    const point = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    const full = Number(await resizer.getAttribute('aria-valuemax'))
+    const scroll = await touchPage.evaluate(() => scrollY)
+    await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point] })
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ ...point, x: point.x - 80 }],
+    })
+    await expect(resizer).toHaveAttribute('aria-valuenow', String(full - 80))
+    await client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await expect(touchPage.locator('.preview-viewport')).not.toHaveAttribute('data-resizing')
+    expect(await touchPage.evaluate(() => scrollY)).toBe(scroll)
+    await touchPage.getByRole('button', { name: 'Tablet', exact: true }).click()
+    const next = await resizer.boundingBox()
+    if (!next) throw new Error('Missing preset handle')
+    const start = { x: next.x + next.width / 2, y: next.y + next.height / 2 }
+    await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [start] })
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ ...start, x: start.x - 50 }],
+    })
+    await client.send('Input.dispatchTouchEvent', { type: 'touchCancel', touchPoints: [] })
+    await expect(touchPage.getByRole('button', { name: 'Tablet', exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    )
+    await expect(touchPage.locator('.preview-viewport')).not.toHaveAttribute('data-resizing')
+  } finally {
+    await context.close()
+  }
 })

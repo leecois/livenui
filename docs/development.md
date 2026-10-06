@@ -46,7 +46,7 @@ The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUB
 4. Add or amend a meaningful browser contract that would fail for the defect (alignment, typography, local overflow, interaction or focus).
 5. Run required checks, inspect screenshots and update the design guide if the intended contract changed.
 
-For device preview controls, read [the layout research and width contract](preview-layout.md). Keep requested width in the workbench and measurement in `PreviewPanel`; do not encode device presets into SDK props, share fragments or generated snippets. Check compact fallback, native slider keys, task-switch persistence and renderer identity with `e2e/preview-width.spec.ts`.
+For device preview controls, read [the layout research and width contract](preview-layout.md). Keep requested width in the workbench, measurement in `PreviewPanel` and pointer-capture handling in `PreviewResizer`; do not encode device presets into SDK props, share fragments or generated snippets. Check compact fallback, grip keyboard keys, touch/mouse cancellation, task-switch persistence and renderer identity with `e2e/preview-width.spec.ts`.
 
 ## Change website identity
 
