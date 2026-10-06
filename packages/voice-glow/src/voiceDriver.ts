@@ -645,6 +645,7 @@ function frame(ts: number): void {
         inst.onLevel?.(s.level);
         inst.paintedConfig = config;
     });
+    stopLoopIfIdle();
 }
 function startLoop(): void {
     if (rafId == null) {
@@ -655,10 +656,14 @@ function startLoop(): void {
     }
 }
 function stopLoopIfIdle(): void {
-    if (instances.size === 0 && rafId != null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
+    if (rafId == null)
+        return;
+    for (const inst of instances) {
+        if (!inst.config.paused || inst.paintedConfig !== inst.config)
+            return;
     }
+    cancelAnimationFrame(rafId);
+    rafId = null;
 }
 export function registerVoiceInstance(el: HTMLElement, config: VoiceDriverConfig, source: VoiceSource, onLevel?: (level: number) => void): () => void {
     const inst: VoiceInstance = {

@@ -68,7 +68,7 @@ export const BotAvatar = forwardRef<HTMLCanvasElement, BotAvatarProps>(function 
     const frozen = paused || !(speed > 0);
     const shadingMode: BotAvatarShading = shading === true ? 'crisp' : shading === false ? 'flat' : shading;
     const customPath = typeof path === 'string' && path.trim() ? path.trim() : null;
-    const outlineKey = customPath ? `path:${hashSeed(customPath)}:${customPath.length}` : type;
+    const outlineKey = customPath ? `path:${customPath}` : type;
     const lit = LIGHT_DEFAULTS[shadingMode === 'fabric' ? 'fabric' : 'other'];
     const q = (v: number, lo: number, hi: number) => Math.round(clamp(v, lo, hi) * 20) / 20;
     const fur: FurStyle = {

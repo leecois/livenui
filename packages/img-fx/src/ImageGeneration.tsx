@@ -250,6 +250,8 @@ export const ImageGeneration = forwardRef<ImageGenerationHandle, ImageGeneration
             const next = measure();
             if (next.w !== lastW || next.h !== lastH) {
                 updateInstanceSize(i, next.w, next.h);
+                if (i.paused)
+                    renderInstanceOnce(i);
                 lastW = next.w;
                 lastH = next.h;
             }

@@ -261,11 +261,11 @@ function instancePixelSize(inst: Instance): {
         ih: Math.max(1, Math.floor(inst.cssHeight * inst.dpr))
     };
 }
-function maybeGrowGlCanvas(s: SharedRenderer): void {
+function maybeGrowGlCanvas(s: SharedRenderer, target?: Instance): void {
     let needCssW = 0;
     let needCssH = 0;
     for (const inst of s.instances) {
-        if (!inst.visible || inst.paused)
+        if (!inst.visible || (inst.paused && inst !== target))
             continue;
         if (inst.cssWidth > needCssW)
             needCssW = inst.cssWidth;
@@ -334,7 +334,7 @@ export function renderInstanceOnce(inst: Instance): void {
         return;
     if (inst.cssWidth < 1 || inst.cssHeight < 1)
         return;
-    maybeGrowGlCanvas(SHARED);
+    maybeGrowGlCanvas(SHARED, inst);
     paintInstance(SHARED, inst, performance.now());
 }
 let onAfterTick: (() => void) | null = null;
@@ -509,6 +509,8 @@ export function getMaxDpr(): number {
     return maxDpr;
 }
 export function setSharedFragmentShader(src: string | null): void {
+    if (src === null && !SHARED)
+        return;
     const s = ensureShared();
     const next = src ?? FRAG_SRC;
     if (s.material.fragmentShader === next)

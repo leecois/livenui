@@ -15,6 +15,187 @@ async function probe(source: string) {
   expect({ exitCode, output, errors }).toEqual({ exitCode: 0, output: 'passed\n', errors: '' })
 }
 
+const rendererSetup = `
+import assert from 'node:assert/strict';
+import { mock } from 'bun:test';
+const made = [], draws = [], frames = new Map();
+let frameId = 0;
+const context = { clearRect() {}, drawImage(...args) { draws.push(args); } };
+const canvas = () => ({ width: 8, height: 8, style: {}, getContext: () => context, addEventListener() {}, removeEventListener() {} });
+Object.assign(globalThis, {
+  document: { createElement: canvas }, window: { devicePixelRatio: 1 },
+  requestAnimationFrame: fn => { frames.set(++frameId, fn); return frameId; },
+  cancelAnimationFrame: id => frames.delete(id),
+});
+class V { set() {} }
+class C { setRGB() {} }
+class Renderer {
+  ratio = 1; disposed = false;
+  constructor(o) { this.canvas = o.canvas; made.push(this); }
+  setPixelRatio(n) { this.ratio = n; }
+  getPixelRatio() { return this.ratio; }
+  setClearColor() {} getContext() { return {}; }
+  setSize(w, h) { this.canvas.width = w * this.ratio; this.canvas.height = h * this.ratio; }
+  setViewport() {} setScissor() {} setScissorTest() {} render() {}
+  dispose() { this.disposed = true; }
+}
+class Scene { add() {} }
+class Material { constructor(o) { Object.assign(this, o); } dispose() {} }
+class Geometry { dispose() {} }
+mock.module('three', () => ({ Vector2: V, Color: C, WebGLRenderer: Renderer, Scene, OrthographicCamera: class {}, ShaderMaterial: Material, PlaneGeometry: Geometry, Mesh: class {}, NormalBlending: 1 }));
+const engine = await import('./packages/img-fx/src/engine/renderer.ts');
+const { PRESETS } = await import('./packages/img-fx/src/presets/index.ts');
+const instance = (width, height) => engine.createInstance({ canvas: canvas(), cssWidth: width, cssHeight: height, preset: PRESETS['pixels-organic'].modes.dark });
+`
+
+for (const dpr of [1, 2]) {
+  test(`paused Image one-shot drawing and resize allocate complete backing pixels at DPR ${dpr}`, async () => {
+    await probe(`${rendererSetup}
+window.devicePixelRatio = ${dpr};
+engine.setMaxDpr(${dpr});
+const inst = instance(320, 180);
+engine.setInstancePaused(inst, true);
+engine.renderInstanceOnce(inst);
+assert.deepEqual([made[0].canvas.width, made[0].canvas.height], [320 * ${dpr}, 180 * ${dpr}]);
+assert.deepEqual(draws.at(-1).slice(1, 5), [0, 0, 320 * ${dpr}, 180 * ${dpr}]);
+engine.updateInstanceSize(inst, 500, 300);
+engine.renderInstanceOnce(inst);
+assert.deepEqual([made[0].canvas.width, made[0].canvas.height], [500 * ${dpr}, 300 * ${dpr}]);
+assert.deepEqual(draws.at(-1).slice(1, 5), [0, 0, 500 * ${dpr}, 300 * ${dpr}]);
+const offscreen = instance(900, 900);
+engine.setInstanceVisible(offscreen, false);
+engine.renderInstanceOnce(offscreen);
+assert.deepEqual([made[0].canvas.width, made[0].canvas.height], [500 * ${dpr}, 300 * ${dpr}]);
+engine.destroyInstance(offscreen);
+engine.destroyInstance(inst);
+assert.equal(frames.size, 0);
+console.log('passed');
+`)
+  })
+}
+
+test('resetting a custom Image shader after teardown cannot recreate an unowned renderer', async () => {
+  await probe(`${rendererSetup}
+engine.setSharedFragmentShader(null);
+assert.equal(made.length, 0);
+assert.equal(frames.size, 0);
+const inst = instance(320, 180);
+engine.setSharedFragmentShader('custom shader');
+engine.destroyInstance(inst);
+assert.equal(made[0].disposed, true);
+assert.equal(frames.size, 0);
+engine.setSharedFragmentShader(null);
+assert.equal(made.length, 1);
+assert.equal(frames.size, 0);
+const next = instance(64, 64);
+assert.equal(made.length, 2);
+engine.destroyInstance(next);
+assert.equal(frames.size, 0);
+console.log('passed');
+`)
+})
+
+test('Voice sleeps after paused paint and wakes for active or changed instances', async () => {
+  await probe(`
+import assert from 'node:assert/strict';
+const frames = new Map(); let next = 0;
+Object.assign(globalThis, {
+  requestAnimationFrame: fn => { frames.set(++next, fn); return next; },
+  cancelAnimationFrame: id => frames.delete(id),
+});
+const host = () => {
+  const el = { writes: 0, querySelector: () => null, hasAttribute: () => false, clientWidth: 100, clientHeight: 80 };
+  el.style = { setProperty() { el.writes++; } };
+  return el;
+};
+const config = (id, paused) => new Proxy({ id, paused, look: 'glow', distortion: 0, reducedMotion: true, layers: {} }, { get: (target, key) => key in target ? target[key] : 1 });
+const { registerVoiceInstance } = await import('./packages/voice-glow/src/voiceDriver.ts');
+const step = t => {
+  assert.equal(frames.size, 1);
+  const [id, fn] = frames.entries().next().value;
+  frames.delete(id); fn(t);
+};
+let calls = 0, reports = 0;
+const frozen = host();
+const offFrozen = registerVoiceInstance(frozen, config('frozen', true), { getLevel: () => { calls++; return .5; } }, () => reports++);
+step(100);
+assert.ok(frozen.writes > 0); assert.equal(frames.size, 0);
+assert.equal(calls, 0); assert.equal(reports, 1); offFrozen();
+const paused = host(), active = host(); let activeCalls = 0;
+const offPaused = registerVoiceInstance(paused, config('paused', true), {});
+const offActive = registerVoiceInstance(active, config('active', false), { getLevel: () => { activeCalls++; return .5; } });
+step(200);
+const pausedWrites = paused.writes, activeWrites = active.writes;
+assert.ok(pausedWrites > 0); assert.ok(activeWrites > 0); assert.equal(frames.size, 1);
+step(217); step(234);
+assert.equal(paused.writes, pausedWrites); assert.ok(active.writes > activeWrites);
+assert.equal(activeCalls, 3); assert.equal(frames.size, 1);
+offActive(); assert.equal(frames.size, 0); offPaused(); assert.equal(frames.size, 0);
+const resumed = registerVoiceInstance(paused, config('paused', false), { getLevel: () => .6 });
+assert.equal(frames.size, 1); step(300); assert.ok(paused.writes > pausedWrites);
+assert.equal(frames.size, 1); resumed(); assert.equal(frames.size, 0);
+const beforeRepaint = paused.writes;
+const offRepaint = registerVoiceInstance(paused, config('paused', true), {});
+step(400); assert.ok(paused.writes > beforeRepaint); assert.equal(frames.size, 0); offRepaint();
+let offDuringFrame;
+offDuringFrame = registerVoiceInstance(host(), config('self', false), {}, () => offDuringFrame());
+step(500); assert.equal(frames.size, 0); offDuringFrame();
+let offNested;
+const offOuter = registerVoiceInstance(host(), config('outer', false), {}, () => {
+  offOuter();
+  offNested = registerVoiceInstance(host(), config('nested', false), {});
+});
+step(600); assert.equal(frames.size, 1); step(617); offNested(); assert.equal(frames.size, 0);
+console.log('passed');
+`)
+})
+
+test('custom Avatar paths use distinct material caches while identical paths reuse them', async () => {
+  await probe(`
+import assert from 'node:assert/strict';
+import { mock } from 'bun:test';
+let refs = [];
+mock.module('react', () => ({
+  forwardRef: fn => fn, useEffect() {}, useLayoutEffect() {}, useId: () => 'fixture', useImperativeHandle() {},
+  useRef: value => { const ref = { current: value }; refs.push(ref); return ref; },
+  useState: value => [typeof value === 'function' ? value() : value, () => {}],
+}));
+const jsx = (type, props) => ({ type, props });
+mock.module('react/jsx-runtime', () => ({ jsx, jsxs: jsx }));
+mock.module('react/jsx-dev-runtime', () => ({ jsxDEV: jsx }));
+globalThis.Path2D = class { constructor(d) { this.d = d; } };
+const fills = [];
+class FakeCanvas {
+  constructor(width, height) { this.width = width; this.height = height; }
+  getContext() { return {
+    setTransform() {}, fill: p => fills.push(p.d),
+    getImageData: () => {
+      const data = new Uint8ClampedArray(this.width * this.height * 4);
+      for (let y = 10; y < this.height - 10; y++) for (let x = 10; x < this.width - 10; x++) data[(y * this.width + x) * 4 + 3] = 255;
+      return { data };
+    },
+  }; }
+}
+globalThis.OffscreenCanvas = FakeCanvas;
+const { BotAvatar } = await import('./packages/bot-avatars/src/BotAvatar.tsx');
+const configFor = path => {
+  refs = []; BotAvatar({ path, paused: true, shading: 'plastic' }, null);
+  const cfg = refs.find(ref => ref.current?.path instanceof Path2D)?.current;
+  assert.ok(cfg); return cfg;
+};
+const firstPath = 'M10 56H95V95H10Z', secondPath = 'M10 63H95V95H10Z';
+const first = configFor(firstPath), second = configFor(secondPath), same = configFor(firstPath);
+assert.notEqual(first.typeKey, second.typeKey); assert.notEqual(first.path, second.path);
+assert.equal(first.typeKey, same.typeKey); assert.equal(first.path, same.path);
+const { warmPlastic } = await import('./packages/bot-avatars/src/plastic.ts');
+warmPlastic(first.typeKey, first.path, 64, .65, false);
+warmPlastic(second.typeKey, second.path, 64, .65, false);
+warmPlastic(same.typeKey, same.path, 64, .65, false);
+assert.deepEqual(fills, [firstPath, secondPath]);
+console.log('passed');
+`)
+})
+
 const cycleSetup = `
 import assert from 'node:assert/strict';
 import { mock } from 'bun:test';

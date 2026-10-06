@@ -65,6 +65,32 @@ test('Image reveals each original artwork through the native renderer', async ({
       .screenshot({ path: testInfo.outputPath(`image-${index + 1}.png`) })
     if (index === 0)
       await page.screenshot({ path: testInfo.outputPath('image-full-page.png'), fullPage: true })
+    if (index === 0) {
+      const original = page.viewportSize()
+      if (!original) throw new Error('Missing test viewport')
+      const before = await canvas.evaluate((node: HTMLCanvasElement) => [node.width, node.height])
+      await page.setViewportSize({ width: 320, height: original.height })
+      await expect
+        .poll(() => canvas.evaluate((node: HTMLCanvasElement) => [node.width, node.height]))
+        .not.toEqual(before)
+      await expect
+        .poll(() =>
+          canvas.evaluate((node: HTMLCanvasElement) => {
+            const context = node.getContext('2d')
+            if (!context) throw new Error('Missing native image canvas')
+            const { data } = context.getImageData(0, 0, node.width, node.height)
+            let opaque = 0
+            for (let i = 3; i < data.length; i += 4) if (data[i] > 200) opaque++
+            return opaque / (node.width * node.height)
+          })
+        )
+        .toBeGreaterThan(0.8)
+      await expect(page.getByRole('button', { name: '▶ Play', exact: true })).toBeVisible()
+      await page
+        .locator('.preview-stage')
+        .screenshot({ path: testInfo.outputPath('image-paused-resize.png') })
+      await page.setViewportSize(original)
+    }
   }
   for (const src of imageDemoSources) expect(requested).toContain(src)
   expect(requested.every((src) => imageDemoSources.includes(src))).toBe(true)

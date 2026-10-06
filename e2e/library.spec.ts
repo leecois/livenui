@@ -36,6 +36,8 @@ for (const [id, renderer] of Object.entries(renderers)) {
       if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`)
     })
     expect((await page.goto(`/agents/${id}`))?.status()).toBe(200)
+    await page.locator('.preview-stage').scrollIntoViewIfNeeded()
+    await expect(page.locator('.preview-stage')).toBeInViewport()
     await expect(page.locator(`.preview-stage ${renderer}`).first()).toBeVisible()
     await expect(page.locator('.preview-stage [role="alert"]')).toHaveCount(0)
     await noOverflow(page)
@@ -127,7 +129,8 @@ for (const [id, renderer] of Object.entries(renderers)) {
       await expect(context.locator('canvas')).toHaveCount(2)
       await context.screenshot({ path: testInfo.outputPath('agent-sidebar.png') })
     }
-    await page.evaluate(() => window.scrollTo(0, 0))
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
     await expect(page.locator('.showcase-example').first().locator(renderer).first()).toBeVisible()
     await page.screenshot({ path: testInfo.outputPath('full-page.png'), fullPage: true })
     expect(errors).toEqual([])
