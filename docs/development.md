@@ -86,6 +86,8 @@ Keep configuration behavior in `usePlayground`, session persistence/theme/router
 
 Guide quick settings use `lib/content.ts` essential fields, human labels and optional typed choices. Short enum fields can become native radio pills; long lists stay selects. Studio retains advanced settings, Saved and JSON while its starting-point selector shares the gallery examples. Place guide integration prose in the content metadata when it must appear beside installation rather than repeat after the playground.
 
+For settings presentation, follow [settings layout](settings-layout.md). Keep native inputs and typed values in `FieldControl`, compact navigation/action composition in `ControlsPanel` and scoped rules in `playground.css`. Verify label/value alignment, target sizes, wrapping, keyboard selection and unchanged generated props with `e2e/settings-layout.spec.ts` before the full gates.
+
 Use `studioHref` and `parseConfiguration` for portable guide-to-Studio links. Serialize effective props and the selected component variant into the fragment; do not introduce a second persistence store or send configuration as a server query. Task switching must preserve the configuration owner while unmounting inactive renderers. Check pending and live microphone teardown when changing this composition.
 
 Async configuration input must be validated before changing state. File import notices belong beside transfer actions. Tab validation notices belong in controls. Storage failures must offer a portable alternative instead of pretending a preset was saved.

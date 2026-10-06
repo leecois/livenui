@@ -43,7 +43,7 @@ Help text has **zero margin by default**, left alignment and a semantic class (`
 
 Studio's label, select and inline description share the vertical center on wide containers. On narrow containers the label sits above its select and the description moves to a dedicated row. Component labels and selectors must not be scaled by page prose styles. Form labels are 13px; selected text is 13px; selectors are at least 44px high.
 
-Use 24px between primary panels, 20px inside panels, 16px between fields and 8px between label and control. Compact toolbar padding is 12–16px. Maintain quiet whitespace; no giant inherited margins, empty decorative sections or repeated heading blocks.
+Use 24px between primary panels and 20px inside panels. Settings use 12px field gaps and put labels and editable values on the same neutral rounded-full row, with 8px between them. Numeric values appear once. Compact toolbar padding is 12–16px. Maintain quiet whitespace; no giant inherited margins, empty decorative sections or repeated heading blocks. See [settings layout](docs/settings-layout.md).
 
 ## Control recipes
 
@@ -51,8 +51,8 @@ Use 24px between primary panels, 20px inside panels, 16px between fields and 8px
 - Primary action: `button button-accent`, gradient fill and white text. Preserve existing accent actions including Copy code, Apply configuration, Save preset and Copy agent prompt.
 - Secondary action: neutral surface, border and foreground. Text action: muted text, minimum target height, clear hover/focus state.
 - Selected tabs/pills: gradient fill, white text; inactive states remain neutral. A label badge is not a selected control and stays muted.
-- Field: visible associated label, 8px gap, rounded-full 44px control. Numeric values use tabular figures. Checkbox labels enlarge the hit target to 44px.
-- Short enumerations use native radio inputs inside labeled rounded-full pills. Preserve native arrow-key selection and a visible focus ring. Long lists remain native selects. Human labels such as Idle map to API values without changing exported props; size presets retain their numeric types, and custom values remain visible.
+- Field: visible associated label, 8px gap, rounded-full 44px control. Numeric values use tabular figures. Native checkboxes use a decorative switch track, a 44px target and visible focus; checked tracks keep the accent gradient and white thumb.
+- Short enumerations use native radio inputs inside labeled rounded-full pills on a neutral track. Groups with more than three options span two field columns, collapsing to one on compact containers. Preserve native arrow-key selection and a visible focus ring. Long lists remain native selects. Human labels such as Idle map to API values without changing exported props; size presets retain their numeric types, and custom values remain visible.
 - Search: accessible name, neutral rounded-full track, focus ring around the composed field. Empty results include an actionable reset.
 - JSON/code areas: readable monospace, scroll locally. Multiline editors use a 16px radius rather than capsule geometry. API tables scroll inside their container instead of widening the page.
 - Feedback: adjacent `role="status"` or `aria-live` text. Invalid JSON must leave the last valid preview/code intact. Do not convey success or failure only through color.
@@ -65,7 +65,7 @@ Use the **feature container width**, not viewport width: the Glass sidebar chang
 | --- | --- |
 | Below 900px | Gallery becomes two columns |
 | Below 900px | Customization fields become two columns |
-| Below 550px | Customization fields and catalog/gallery cards become one column; device controls show labeled icons; guide starting examples use two columns except Liquid's full-width interaction scenes; heading/search stack; Studio context gets a separate help row; command and transfer actions wrap |
+| Below 550px | Customization fields and catalog/gallery cards become one column; configuration tabs move below the heading; device controls keep accessible icon labels; guide starting examples use two columns except Liquid's full-width interaction scenes; heading/search stack; Studio context gets a separate help row; command and transfer actions wrap |
 
 At viewport widths 320, 390, 768, 1024 and 1440px, no document overflow is allowed. Image, voice, beam and liquid hosts fit their stage. Native selectors, command text, tabs and long preset names must not force the page wider. Zoom and longer labels are checked manually when changing composition.
 

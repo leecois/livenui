@@ -184,8 +184,10 @@
   pointer-events: none;
   color: var(--muted);
 }
-.agent-libraries
-  :is(.field input:not([type="checkbox"]), .control-search, #preset-name, .json-editor) {
+.agent-libraries .field input:not([type="checkbox"]),
+.agent-libraries .control-search,
+.agent-libraries #preset-name,
+.agent-libraries .json-editor {
   width: 100%;
   min-width: 0;
   min-height: var(--livenui-control-height);

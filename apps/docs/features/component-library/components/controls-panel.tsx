@@ -1,4 +1,5 @@
 import { Button } from '@livenui/agent-ui'
+import { RotateCcw } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library, Preset } from '../lib/config'
@@ -75,51 +76,49 @@ export function ControlsPanel({
   return (
     <aside className="controls-panel">
       <div className="controls-heading">
-        <div>
-          <h2>{studio ? 'Customize' : 'Quick settings'}</h2>
-          {studio && <p className="helper-text">Changes update the preview and code.</p>}
-        </div>
-        <button type="button" className="text-button" onClick={reset}>
+        <h2>{studio ? 'Customize' : 'Quick settings'}</h2>
+        {studio && (
+          <div className="control-tabs" role="tablist" aria-label="Configuration view">
+            {['controls', 'presets', 'json'].map((item) => (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === item}
+                id={`tab-${item}`}
+                aria-controls={`panel-${item}`}
+                key={item}
+                onClick={() => selectTab(item)}
+                tabIndex={tab === item ? 0 : -1}
+                onKeyDown={(event) => {
+                  const tabs = ['controls', 'presets', 'json']
+                  const index = tabs.indexOf(item)
+                  const next =
+                    event.key === 'ArrowRight'
+                      ? tabs[(index + 1) % tabs.length]
+                      : event.key === 'ArrowLeft'
+                        ? tabs[(index + tabs.length - 1) % tabs.length]
+                        : event.key === 'Home'
+                          ? tabs[0]
+                          : event.key === 'End'
+                            ? tabs[tabs.length - 1]
+                            : null
+                  if (next) {
+                    event.preventDefault()
+                    selectTab(next)
+                    document.getElementById(`tab-${next}`)?.focus()
+                  }
+                }}
+              >
+                {item === 'json' ? 'JSON' : item === 'presets' ? 'Saved' : 'Controls'}
+              </button>
+            ))}
+          </div>
+        )}
+        <Button className="controls-reset" onClick={reset}>
+          <RotateCcw size={14} aria-hidden="true" />
           Reset
-        </button>
+        </Button>
       </div>
-      {studio && (
-        <div className="control-tabs" role="tablist" aria-label="Configuration view">
-          {['controls', 'presets', 'json'].map((item) => (
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === item}
-              id={`tab-${item}`}
-              aria-controls={`panel-${item}`}
-              key={item}
-              onClick={() => selectTab(item)}
-              tabIndex={tab === item ? 0 : -1}
-              onKeyDown={(event) => {
-                const tabs = ['controls', 'presets', 'json']
-                const index = tabs.indexOf(item)
-                const next =
-                  event.key === 'ArrowRight'
-                    ? tabs[(index + 1) % tabs.length]
-                    : event.key === 'ArrowLeft'
-                      ? tabs[(index + tabs.length - 1) % tabs.length]
-                      : event.key === 'Home'
-                        ? tabs[0]
-                        : event.key === 'End'
-                          ? tabs[tabs.length - 1]
-                          : null
-                if (next) {
-                  event.preventDefault()
-                  selectTab(next)
-                  document.getElementById(`tab-${next}`)?.focus()
-                }
-              }}
-            >
-              {item === 'json' ? 'JSON' : item === 'presets' ? 'Saved' : 'Controls'}
-            </button>
-          ))}
-        </div>
-      )}
       <ControlContent studio={studio} tab={tab}>
         {(!studio || tab === 'controls') && (
           <>
@@ -151,26 +150,28 @@ export function ControlsPanel({
               ))}
             </div>
             {controls.length === 0 && <p className="muted">No matching controls.</p>}
-            {studio ? (
-              <button
-                type="button"
-                className="text-button all-controls"
-                aria-expanded={all}
-                onClick={() => {
-                  setAll(!all)
-                  setQuery('')
-                }}
-              >
-                {all ? 'Show essential controls' : 'Show advanced settings'}{' '}
-                <span aria-hidden="true">↗</span>
-              </button>
-            ) : studioLink ? (
-              <Link href={studioLink} navigate={navigate} className="text-button all-controls">
-                More settings in Studio <span aria-hidden="true">↗</span>
-              </Link>
-            ) : (
-              <p className="helper-text">Use the code below to keep this configuration.</p>
-            )}
+            <div className="control-footer">
+              {studio ? (
+                <button
+                  type="button"
+                  className="text-button all-controls"
+                  aria-expanded={all}
+                  onClick={() => {
+                    setAll(!all)
+                    setQuery('')
+                  }}
+                >
+                  {all ? 'Show essential controls' : 'Show advanced settings'}{' '}
+                  <span aria-hidden="true">↗</span>
+                </button>
+              ) : studioLink ? (
+                <Link href={studioLink} navigate={navigate} className="text-button all-controls">
+                  More settings in Studio <span aria-hidden="true">↗</span>
+                </Link>
+              ) : (
+                <p className="helper-text">Use the code below to keep this configuration.</p>
+              )}
+            </div>
           </>
         )}
         {tab === 'json' && (
@@ -185,10 +186,12 @@ export function ControlsPanel({
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
             />
-            <Button className="button-accent" onClick={apply}>
-              Apply configuration <span aria-hidden="true">↗</span>
-            </Button>
-            <p className="helper-text">The preview updates only after validation.</p>
+            <div className="config-actions">
+              <Button className="button-accent" onClick={apply}>
+                Apply configuration <span aria-hidden="true">↗</span>
+              </Button>
+              <p className="helper-text">The preview updates only after validation.</p>
+            </div>
           </>
         )}
         {tab === 'presets' && (
@@ -200,16 +203,18 @@ export function ControlsPanel({
             <label className="sr-only" htmlFor="preset-name">
               Preset name
             </label>
-            <input
-              id="preset-name"
-              placeholder="Name your preset"
-              maxLength={80}
-              value={presetName}
-              onChange={(event) => setPresetName(event.target.value)}
-            />
-            <Button className="button-accent" onClick={save}>
-              Save preset <span aria-hidden="true">+</span>
-            </Button>
+            <div className="preset-save">
+              <input
+                id="preset-name"
+                placeholder="Name your preset"
+                maxLength={80}
+                value={presetName}
+                onChange={(event) => setPresetName(event.target.value)}
+              />
+              <Button className="button-accent" aria-label="Save preset" onClick={save}>
+                Save <span aria-hidden="true">+</span>
+              </Button>
+            </div>
             <div className="preset-list">
               {presets
                 .filter((preset) => preset.library === library.id)

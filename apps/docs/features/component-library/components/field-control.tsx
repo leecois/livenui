@@ -18,8 +18,12 @@ export function FieldControl({
   const id = `prop-${field.name}`
   if (choices?.length)
     return (
-      <fieldset className="field field-choice" aria-label={label}>
-        <legend>{label}</legend>
+      <fieldset
+        className="field field-choice"
+        aria-label={label}
+        data-wide={choices.length > 3 || undefined}
+      >
+        <legend title={field.description}>{label}</legend>
         <div className="field-options">
           {choices.map((option) => (
             <label className="field-option" key={String(option)}>
@@ -41,7 +45,7 @@ export function FieldControl({
     )
   if (field.kind === 'select')
     return (
-      <div className="field">
+      <div className="field field-inline">
         <label htmlFor={id} title={field.description}>
           {label}
         </label>
@@ -68,20 +72,22 @@ export function FieldControl({
         <label htmlFor={id} title={field.description}>
           {label}
         </label>
-        <input
-          id={id}
-          type="checkbox"
-          checked={value === true}
-          onChange={(event) => set(event.target.checked)}
-        />
+        <span className="field-toggle">
+          <input
+            id={id}
+            type="checkbox"
+            checked={value === true}
+            onChange={(event) => set(event.target.checked)}
+          />
+          <span className="field-toggle-track" aria-hidden="true" />
+        </span>
       </div>
     )
   if (field.kind === 'number')
     return (
-      <div className="field">
+      <div className="field field-inline field-number">
         <label htmlFor={id} title={field.description}>
           {label}
-          <span>{value === undefined ? 'default' : String(value)}</span>
         </label>
         <input
           id={id}
@@ -98,7 +104,7 @@ export function FieldControl({
       </div>
     )
   return (
-    <div className="field">
+    <div className="field field-inline">
       <label htmlFor={id} title={field.description}>
         {label}
       </label>
