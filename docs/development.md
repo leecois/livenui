@@ -65,7 +65,7 @@ Read [mascot design and ownership](mascots.md). Add types, silhouettes and face 
 ## Change a component API
 
 1. Implement in the owning SDK and preserve export/build contracts unless a breaking change is explicitly intended.
-2. Update `data/catalog.json`, `lib/config.ts`, variant defaults, exported snippets and `lib/content.ts` essential fields.
+2. Update `data/catalog.json`, `lib/config.ts`, `lib/structured-props.ts`, variant defaults, exported snippets and `lib/content.ts` essential fields.
 3. Update the corresponding preview adapter, examples, public guide and agent integration reference.
 4. The source registry reads the owning SDK on every pre-build. Update source entry/export conventions and `lib/distribution.ts` when the public entry changes; both formats regenerate from local source.
 5. Test valid/invalid props, generated imports, package ESM/CJS exports, peers, resource lifecycle and relevant renderer variants.
@@ -93,6 +93,8 @@ Run `bun test tests/registry.test.ts tests/config.test.ts tests/discovery.test.t
 Registry file targets and resolver names are untrusted paths. Reject absolute, traversal and encoded traversal paths. Preflight all parent/child outputs against the captured project root and reject escaping symlinks before writing any file. Configured sibling aliases and symlinks inside that root remain valid. Recheck destinations immediately before writes; do not claim protection against concurrent hostile filesystem mutation.
 
 Resolve each component once per dependency traversal, preserving parent-first order. Cache validated component payloads rather than partially expanded dependency lists, so shared children are unique and a failed child can be retried. Reject circular dependencies before writing files.
+
+Registry production also rejects cycles without overflowing the stack. Preflight existing output targets as files before starting writes. Mark a destination installed only after a successful write, an identical existing file or a deliberate declined overwrite; failed writes must remain retryable. This is not a transactional rollback: earlier successful writes remain after an unexpected later failure. Normalize validated dot-prefixed registry targets when resolving generated imports. Partial alias objects retain the same omitted defaults as an absent alias object.
 
 The command factory in `packages/cli/src/program.ts` owns global option propagation. Dependency installation must reject nonzero subprocess exits and must not announce success after failure. Run `bun test tests/cli.test.ts tests/registry.test.ts` for installer changes, then the full gate.
 

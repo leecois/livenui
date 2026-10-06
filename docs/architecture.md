@@ -61,7 +61,8 @@ flowchart TD
 | Concern | Canonical owner | Derived consumers |
 | --- | --- | --- |
 | Package identity, versions, variant APIs and field metadata | Feature `data/catalog.json` | Config types, API tables, installer registry |
-| Defaults, validators, snippets and agent prompts | Feature `lib/config.ts` | Controls, JSON transfer, integration code, contract tests |
+| Defaults, parsing, snippets and agent prompts | Feature `lib/config.ts` | Controls, JSON transfer, integration code, contract tests |
+| Structured JSON prop schemas | Feature `lib/structured-props.ts`, called by `lib/config.ts` | Imports, presets, Studio handoffs and nested Liquid.Item tuning |
 | Discovery copy, essential settings, search and commands | Feature `lib/content.ts` | Overview, gallery, controls, installer commands |
 | Complete example configurations and stable IDs | Feature `lib/examples.ts` | Gallery, starting points, Studio deep links |
 | Featured example IDs, human control labels and explicit quick choices | Feature `lib/content.ts` | Guide showcases and control panels |
@@ -89,9 +90,13 @@ Metal shares a renderer but maintains per-instance material frames and pause beh
 
 Image cycle startup retains an explicit pause without scheduling image work. Resuming a cycle preserves its one-shot or continuous mode and manual hold. Completing a resumed hide releases the current image and schedules another reveal only for continuous playback.
 
+Explicit paused Image draws include the target's dimensions when sizing the shared renderer, and paused resizes repaint the held reveal. Resetting a shader after the final instance is destroyed must not allocate another renderer. Voice's frame loop sleeps once every registered instance has painted its paused configuration; registering a changed or active instance wakes it. Custom avatar material caches use complete path identity rather than a reduced animation seed.
+
 ## Data and trust boundaries
 
 JSON configuration is untrusted input. Parsing rejects unknown props, non-finite numbers, unsupported variants, prototype keys, invalid structures and excessive depth/key counts. Files are limited to 64 KB and must match the selected library. Never evaluate uploaded configuration, functions or arbitrary module strings. Function/element props belong in application code.
+
+Structured validators follow the selected SDK component's JSON-compatible unions, required object fields and tuple lengths. Voice color arrays contain strings; Image color arrays also allow null entries. CSS avatar sizes remain strings or numbers. Application references, including Metal masks, cannot be imported as JSON. SDK API changes must update these schemas alongside catalog metadata.
 
 Only the current file import may replace configuration or report a result. A newer import, draft edit, applied configuration, field edit, preset/example load, Reset, variant selection, playback action or unmount invalidates pending reads. Capture the selected file and clear the input before reading so the same file can be selected again. Invalidating a read prevents state updates; it does not cancel the browser's file operation.
 
@@ -102,6 +107,8 @@ Presets stay in this browser; unavailable or corrupt storage is handled without 
 Bun 1.4.2 is pinned in the root manifest. Use Node 24. Turbo builds upstream workspace packages before app typecheck/build. SDKs emit ESM, CJS, declarations and source maps with tsup and the TypeScript 6 compatibility compiler; the application uses TypeScript 7. Keep this split until a measured migration proves declaration and bundler compatibility.
 
 Next's pre-build regenerates both source registry formats with clean output directories. `components/registry.mts` maps public component IDs to the local SDK directories. `scripts/build-registry.ts` packages the full source tree, a client entry, LICENSE and available NOTICE files; it never replaces local changes with a published upstream SDK. MDX generation owns `.source/`; Next owns `.next/`; tsup owns `dist/`. Edit source adapters, never generated output. Search is local by default; optional remote synchronization requires `LIVENUI_SYNC_SEARCH=1` and existing credentials. Do not introduce network side effects to ordinary validation.
+
+Post-build task failures propagate a nonzero process exit. Optional search synchronization cannot report a successful build after a requested sync fails.
 
 Protected public contracts include `/agents`, `/agents/gallery`, `/studio`, seven `/agents/{id}` guides, `/agents/integration`, `/api/search`, `/r`, `/registry`, `/agent-skill.md`, `/llms.txt`, `/llms-full.txt`, MDX text, static JSON and OG routes. `/` and retired blog routes retain redirects. Glass page-tree navigation has one active destination. The site origin is owned by `lib/site.ts` with a shared production fallback in the pure distribution helper, using `NEXT_PUBLIC_APP_URL` or a localhost default until a hosted origin is configured. Metadata and registry generation share this origin; do not advertise retired RSS endpoints. Infrastructure in `nixpacks.toml`, Turbo outputs, root scripts and `.github` remains explicit and reviewed.
 
