@@ -22,6 +22,13 @@ test('numeric drafts, limits, custom values and default use one configuration', 
   await expect(speed).toHaveAttribute('aria-invalid', 'true')
   await expect(page.locator('.controls-panel').getByRole('alert')).toContainText('greater than 0')
   await expect(code).toContainText('speed={1.75}')
+  for (const action of ['Show advanced settings', 'Show essential controls']) {
+    await page.getByRole('button', { name: action, exact: true }).click()
+    await expect(speed).toHaveValue('0')
+    await expect(speed).toHaveAttribute('aria-invalid', 'true')
+    await expect(page.locator('.controls-panel').getByRole('alert')).toContainText('greater than 0')
+    await expect(code).toContainText('speed={1.75}')
+  }
   await speed.press('Escape')
   await expect(speed).toHaveValue('1.75')
   await speed.press('ControlOrMeta+A')
@@ -94,9 +101,10 @@ test('neutral tracks drag live, keep the renderer and support keyboard cancellat
   await expect(host).toHaveAttribute('data-control-probe', 'retained')
   await range.focus()
   expect(
-    await range.evaluate((input) =>
-      input.parentElement ? getComputedStyle(input.parentElement).outlineStyle : ''
-    )
+    await range.evaluate((input) => {
+      const row = input.closest('.number-row')
+      return row ? getComputedStyle(row).outlineStyle : ''
+    })
   ).toBe('solid')
   await page.evaluate(() => window.scrollTo(0, 0))
   await page.screenshot({

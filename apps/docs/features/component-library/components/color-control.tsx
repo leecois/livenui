@@ -63,10 +63,10 @@ export function ColorControl({
   }
   return (
     <div className="field field-color">
+      <label className="field-heading" htmlFor={id} title={description}>
+        {label}
+      </label>
       <div className="color-row" data-invalid={!!error || undefined}>
-        <label htmlFor={id} title={description}>
-          {label}
-        </label>
         <span
           className="color-picker"
           style={{ '--swatch': text || 'var(--surface)' } as CSSProperties}

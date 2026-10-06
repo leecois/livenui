@@ -74,6 +74,29 @@ export function ControlsPanel({
     deletePreset,
     reset,
   } = state
+  const fields = (items: Library['fields']) => (
+    <div className="fields">
+      {items.map((field) => (
+        <FieldControl
+          key={`${field.name}-${state.controlVersion}`}
+          library={state.activeLibrary}
+          field={field}
+          value={props[field.name]}
+          label={content[library.id].labels?.[field.name]}
+          choices={
+            content[library.id].choices?.[field.name] ||
+            (field.kind === 'select' && field.options.length <= 3
+              ? field.options
+              : !studio && field.kind === 'select' && field.options.length <= 6
+                ? field.options
+                : undefined)
+          }
+          set={(value) => update(field.name, value)}
+          onDraft={state.editControl}
+        />
+      ))}
+    </div>
+  )
   return (
     <aside className="controls-panel">
       <div className="controls-heading">
@@ -133,37 +156,14 @@ export function ControlsPanel({
                 onChange={(event) => setQuery(event.target.value)}
               />
             )}
-            <div className="control-groups">
-              <p className="control-instructions helper-text">
-                Drag a number’s track or type a value. Enter applies; Escape cancels.
-              </p>
+            <div className="control-groups" data-advanced={(studio && all) || undefined}>
               {(['Appearance', 'Motion', 'Interaction'] as ControlGroup[]).map((group) => {
-                const fields = controls.filter((field) => controlGroup(field) === group)
-                if (!fields.length) return null
+                const items = controls.filter((field) => controlGroup(field) === group)
+                if (!items.length) return null
                 return (
                   <section className="control-group" key={group} aria-label={`${group} settings`}>
                     <h3>{group}</h3>
-                    <div className="fields">
-                      {fields.map((field) => (
-                        <FieldControl
-                          key={`${field.name}-${state.controlVersion}`}
-                          library={state.activeLibrary}
-                          field={field}
-                          value={props[field.name]}
-                          label={content[library.id].labels?.[field.name]}
-                          choices={
-                            content[library.id].choices?.[field.name] ||
-                            (field.kind === 'select' && field.options.length <= 3
-                              ? field.options
-                              : !studio && field.kind === 'select' && field.options.length <= 6
-                                ? field.options
-                                : undefined)
-                          }
-                          set={(value) => update(field.name, value)}
-                          onDraft={state.editControl}
-                        />
-                      ))}
-                    </div>
+                    {fields(items)}
                   </section>
                 )
               })}

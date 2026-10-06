@@ -321,45 +321,60 @@
   font-size: var(--livenui-font-label);
   line-height: 1.5;
 }
-.agent-libraries .field-inline,
-.agent-libraries .field-switch {
-  flex-direction: row;
+.agent-libraries .field .field-heading {
+  min-height: calc(var(--livenui-font-label) * 1.5);
+  align-items: baseline;
+  color: var(--foreground);
+}
+.agent-libraries .field-range {
+  flex: none;
+  color: var(--muted);
+  font-size: var(--livenui-font-caption);
+  font-variant-numeric: tabular-nums;
+}
+.agent-libraries .number-row,
+.agent-libraries .color-row,
+.agent-libraries .text-row,
+.agent-libraries .switch-row,
+.agent-libraries .field-select > .select-control {
+  display: flex;
   align-items: center;
-  gap: var(--livenui-space-2);
-  min-height: var(--livenui-control-height);
-  padding-inline-start: var(--livenui-space-3);
+  min-width: 0;
+  min-height: calc(var(--livenui-control-height) + var(--livenui-space-2) + 2px);
+  padding: var(--livenui-space-1);
   border: 1px solid var(--border);
   border-radius: var(--livenui-radius-control);
   background: var(--track);
 }
-.agent-libraries .field-inline > label {
-  flex: 1;
-  min-width: 0;
-  color: var(--foreground);
-  padding-block: var(--livenui-space-2);
+.agent-libraries .field-select > .select-control {
+  width: 100%;
 }
-.agent-libraries .field-inline .select-control,
-.agent-libraries .field.field-inline input {
-  flex: 0 1 58%;
-  width: 58%;
-  min-width: 0;
-}
-.agent-libraries .field-inline .select-control select,
-.agent-libraries .field.field-inline input {
+.agent-libraries .field-select select,
+.agent-libraries .field .text-row input {
   background: transparent;
   border: 0;
-  text-align: right;
-  padding-inline-start: 0;
 }
-.agent-libraries .field-inline .select-control select {
+.agent-libraries .field-select select {
   padding-inline-end: var(--livenui-space-8);
 }
-.agent-libraries .field-inline .select-control svg {
+.agent-libraries .field-select .select-control svg {
   inset-inline-end: var(--livenui-space-3);
 }
 .agent-libraries .control-groups {
   display: grid;
   gap: var(--livenui-space-5);
+}
+.agent-libraries .control-groups:not([data-advanced]) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--livenui-space-3);
+  align-items: start;
+}
+.agent-libraries .control-groups:not([data-advanced]) .control-group,
+.agent-libraries .control-groups:not([data-advanced]) .fields {
+  display: contents;
+}
+.agent-libraries .control-groups:not([data-advanced]) .control-group h3 {
+  display: none;
 }
 .agent-libraries .control-group {
   min-width: 0;
@@ -370,16 +385,6 @@
   font-size: var(--livenui-font-caption);
   font-weight: 550;
 }
-.agent-libraries .number-row,
-.agent-libraries .color-row {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  min-height: var(--livenui-control-height);
-  border: 1px solid var(--border);
-  border-radius: var(--livenui-radius-control);
-  background: var(--track);
-}
 .agent-libraries .number-track {
   position: relative;
   flex: 1;
@@ -387,12 +392,7 @@
   align-self: stretch;
   display: flex;
   align-items: center;
-  border-radius: var(--livenui-radius-control);
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--foreground) 9%, var(--track)) var(--number-fill),
-    transparent var(--number-fill)
-  );
+  padding-inline: var(--livenui-space-3);
 }
 .agent-libraries .field .number-track input {
   position: absolute;
@@ -406,22 +406,31 @@
   cursor: ew-resize;
   touch-action: pan-y;
 }
-.agent-libraries .number-track label {
-  align-items: center;
-  justify-content: flex-start;
-  gap: var(--livenui-space-1);
-  padding: var(--livenui-space-2) var(--livenui-space-2) var(--livenui-space-2)
-    var(--livenui-space-3);
-  color: var(--foreground);
+.agent-libraries .number-meter {
+  position: relative;
+  width: 100%;
+  height: var(--livenui-space-1);
+  border-radius: var(--livenui-radius-control);
+  background: linear-gradient(
+    to right,
+    var(--muted) var(--number-fill),
+    var(--border) var(--number-fill)
+  );
   pointer-events: none;
 }
-.agent-libraries .number-track label svg {
-  flex: none;
-  color: var(--muted);
+.agent-libraries .number-meter::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: var(--number-fill);
+  width: var(--livenui-space-3);
+  height: var(--livenui-space-3);
+  border-radius: var(--livenui-radius-control);
+  background: var(--foreground);
+  transform: translate(-50%, -50%);
 }
-.agent-libraries .number-track:has(input:focus-visible) {
-  outline: 2px solid var(--ring);
-  outline-offset: -2px;
+.agent-libraries .number-row[data-auto] .number-meter::after {
+  background: var(--muted);
 }
 .agent-libraries .number-value {
   display: flex;
@@ -471,9 +480,17 @@
 }
 .agent-libraries .number-row:has(input:focus-visible),
 .agent-libraries .color-row:has(input:focus-visible),
-.agent-libraries .field-inline:has(select:focus-visible),
-.agent-libraries .field-inline:has(input:focus-visible) {
-  border-color: var(--ring);
+.agent-libraries .text-row:has(input:focus-visible),
+.agent-libraries .field-select > .select-control:has(select:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+.agent-libraries .number-row input:focus-visible,
+.agent-libraries .color-row input:focus-visible,
+.agent-libraries .text-row input:focus-visible,
+.agent-libraries .field-select select:focus-visible,
+.agent-libraries .field-toggle input:focus-visible {
+  outline: none;
 }
 .agent-libraries .field-error {
   margin: 0;
@@ -485,21 +502,9 @@
 .agent-libraries .field-numeric > .helper-text {
   padding-inline: var(--livenui-space-3);
 }
-.agent-libraries .number-guidance {
-  display: none;
-}
-.agent-libraries .field-numeric:focus-within > .number-guidance {
-  display: block;
-}
-.agent-libraries .color-row > label {
-  flex: 1;
-  min-width: 0;
-  color: var(--foreground);
-  padding-inline-start: var(--livenui-space-3);
-}
 .agent-libraries .field .color-row > input {
-  flex: 0 1 38%;
-  width: 38%;
+  flex: 1;
+  text-align: left;
 }
 .agent-libraries .color-picker {
   position: relative;
@@ -526,12 +531,13 @@
   border-radius: var(--livenui-radius-control);
   background: var(--swatch);
 }
-.agent-libraries .color-picker:has(input:focus-visible) > span {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
+.agent-libraries .switch-row {
+  justify-content: space-between;
+  padding-inline-start: var(--livenui-space-4);
 }
-.agent-libraries .field-switch {
-  padding-inline-end: var(--livenui-space-2);
+.agent-libraries .switch-status {
+  color: var(--muted);
+  font-size: var(--livenui-font-label);
 }
 .agent-libraries .field-toggle {
   position: relative;
@@ -580,12 +586,8 @@
   outline: 2px solid var(--ring);
   outline-offset: 4px;
 }
-.agent-libraries .field-switch label {
-  flex: 1;
-  min-height: var(--livenui-control-height);
-  align-items: center;
+.agent-libraries .field-switch > label {
   cursor: pointer;
-  color: var(--foreground);
 }
 .agent-libraries .control-footer {
   margin-top: var(--livenui-space-3);
@@ -678,6 +680,8 @@
   flex-wrap: wrap;
   gap: var(--livenui-space-1);
   padding: var(--livenui-space-1);
+  min-height: calc(var(--livenui-control-height) + var(--livenui-space-2) + 2px);
+  border: 1px solid var(--border);
   border-radius: var(--livenui-radius-panel);
   background: var(--track);
 }
@@ -729,12 +733,14 @@
   margin-top: var(--livenui-space-2);
 }
 @container (width < 900px) {
-  .agent-libraries .fields {
+  .agent-libraries .fields,
+  .agent-libraries .control-groups:not([data-advanced]) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @container (width < 550px) {
-  .agent-libraries .fields {
+  .agent-libraries .fields,
+  .agent-libraries .control-groups:not([data-advanced]) {
     grid-template-columns: minmax(0, 1fr);
   }
   .agent-libraries .field-choice[data-wide] {

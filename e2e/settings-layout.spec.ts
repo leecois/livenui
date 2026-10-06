@@ -1,4 +1,4 @@
-import { expect, type Locator, test } from '@playwright/test'
+import { expect, type Locator, type Page, test } from '@playwright/test'
 
 async function contained(panel: Locator) {
   expect(
@@ -20,63 +20,139 @@ test.beforeEach(async ({ page }, testInfo) => {
   )
 })
 
-test('settings keep labels and values aligned in compact rows across every library', async ({
+async function alignedFields(panel: Locator) {
+  const fields = await panel.locator('.fields > .field').evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const heading = node.querySelector('.field-heading')?.getBoundingClientRect()
+      const shell = node
+        .querySelector(
+          '.field-options,.number-row,.color-row,.switch-row,.text-row,.select-control'
+        )
+        ?.getBoundingClientRect()
+      if (!heading || !shell) throw new Error('Incomplete settings field')
+      const targets = [...node.querySelectorAll('input,select')].map(
+        (target) => target.getBoundingClientRect().height
+      )
+      return {
+        headingTop: heading.top,
+        gap: shell.top - heading.bottom,
+        shellTop: shell.top,
+        shellHeight: shell.height,
+        targets,
+      }
+    })
+  )
+  expect(fields.length).toBeGreaterThan(0)
+  for (const field of fields) {
+    expect(field.gap).toBeCloseTo(8, 0)
+    expect(field.shellHeight).toBeGreaterThanOrEqual(54)
+    for (const height of field.targets) expect(height).toBeGreaterThanOrEqual(44)
+    for (const sibling of fields) {
+      if (Math.abs(field.headingTop - sibling.headingTop) < 1) {
+        expect(Math.abs(field.shellTop - sibling.shellTop)).toBeLessThan(1)
+      }
+    }
+  }
+}
+
+async function fullCapture(page: Page, path: string) {
+  const renderer = '[data-beam],canvas,.metal-fx-root'
+  await page.locator('.preview-stage').scrollIntoViewIfNeeded()
+  await expect(page.locator('.preview-stage').locator(renderer).first()).toBeVisible()
+  for (const example of await page.locator('.showcase-example').all()) {
+    await example.scrollIntoViewIfNeeded()
+    await expect(example.locator(renderer).first()).toBeVisible()
+  }
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+  await page.screenshot({ path, fullPage: true })
+}
+
+test('all settings use aligned labels and controls across Guide and Studio libraries', async ({
   page,
 }, testInfo) => {
   for (const library of ['beam', 'orbs', 'metal', 'gooey', 'voice', 'image', 'avatars']) {
-    await page.goto(`/studio?library=${library}`)
-    const panel = page.locator('.controls-panel')
-    await expect(panel.getByRole('heading', { name: 'Customize', exact: true })).toBeVisible()
-    await contained(panel)
-    const rows = await panel.locator('.field-inline,.field-switch').evaluateAll((nodes) =>
-      nodes.map((node) => {
-        const label = node.querySelector('label')?.getBoundingClientRect()
-        const control = node.querySelector('input,select')?.getBoundingClientRect()
-        if (!label || !control) throw new Error('Incomplete settings row')
-        const input = node.querySelector('input:not([type="checkbox"]),select')
-        return {
-          height: node.getBoundingClientRect().height,
-          labelCenter: label.y + label.height / 2,
-          controlCenter: control.y + control.height / 2,
-          labelRight: label.right,
-          controlLeft: control.left,
-          controlHeight: control.height,
-          inputBorder: input ? getComputedStyle(input).borderLeftWidth : null,
-          inputBackground: input ? getComputedStyle(input).backgroundColor : null,
+    for (const view of ['guide', 'studio']) {
+      await page.goto(view === 'guide' ? `/agents/${library}` : `/studio?library=${library}`)
+      const panel = page.locator('.controls-panel')
+      await expect(
+        panel.getByRole('heading', {
+          name: view === 'guide' ? 'Quick settings' : 'Customize',
+          exact: true,
+        })
+      ).toBeVisible()
+      await contained(panel)
+      await alignedFields(panel)
+      for (const heading of await panel.locator('.control-group > h3').all()) {
+        await expect(heading).toBeHidden()
+      }
+      await expect(panel.getByRole('tablist')).toHaveCount(view === 'studio' ? 1 : 0)
+      if (view === 'studio') {
+        const heading = await panel.locator('.controls-heading').boundingBox()
+        const tabs = await panel.getByRole('tablist').boundingBox()
+        if (!heading || !tabs) throw new Error('Missing settings navigation')
+        expect(tabs.width).toBeLessThan(230)
+        expect(tabs.y).toBeGreaterThanOrEqual(heading.y)
+        if (testInfo.project.use.viewport?.width === 1440) {
+          const title = await panel.getByRole('heading', { name: 'Customize' }).boundingBox()
+          if (!title) throw new Error('Missing settings title')
+          expect(Math.abs(title.y + title.height / 2 - (tabs.y + tabs.height / 2))).toBeLessThan(1)
         }
-      })
-    )
-    for (const row of rows) {
-      expect(row.height).toBeLessThanOrEqual(62)
-      expect(row.controlHeight).toBeGreaterThanOrEqual(44)
-      expect(Math.abs(row.labelCenter - row.controlCenter)).toBeLessThan(1)
-      expect(row.labelRight).toBeLessThanOrEqual(row.controlLeft)
-      if (row.inputBorder !== null) {
-        expect(row.inputBorder).toBe('0px')
-        expect(row.inputBackground).toBe('rgba(0, 0, 0, 0)')
+      }
+      await panel.screenshot({ path: testInfo.outputPath(`settings-${library}-${view}.png`) })
+      if (library === 'beam' || library === 'metal' || library === 'image') {
+        await fullCapture(page, testInfo.outputPath(`${library}-${view}-full-page.png`))
+      }
+      if (view === 'studio') {
+        await panel.getByRole('button', { name: 'Show advanced settings' }).click()
+        await contained(panel)
+        await alignedFields(panel)
+        for (const heading of await panel.locator('.control-group > h3').all()) {
+          await expect(heading).toBeVisible()
+        }
+        await panel.screenshot({ path: testInfo.outputPath(`settings-${library}-advanced.png`) })
       }
     }
-    const heading = await panel.locator('.controls-heading').boundingBox()
-    const tabs = await panel.getByRole('tablist').boundingBox()
-    if (!heading || !tabs) throw new Error('Missing settings navigation')
-    expect(tabs.width).toBeLessThan(230)
-    expect(tabs.y).toBeGreaterThanOrEqual(heading.y)
-    if (testInfo.project.use.viewport?.width === 1440) {
-      const title = await panel.getByRole('heading', { name: 'Customize' }).boundingBox()
-      if (!title) throw new Error('Missing settings title')
-      expect(Math.abs(title.y + title.height / 2 - (tabs.y + tabs.height / 2))).toBeLessThan(1)
-    }
-    await panel.screenshot({ path: testInfo.outputPath(`settings-${library}.png`) })
   }
-  await page.goto('/agents/image')
-  await contained(page.locator('.controls-panel'))
-  await expect(page.locator('.controls-panel').getByRole('tablist')).toHaveCount(0)
-  await page.screenshot({ path: testInfo.outputPath('guide-full-page.png'), fullPage: true })
-  await page.goto('/studio?library=image')
-  await page.screenshot({ path: testInfo.outputPath('studio-full-page.png'), fullPage: true })
 })
 
-test('inline numbers, switches and radio tracks preserve typed configuration and keyboard focus', async ({
+test('numeric focus has one indicator and keeps quick settings geometry stable', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/agents/metal')
+  const panel = page.locator('.controls-panel')
+  await panel.scrollIntoViewIfNeeded()
+  const scale = panel.getByRole('spinbutton', { name: 'Scale', exact: true })
+  const row = scale.locator('xpath=ancestor::*[contains(@class,"number-row")]')
+  const geometry = () =>
+    panel.evaluate((element) => {
+      const bounds = element.getBoundingClientRect()
+      const number = element.querySelector('#prop-scale')?.getBoundingClientRect()
+      if (!number) throw new Error('Missing Scale control')
+      return { width: bounds.width, height: bounds.height, offset: number.top - bounds.top }
+    })
+  const before = await geometry()
+  for (const input of [scale, panel.getByRole('slider', { name: 'Adjust Scale', exact: true })]) {
+    await input.focus()
+    expect(await geometry()).toEqual(before)
+    expect(
+      await row.evaluate(
+        (element) =>
+          [element, ...element.querySelectorAll('*')].filter(
+            (node) => getComputedStyle(node).outlineStyle === 'solid'
+          ).length
+      )
+    ).toBe(1)
+    expect(await row.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe('solid')
+    expect(await input.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe('none')
+    await alignedFields(panel)
+  }
+  await scale.focus()
+  await fullCapture(page, testInfo.outputPath('metal-focused-full-page.png'))
+  await panel.screenshot({ path: testInfo.outputPath('metal-focused-settings.png') })
+})
+
+test('numbers, switches and radio tracks preserve typed configuration and keyboard focus', async ({
   page,
 }, testInfo) => {
   await page.goto('/studio?library=image')
@@ -131,6 +207,7 @@ test('advanced settings and configuration tabs fit narrow widths and long saved 
   await page.goto('/studio?library=metal')
   const panel = page.locator('.controls-panel')
   await panel.getByRole('button', { name: 'Show advanced settings' }).click()
+  await expect(panel.locator('.control-group')).not.toHaveCount(0)
   for (const width of [1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 })
     await contained(panel)

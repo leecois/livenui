@@ -1,4 +1,4 @@
-import { GripVertical, RotateCcw } from 'lucide-react'
+import { RotateCcw } from 'lucide-react'
 import { type CSSProperties, useRef, useState } from 'react'
 import { type NumberSpec, numberError, snapNumber } from '../lib/controls'
 
@@ -37,7 +37,8 @@ export function NumberControl({
   const numeric = typeof value === 'number' ? value : spec.min
   const position = Math.max(0, Math.min(1, (numeric - spec.min) / (spec.max - spec.min)))
   const custom = typeof value === 'number' && (value < spec.min || value > spec.max)
-  const hint = `${spec.min}–${spec.max}${spec.unit ? ` ${spec.unit}` : ''} while dragging. Arrow keys adjust; Shift uses larger steps. Enter applies a typed value; Escape cancels. Default omits this prop.`
+  const range = `${spec.min}–${spec.max}${spec.unit || ''}`
+  const hint = `${range} while dragging, in steps of ${spec.step}. Arrow keys adjust; Shift uses larger steps. Enter applies a typed value; Escape cancels. Default omits this prop.`
 
   const commit = () => {
     const input = draft.trim()
@@ -66,8 +67,15 @@ export function NumberControl({
   }
   return (
     <div className="field field-numeric">
+      <label className="field-heading" htmlFor={id} title={`${description} ${hint}`}>
+        <span>{label}</span>
+        <span className="field-range" aria-hidden="true">
+          {range}
+        </span>
+      </label>
       <div
         className="number-row"
+        data-auto={value === undefined || undefined}
         data-custom={custom || undefined}
         data-invalid={!!error || undefined}
         style={{ '--number-fill': `${value === undefined ? 0 : position * 100}%` } as CSSProperties}
@@ -78,6 +86,7 @@ export function NumberControl({
             id={`${id}-range`}
             aria-label={`Adjust ${label}`}
             aria-describedby={`${id}-hint`}
+            title={hint}
             aria-valuetext={
               value === undefined
                 ? 'Auto; drag to set a value'
@@ -115,10 +124,7 @@ export function NumberControl({
               }
             }}
           />
-          <label htmlFor={id} title={`${description} ${hint}`}>
-            <GripVertical size={12} aria-hidden="true" />
-            <span>{label}</span>
-          </label>
+          <span className="number-meter" aria-hidden="true" />
         </div>
         <div className="number-value">
           <input
@@ -176,10 +182,6 @@ export function NumberControl({
           <RotateCcw size={13} aria-hidden="true" />
         </button>
       </div>
-      <p className="number-guidance helper-text" aria-hidden="true">
-        Drag {spec.min}–{spec.max}
-        {spec.unit || ''} · step {spec.step}
-      </p>
       <p id={`${id}-hint`} className="sr-only">
         {hint}
         {allowLength ? ' CSS lengths are also accepted.' : ''}

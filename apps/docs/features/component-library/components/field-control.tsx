@@ -34,7 +34,9 @@ export function FieldControl({
         aria-label={label}
         data-wide={choices.length > 3 || undefined}
       >
-        <legend title={field.description}>{label}</legend>
+        <legend className="field-heading" title={field.description}>
+          {label}
+        </legend>
         <div className="field-options">
           {choices.map((option) => (
             <label className="field-option" key={String(option)}>
@@ -86,8 +88,8 @@ export function FieldControl({
     )
   if (field.kind === 'select')
     return (
-      <div className="field field-inline">
-        <label htmlFor={id} title={field.description}>
+      <div className="field field-select">
+        <label className="field-heading" htmlFor={id} title={field.description}>
           {label}
         </label>
         <Select
@@ -110,18 +112,26 @@ export function FieldControl({
   if (field.kind === 'boolean')
     return (
       <div className="field field-switch">
-        <label htmlFor={id} title={field.description}>
+        <label className="field-heading" htmlFor={id} title={field.description}>
           {label}
         </label>
-        <span className="field-toggle">
-          <input
-            id={id}
-            type="checkbox"
-            checked={value === undefined ? booleanDefault(library, field.name) : value === true}
-            onChange={(event) => set(event.target.checked)}
-          />
-          <span className="field-toggle-track" aria-hidden="true" />
-        </span>
+        <div className="switch-row">
+          <span className="switch-status" aria-hidden="true">
+            {value === undefined ? 'Auto · ' : ''}
+            {(value === undefined ? booleanDefault(library, field.name) : value === true)
+              ? 'On'
+              : 'Off'}
+          </span>
+          <span className="field-toggle">
+            <input
+              id={id}
+              type="checkbox"
+              checked={value === undefined ? booleanDefault(library, field.name) : value === true}
+              onChange={(event) => set(event.target.checked)}
+            />
+            <span className="field-toggle-track" aria-hidden="true" />
+          </span>
+        </div>
       </div>
     )
   const spec = numberSpec(library, field.name)
@@ -150,16 +160,18 @@ export function FieldControl({
       />
     )
   return (
-    <div className="field field-inline">
-      <label htmlFor={id} title={field.description}>
+    <div className="field field-text">
+      <label className="field-heading" htmlFor={id} title={field.description}>
         {label}
       </label>
-      <input
-        id={id}
-        placeholder="Default"
-        value={typeof value === 'string' ? value : ''}
-        onChange={(event) => set(event.target.value || undefined)}
-      />
+      <div className="text-row">
+        <input
+          id={id}
+          placeholder="Default"
+          value={typeof value === 'string' ? value : ''}
+          onChange={(event) => set(event.target.value || undefined)}
+        />
+      </div>
     </div>
   )
 }
