@@ -1,0 +1,15 @@
+.livenui-brand-mark {
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--livenui-space-6);
+  height: var(--livenui-space-6);
+  background: var(--gradient-accent);
+  mask: url('/logo.svg') center / contain no-repeat;
+}
+
+.livenui-brand-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}

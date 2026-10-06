@@ -1,5 +1,9 @@
 import type { ImageResponseOptions } from '@takumi-rs/image-response'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import type { ReactNode } from 'react'
+
+const brandImage = `data:image/svg+xml;base64,${readFileSync(join(process.cwd(), 'public/logo.svg')).toString('base64')}`
 
 export interface GenerateProps {
   title: ReactNode
@@ -74,22 +78,12 @@ export function generate({ title, description }: GenerateProps) {
             color: brandDark,
           }}
         >
-          <svg
+          <img
             width="56"
             height="56"
-            viewBox="-4 -4 133 136"
-            fill="none"
-            role="img"
-            aria-label="Liven UI logo"
-          >
-            <path
-              d="M20 24 a 18 18 0 1 0 36 0 a 18 18 0 1 0 -36 0 M62 24 a 18 18 0 1 0 36 0 a 18 18 0 1 0 -36 0 M0 60 a 18 18 0 1 0 36 0 a 18 18 0 1 0 -36 0 M20 96 a 18 18 0 1 0 36 0 a 18 18 0 1 0 -36 0 M62 96 a 18 18 0 1 0 36 0 a 18 18 0 1 0 -36 0"
-              stroke={brandDark}
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+            src={brandImage}
+            alt=""
+          />
           <span
             style={{
               fontSize: '42px',

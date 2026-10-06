@@ -7,6 +7,13 @@ export function createMetadata(override: Metadata): Metadata {
   return {
     ...override,
     metadataBase: siteUrl,
+    icons: override.icons ?? {
+      icon: [
+        { url: '/favicon.ico', type: 'image/x-icon', sizes: '16x16 32x32 48x48' },
+        { url: '/logo.svg', type: 'image/svg+xml' },
+      ],
+      apple: { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    },
     openGraph: {
       type: 'website',
       title: override.title ?? undefined,

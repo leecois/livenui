@@ -6,6 +6,7 @@
 @import '@livenui/agent-ui/tokens.css';
 @import '../features/component-library/styles.css';
 @import './navigation.css';
+@import './brand.css';
 
 @source ".";
 @source "../components";

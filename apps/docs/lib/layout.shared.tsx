@@ -1,21 +1,18 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared'
-import { LivenUIIconMinimal } from '~/app/layout.client'
 
-export const logo = (
+export const logo = <span className="livenui-brand-mark" aria-hidden="true" />
+
+export const brandTitle = (
   <>
-    <LivenUIIconMinimal className="size-5 [.uwu_&]:hidden" fill="currentColor" />
+    {logo}
+    <span className="livenui-brand-name">Liven UI</span>
   </>
 )
 
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
-      title: (
-        <>
-          {logo}
-          <span className="font-medium [.uwu_&]:hidden [header_&]:text-[15px]">Liven UI</span>
-        </>
-      ),
+      title: brandTitle,
       transparentMode: 'top',
     },
   }

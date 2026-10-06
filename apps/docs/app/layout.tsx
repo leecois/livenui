@@ -8,7 +8,7 @@ import { Sidebar, SidebarProvider, useSidebar } from 'fumadocs-ui/layouts/glass/
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { MobileNavigation } from '~/components/mobile-navigation'
-import { baseOptions, logo } from '~/lib/layout.shared'
+import { baseOptions } from '~/lib/layout.shared'
 import { createMetadata } from '~/lib/metadata'
 import { source } from '~/lib/source'
 import { Body } from './layout.client'
@@ -32,15 +32,6 @@ export default function Layout({ children }: { children: ReactNode }) {
                     provider: SidebarProvider,
                     use: useSidebar,
                   },
-                }}
-                nav={{
-                  ...base.nav,
-                  title: (
-                    <>
-                      {logo}
-                      <span className="font-medium [.uwu_&]:hidden">Liven UI</span>
-                    </>
-                  ),
                 }}
               >
                 {children}

@@ -68,6 +68,7 @@ flowchart TD
 | Featured example IDs, human control labels and explicit quick choices | Feature `lib/content.ts` | Guide showcases and control panels |
 | Documentation navigation | `content/docs/agents/meta.json` through `lib/source.ts` | Glass sidebar, route metadata |
 | Semantic geometry/type/emphasis | `packages/agent-ui/src/tokens.css` | Feature style files and browser contracts |
+| Website mark geometry | `apps/docs/public/logo.svg` | Token-filled shell mask, generated icons and locally embedded sharing artwork; see [brand ownership](brand.md) |
 | Render implementation and public exports | Each SDK's `src/` and manifest | Built ESM/CJS/types, adapters and consumers |
 
 Catalog metadata is checked in and curated; it is **not automatically extracted from SDK types**. When SDK APIs change, update metadata, defaults, snippets, examples and guides together. Domain/registry tests detect configuration drift but do not prove every metadata description is accurate.

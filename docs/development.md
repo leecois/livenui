@@ -46,6 +46,12 @@ The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUB
 4. Add or amend a meaningful browser contract that would fail for the defect (alignment, typography, local overflow, interaction or focus).
 5. Run required checks, inspect screenshots and update the design guide if the intended contract changed.
 
+## Change website identity
+
+For website identity, read [brand ownership](brand.md). Edit `public/logo.svg` geometry and the existing accent tokens, then run `bun run scripts/generate-brand-assets.ts` to refresh browser/touch icons. The navigation title and sharing template consume the same SVG. Run branding browser checks and inspect the small icons as well as the full-page matrix before the local commit.
+
+If a cached build still renders earlier brand colors after a source revert, run `bun run build --force` before browser checks. Inspect the rendered navigation mark as well as the public SVG; correct source files alone do not establish that the production output uses the restored palette.
+
 ## Change a sidebar icon
 
 Edit `lib/navigation-icon.tsx` for route-specific SVG anatomy and `app/navigation.css` for shell-scoped motion. The source loader attaches icons to existing page-tree entries; preserve Studio URL normalization, accessible labels and a single active destination. Keep icons decorative and server-rendered, use local color tokens and finite CSS animation, and verify keyboard focus, hover, reduced motion and the mobile drawer with `e2e/sidebar-icons.spec.ts`.

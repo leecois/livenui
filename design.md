@@ -29,6 +29,10 @@ Desktop places preview and controls side by side with aligned top and bottom edg
 
 SDK scenes can use their documented geometry and typography when those affect rendering. Their aesthetic parameters are not reasons to enlarge ordinary labels, shrink form targets or create new app colors.
 
+## Website identity
+
+The website identity uses an original rounded L and unfolding leaf, documented in [brand ownership and research](docs/brand.md). Keep the navigation mark at 24px with its intrinsic clear space, the wordmark at 15px/600 and -0.025em tracking, and the mark filled with `--gradient-accent` in both themes. The icon is decorative beside the visible product name. Preserve its silhouette and use the canonical SVG for favicon and sharing artwork.
+
 ## Typography and spacing
 
 Application headings use weight 550, line-height 1.3 and restrained -0.025em tracking. Catalog headings are 24px; panel headings 20–22px; subsection headings 15–16px. The shell owns page H1 and document prose typography. Use 1.5 line-height for labels/controls, 1.6 for help text and 1.8 for code.
