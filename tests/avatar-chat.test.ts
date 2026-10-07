@@ -2,6 +2,8 @@ import { expect, test } from 'bun:test'
 import {
   avatarChatExamples,
   avatarDemoReply,
+  avatarHelperProps,
+  avatarHelpers,
   avatarOutfits,
   selectedOutfit,
 } from '../apps/docs/features/component-library/lib/avatar-chat'
@@ -27,4 +29,18 @@ test('chat examples have unique topics, known outfits and deterministic local re
     expect(example.reply.length).toBeGreaterThan(0)
   }
   expect(avatarDemoReply('A custom message', 'Support buddy')).toContain('Support buddy')
+})
+
+test('every helper has a role description and a valid native outfit and color', () => {
+  expect(new Set(avatarHelpers.map((item) => item.outfit))).toEqual(
+    new Set(avatarOutfits.map((item) => item.name))
+  )
+  for (const helper of avatarHelpers) {
+    const props = avatarHelperProps(helper.outfit)
+    expect(parseProps(JSON.stringify(props), library)).toEqual(props)
+    expect(selectedOutfit(props)).toBe(helper.outfit)
+    expect(helper.description.length).toBeGreaterThan(0)
+    expect(props.color).toMatch(/^#[0-9A-F]{6}$/)
+  }
+  expect(avatarHelperProps('Unknown')).toEqual({})
 })

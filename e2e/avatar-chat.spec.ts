@@ -91,6 +91,12 @@ test('avatar guide opens a complete chat playground with independent sidebars an
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
       .toBe(true)
     await expect(actor).toHaveAttribute('data-chat-probe', 'retained')
+    await expect
+      .poll(async () => {
+        const box = await chat(page).locator('.avatar-chat-composer').boundingBox()
+        return box ? box.x + box.width : Number.POSITIVE_INFINITY
+      })
+      .toBeLessThanOrEqual(width)
     const composer = await chat(page).locator('.avatar-chat-composer').boundingBox()
     expect(composer?.x).toBeGreaterThanOrEqual(0)
     expect((composer?.x ?? 0) + (composer?.width ?? 0)).toBeLessThanOrEqual(width)
@@ -164,10 +170,9 @@ test('outfits, colors, named bots and code share the existing avatar configurati
     .getByRole('group', { name: 'Material', exact: true })
     .getByRole('radio', { name: 'Plastic', exact: true })
     .check()
-  await settings
-    .getByRole('group', { name: 'Size', exact: true })
-    .getByRole('radio', { name: '64px', exact: true })
-    .check()
+  await settings.getByRole('combobox', { name: 'Shape', exact: true }).selectOption('connector')
+  await expect(actor).toHaveAttribute('data-bot-avatar', 'connector')
+  await expect(actor).toHaveAttribute('data-chat-probe', 'configured')
   await settings.getByRole('tab', { name: 'Code', exact: true }).click()
   for (const prop of [
     'hat={"beanie"}',
@@ -175,13 +180,10 @@ test('outfits, colors, named bots and code share the existing avatar configurati
     'color={"#1ED3C6"}',
     'state={"working"}',
     'shading={"plastic"}',
-    'size={64}',
+    'size={96}',
   ])
     await expect(settings.locator('.code-panel code')).toContainText(prop)
   await closePanel(page, 'settings')
-  await chat(page).getByRole('combobox', { name: 'Bot', exact: true }).selectOption('connector')
-  await expect(actor).toHaveAttribute('data-bot-avatar', 'connector')
-  await expect(actor).toHaveAttribute('data-chat-probe', 'configured')
   await chat(page).getByRole('button', { name: 'New bot', exact: true }).click()
   const creator = page.getByRole('dialog', { name: 'New bot', exact: true })
   await creator.getByRole('textbox', { name: 'Name', exact: true }).fill('Support buddy')
@@ -193,11 +195,29 @@ test('outfits, colors, named bots and code share the existing avatar configurati
   await expect(
     chat(page).getByRole('textbox', { name: 'Message Support buddy', exact: true })
   ).toBeVisible()
-  await expect(chat(page).getByText('Helps me test the interface', { exact: true })).toBeVisible()
+  await expect(chat(page).locator('.avatar-chat-purpose')).toBeVisible()
+  await expect(chat(page).locator('.avatar-chat-purpose')).toHaveText('Helps me test the interface')
   await page.screenshot({
     path: testInfo.outputPath('chat-custom-bot-full-page.png'),
     fullPage: true,
   })
+  const longName = 'This character has a very long name for checking the compact bot picker layout'
+  await chat(page).getByRole('button', { name: 'New bot', exact: true }).click()
+  await creator.getByRole('textbox', { name: 'Name', exact: true }).fill(longName)
+  await creator.getByRole('button', { name: 'Create bot', exact: true }).click()
+  await chat(page)
+    .getByRole('button', { name: `Choose bot: ${longName}`, exact: true })
+    .click()
+  const picker = chat(page).getByRole('listbox', { name: 'Choose a bot', exact: true })
+  await expect(picker).toBeVisible()
+  expect(await picker.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+  await expect(picker.getByRole('option', { name: /^This character / })).toBeFocused()
+  await expect(picker.getByRole('option', { name: /^This character / })).toBeInViewport()
+  await page.screenshot({
+    path: testInfo.outputPath('chat-long-bot-picker-full-page.png'),
+    fullPage: true,
+  })
+  await picker.getByRole('option', { name: /^Support buddy / }).click()
   await chat(page).getByRole('button', { name: 'Component preview', exact: true }).click()
   await expect(chat(page)).toHaveCount(0)
   await expect(page.locator('.preview-stage canvas')).toHaveAttribute(
@@ -209,6 +229,125 @@ test('outfits, colors, named bots and code share the existing avatar configurati
   await page.getByRole('button', { name: 'Chat playground', exact: true }).click()
   await expect(
     chat(page).getByRole('textbox', { name: 'Message Support buddy', exact: true })
+  ).toBeVisible()
+})
+
+test('helper choices are grouped and examples use compact bots without conversation selectors', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/agents/avatars')
+  const actor = chat(page).locator('.avatar-chat-actor canvas')
+  await expect(actor).toBeVisible()
+  const welcomeSize = await actor.boundingBox()
+  await actor.evaluate((element) => {
+    element.dataset.chatProbe = 'helper-selection'
+  })
+  const trigger = chat(page).getByRole('button', { name: 'Choose bot: Clover', exact: true })
+  await trigger.click()
+  const picker = chat(page).getByRole('listbox', { name: 'Choose a bot', exact: true })
+  await expect(picker).toBeVisible()
+  await expect(picker.getByRole('option')).toHaveCount(18)
+  await expect(picker.getByRole('group', { name: 'Development', exact: true })).toBeVisible()
+  await expect(picker.getByRole('group', { name: 'Everyday', exact: true })).toBeVisible()
+  const pickerBox = await picker.boundingBox()
+  expect(pickerBox?.x).toBeGreaterThanOrEqual(12)
+  expect((pickerBox?.x ?? 0) + (pickerBox?.width ?? 0)).toBeLessThanOrEqual(
+    (testInfo.project.use.viewport?.width ?? 0) - 12
+  )
+  expect((pickerBox?.y ?? 0) + (pickerBox?.height ?? 0)).toBeLessThanOrEqual(988)
+  await expect(picker.getByRole('option', { name: /^Clover / })).toBeFocused()
+  await page.keyboard.press('ArrowDown')
+  await expect(picker.getByRole('option', { name: /^Builder / })).toBeFocused()
+  await page.keyboard.press('End')
+  await expect(picker.getByRole('option', { name: /^Director / })).toBeFocused()
+  await page.keyboard.press('Home')
+  await expect(picker.getByRole('option', { name: /^Clover / })).toBeFocused()
+  await page.screenshot({
+    path: testInfo.outputPath('chat-helper-picker-full-page.png'),
+    fullPage: true,
+  })
+  await page.keyboard.press('Escape')
+  await expect(picker).not.toBeVisible()
+  await expect(trigger).toBeFocused()
+  await expect(chat(page)).toBeVisible()
+  await trigger.click()
+  await expect(picker).toBeVisible()
+  await chat(page).getByRole('heading', { name: 'Who’s helping?', exact: true }).click()
+  await expect(picker).not.toBeVisible()
+  await trigger.click()
+  await expect(picker).toBeVisible()
+  await page.setViewportSize({ width: testInfo.project.use.viewport?.width ?? 390, height: 844 })
+  await expect(picker).not.toBeVisible()
+  await page.evaluate(() => {
+    addEventListener(
+      'resize',
+      () => {
+        document.documentElement.dataset.chatViewportHeight = String(innerHeight)
+      },
+      { once: true }
+    )
+  })
+  await page.setViewportSize({ width: testInfo.project.use.viewport?.width ?? 390, height: 1000 })
+  await expect(page.locator('html')).toHaveAttribute('data-chat-viewport-height', '1000')
+  await trigger.press('ArrowDown')
+  await expect(picker).toBeVisible()
+  await picker.getByRole('option', { name: /^Builder / }).click()
+  await expect(
+    chat(page).getByRole('button', { name: 'Choose bot: Builder', exact: true })
+  ).toBeVisible()
+  await expect(actor).toHaveAttribute('data-bot-avatar', 'clover')
+  await expect(actor).toHaveAttribute('data-chat-probe', 'helper-selection')
+  const examples = await openPanel(page, 'examples')
+  await examples
+    .getByRole('navigation', { name: 'Chat examples' })
+    .getByRole('button', { name: 'Plan a feature', exact: true })
+    .click()
+  await expect(
+    chat(page).getByRole('textbox', { name: 'Message Planner', exact: true })
+  ).toBeVisible()
+  await expect(chat(page).getByRole('button', { name: /^Choose bot:/ })).toHaveCount(0)
+  await expect(chat(page).getByRole('button', { name: 'New bot', exact: true })).toHaveCount(0)
+  await expect(
+    chat(page).getByRole('heading', { name: 'Who’s helping?', exact: true })
+  ).toHaveCount(0)
+  await expect(actor).toHaveAttribute('data-chat-probe', 'helper-selection')
+  const compactSize = await actor.boundingBox()
+  expect(compactSize?.width).toBeCloseTo((welcomeSize?.width ?? 0) / 2, 1)
+  expect(compactSize?.height).toBeCloseTo((welcomeSize?.height ?? 0) / 2, 1)
+  const replyIcon = await chat(page).locator('.avatar-chat-message-avatar canvas').boundingBox()
+  expect(replyIcon?.width).toBeCloseTo(((compactSize?.width ?? 0) * 24) / 64, 1)
+  await chat(page).getByRole('button', { name: 'Stop reply', exact: true }).click()
+  await expect(
+    examples.getByRole('navigation', { name: 'Conversations', exact: true })
+  ).toHaveCount(0)
+  await page.screenshot({ path: testInfo.outputPath('chat-example-full-page.png'), fullPage: true })
+  await openPanel(page, 'examples')
+  await examples
+    .getByRole('navigation', { name: 'Chat examples' })
+    .getByRole('button', { name: 'Sketch a landing hero', exact: true })
+    .click()
+  await expect(
+    chat(page).getByRole('textbox', { name: 'Message Builder', exact: true })
+  ).toBeVisible()
+  await expect(chat(page).locator('.avatar-chat-message')).toHaveCount(2)
+  await chat(page).getByRole('button', { name: 'Stop reply', exact: true }).click()
+  await openPanel(page, 'examples')
+  await examples
+    .getByRole('navigation', { name: 'Chat examples', exact: true })
+    .getByRole('button', { name: 'Plan a feature', exact: true })
+    .click()
+  await expect(
+    chat(page).getByRole('textbox', { name: 'Message Planner', exact: true })
+  ).toBeVisible()
+  const settings = await openPanel(page, 'settings')
+  await settings.getByRole('tab', { name: 'Code', exact: true }).click()
+  for (const prop of ['color={"#1ED3C6"}', 'hat={"beanie"}', 'glasses={"round"}', 'size={96}'])
+    await expect(settings.locator('.code-panel code')).toContainText(prop)
+  await closePanel(page, 'settings')
+  await openPanel(page, 'examples')
+  await examples.getByRole('button', { name: 'New chat', exact: true }).click()
+  await expect(
+    chat(page).getByRole('button', { name: 'Choose bot: Planner', exact: true })
   ).toBeVisible()
 })
 

@@ -1,4 +1,4 @@
-import { Button, Select } from '@livenui/agent-ui'
+import { Button } from '@livenui/agent-ui'
 import {
   ArrowLeft,
   ArrowUp,
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useId, useRef, useState } from 'react'
+import { AvatarChatBotPicker } from '../components/avatar-chat-bot-picker'
 import { AvatarChatPanel, containDialogFocus } from '../components/avatar-chat-panel'
 import { AvatarChatSettings } from '../components/avatar-chat-settings'
 import { CodePanel } from '../components/code-panel'
@@ -20,9 +21,14 @@ import { Link } from '../components/link'
 import { Preview, PreviewBoundary } from '../components/preview'
 import { useAvatarChat } from '../hooks/use-avatar-chat'
 import type { PlaygroundState } from '../hooks/use-playground'
-import { avatarChatExamples, avatarOutfits } from '../lib/avatar-chat'
+import {
+  avatarChatExamples,
+  avatarHelperProps,
+  avatarHelpers,
+  selectedOutfit,
+} from '../lib/avatar-chat'
 import type { Library, Props } from '../lib/config'
-import { optionLabel } from '../lib/content'
+import { avatarColors, optionLabel } from '../lib/content'
 import type { Navigate, Theme } from '../lib/types'
 
 type BotProfile = { id: string; name: string; purpose: string; props: Props }
@@ -135,9 +141,28 @@ export function AvatarChat({
   const chat = useAvatarChat()
   const { setTheme } = useTheme()
   const type = String(state.props.type ?? 'clover')
-  const name = bots.find((item) => item.id === bot)?.name ?? optionLabel('type', type)
-  const purpose = bots.find((item) => item.id === bot)?.purpose
-  const shapes = library.fields.find((item) => item.name === 'type')?.options ?? []
+  const profile = bots.find((item) => item.id === bot)
+  const outfit = selectedOutfit(state.props)
+  const name =
+    profile?.name ?? (outfit && outfit !== 'Resting' ? outfit : optionLabel('type', type))
+  const purpose = profile?.purpose
+  const conversation = chat.current.messages.length > 0
+  const botOptions = [
+    ...avatarHelpers.map((helper) => ({
+      id: helper.outfit,
+      name: helper.outfit === 'Resting' ? optionLabel('type', type) : helper.outfit,
+      description: helper.description,
+      group: helper.group,
+      color: String(avatarHelperProps(helper.outfit).color),
+    })),
+    ...bots.map((profile) => ({
+      id: profile.id,
+      name: profile.name,
+      description: profile.purpose || 'Your saved character',
+      group: 'Your bots',
+      color: typeof profile.props.color === 'string' ? profile.props.color : avatarColors[0].value,
+    })),
+  ]
   useEffect(() => {
     const element = dialog.current
     element?.showModal()
@@ -160,7 +185,7 @@ export function AvatarChat({
   }, [chat.current.messages])
   const send = (message = chat.draft, title?: string) => {
     follow.current = true
-    chat.send(message, name, title)
+    chat.send(message, { name, props: { ...state.exportedProps }, profile: bot }, title)
     setPanel(undefined)
     composer.current?.focus({ preventScroll: true })
   }
@@ -173,7 +198,10 @@ export function AvatarChat({
         props: profile.props,
         variant: state.variant,
       })
-    } else state.update('type', value)
+    } else {
+      for (const [key, presetValue] of Object.entries(avatarHelperProps(value)))
+        state.update(key, presetValue)
+    }
   }
   const leave = () => {
     chat.stop()
@@ -214,11 +242,11 @@ export function AvatarChat({
               <Plus size={16} aria-hidden="true" />
               New chat
             </button>
-            {chat.conversations.some((item) => item.messages.length > 0) && (
+            {chat.conversations.some((item) => item.messages.length > 0 && !item.example) && (
               <nav aria-label="Conversations" className="avatar-chat-list">
                 <h3>Chats</h3>
                 {chat.conversations
-                  .filter((item) => item.messages.length > 0)
+                  .filter((item) => item.messages.length > 0 && !item.example)
                   .map((item) => (
                     <button
                       type="button"
@@ -226,6 +254,14 @@ export function AvatarChat({
                       aria-current={item.id === chat.current.id ? 'true' : undefined}
                       onClick={() => {
                         chat.select(item.id)
+                        if (item.bot) {
+                          setBot(item.bot.profile)
+                          state.load({
+                            name: item.bot.name,
+                            props: item.bot.props,
+                            variant: state.variant,
+                          })
+                        }
                         setPanel(undefined)
                       }}
                     >
@@ -240,16 +276,47 @@ export function AvatarChat({
                 <button
                   type="button"
                   key={example.title}
+                  aria-current={chat.current.example === example.title ? 'true' : undefined}
                   disabled={!!chat.pending || !chat.online}
                   onClick={() => {
-                    const outfit = avatarOutfits.find((item) => item.name === example.outfit)
-                    if (outfit)
-                      for (const key of ['hat', 'glasses', 'headphones', 'bowTie'] as const)
-                        state.update(key, outfit[key])
-                    send(example.prompt, example.title)
+                    const previous = chat.conversations.find(
+                      (item) => item.example === example.title
+                    )
+                    if (previous?.bot) {
+                      chat.select(previous.id)
+                      setBot(previous.bot.profile)
+                      state.load({
+                        name: previous.bot.name,
+                        props: previous.bot.props,
+                        variant: state.variant,
+                      })
+                      follow.current = true
+                      setPanel(undefined)
+                      composer.current?.focus({ preventScroll: true })
+                      return
+                    }
+                    const props = avatarHelperProps(example.outfit)
+                    for (const [key, value] of Object.entries(props)) state.update(key, value)
+                    setBot(undefined)
+                    follow.current = true
+                    chat.send(
+                      example.prompt,
+                      {
+                        name:
+                          example.outfit === 'Resting' ? optionLabel('type', type) : example.outfit,
+                        props: { ...state.exportedProps, ...props },
+                      },
+                      example.title
+                    )
+                    setPanel(undefined)
+                    composer.current?.focus({ preventScroll: true })
                   }}
                 >
-                  <span className="status-dot" aria-hidden="true" />
+                  <span
+                    className="avatar-chat-outfit-dot"
+                    style={{ background: String(avatarHelperProps(example.outfit).color) }}
+                    aria-hidden="true"
+                  />
                   {example.title}
                 </button>
               ))}
@@ -266,10 +333,7 @@ export function AvatarChat({
               All components
             </button>
           </AvatarChatPanel>
-          <main
-            className="avatar-chat-main"
-            data-conversation={chat.current.messages.length > 0 || undefined}
-          >
+          <main className="avatar-chat-main" data-conversation={conversation || undefined}>
             <header className="avatar-chat-header">
               <button
                 type="button"
@@ -342,7 +406,7 @@ export function AvatarChat({
                         <PreviewBoundary>
                           <Preview
                             id="avatars"
-                            props={{ ...state.props, size: 32, interactive: false }}
+                            props={{ ...message.avatar, size: 24, interactive: false }}
                             theme={theme}
                             paused
                             showcase
@@ -358,51 +422,40 @@ export function AvatarChat({
                 ))}
               </div>
             </div>
-            <div
-              className="avatar-chat-character"
-              data-conversation={chat.current.messages.length > 0 || undefined}
-            >
+            <div className="avatar-chat-character" data-conversation={conversation || undefined}>
               <div className="avatar-chat-actor">
                 <PreviewBoundary key={state.revision}>
                   <Preview
                     id="avatars"
-                    props={{ ...state.props, state: chat.pending ? 'working' : state.props.state }}
+                    props={{
+                      ...state.props,
+                      size: conversation ? 64 : 128,
+                      state: chat.pending ? 'working' : state.props.state,
+                    }}
                     theme={theme}
                     paused={state.paused}
                     showcase
                   />
                 </PreviewBoundary>
               </div>
-              <div className="avatar-chat-who">
-                <h2>Who’s helping?</h2>
-                <Select
-                  aria-label="Bot"
-                  value={bot ?? type}
-                  onChange={(event) => pick(event.target.value)}
-                >
-                  <optgroup label="Shapes">
-                    {shapes.map((shape) => (
-                      <option key={String(shape)} value={String(shape)}>
-                        {optionLabel('type', shape)}
-                      </option>
-                    ))}
-                  </optgroup>
-                  {bots.length > 0 && (
-                    <optgroup label="Your bots">
-                      {bots.map((profile) => (
-                        <option key={profile.id} value={profile.id}>
-                          {profile.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                </Select>
-              </div>
-              {purpose && <p className="helper-text avatar-chat-purpose">{purpose}</p>}
-              <button type="button" className="text-button" onClick={() => setCreating(true)}>
-                <Plus size={16} aria-hidden="true" />
-                New bot
-              </button>
+              {!conversation && (
+                <>
+                  <div className="avatar-chat-who">
+                    <h2>Who’s helping?</h2>
+                    <AvatarChatBotPicker
+                      name={name}
+                      value={bot ?? outfit ?? 'Resting'}
+                      options={botOptions}
+                      onPick={pick}
+                    />
+                  </div>
+                  {purpose && <p className="helper-text avatar-chat-purpose">{purpose}</p>}
+                  <button type="button" className="text-button" onClick={() => setCreating(true)}>
+                    <Plus size={16} aria-hidden="true" />
+                    New bot
+                  </button>
+                </>
+              )}
             </div>
             <div className="avatar-chat-composer-area">
               <form

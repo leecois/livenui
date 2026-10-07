@@ -122,8 +122,8 @@ export function AvatarChatSettings({
         <summary>Appearance & motion</summary>
         <div className="avatar-chat-settings-fields">
           {[
+            'type',
             'shading',
-            'size',
             'face',
             'hat',
             'glasses',

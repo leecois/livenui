@@ -1,4 +1,5 @@
 import type { Props } from './config'
+import { avatarColors } from './content'
 
 export const avatarOutfits = [
   { name: 'Resting', hat: 'none', glasses: 'none', headphones: false, bowTie: false },
@@ -29,6 +30,34 @@ export function selectedOutfit(props: Props) {
         outfit[key as keyof typeof outfit]
     )
   )?.name
+}
+
+export const avatarHelpers = [
+  { outfit: 'Resting', group: 'General', description: 'Ready for your next task' },
+  { outfit: 'Builder', group: 'Development', description: 'Interfaces and components' },
+  { outfit: 'Captain', group: 'Development', description: 'Releases and checklists' },
+  { outfit: 'Tester', group: 'Development', description: 'Behavior and test cases' },
+  { outfit: 'Bug finder', group: 'Development', description: 'UI faults and edge cases' },
+  { outfit: 'Guard', group: 'Development', description: 'Errors and recovery' },
+  { outfit: 'Detective', group: 'Development', description: 'Questions and experiments' },
+  { outfit: 'Designer', group: 'Development', description: 'Layout and typography' },
+  { outfit: 'Chef', group: 'Everyday', description: 'Recipes and meal ideas' },
+  { outfit: 'Writer', group: 'Everyday', description: 'Words and notes' },
+  { outfit: 'Tutor', group: 'Everyday', description: 'Clear explanations' },
+  { outfit: 'Music', group: 'Everyday', description: 'Creative routines' },
+  { outfit: 'Coach', group: 'Everyday', description: 'Focus and habits' },
+  { outfit: 'Planner', group: 'Everyday', description: 'Tasks and priorities' },
+  { outfit: 'Traveller', group: 'Everyday', description: 'Trips and packing' },
+  { outfit: 'Money', group: 'Everyday', description: 'Numbers and totals' },
+  { outfit: 'Gardener', group: 'Everyday', description: 'Steady progress' },
+  { outfit: 'Director', group: 'Everyday', description: 'Scenes and stories' },
+]
+
+export function avatarHelperProps(outfit: string): Props {
+  const index = avatarOutfits.findIndex((item) => item.name === outfit)
+  if (index < 0) return {}
+  const { name: _, ...props } = avatarOutfits[index]
+  return { ...props, color: avatarColors[index % avatarColors.length].value }
 }
 
 export const avatarChatExamples = [

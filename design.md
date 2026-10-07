@@ -48,6 +48,7 @@ Use 24px between primary panels and 20px inside panels. Essential settings use a
 ## Control recipes
 
 - Use the shared `Button` for actions and `Select` for owned dropdowns. Both preserve native props and refs. Select forwards native props (including `className`) and refs to its `select`; its `.select-control` wrapper owns the chevron. It retains native keyboard/mobile selection with an inert decorative chevron and explicit padding; do not replace it with a focusless custom div.
+- The chat helper picker uses the shared Button and a native auto popover containing a grouped listbox with role descriptions and a selection mark. Keep its options at least 44px high with native button activation, ArrowUp/Down, Home/End, Escape and light dismissal. Show helper selection and New bot only in an empty conversation. Chat avatars use 128px at welcome, 64px above the composer's left edge and 24px in replies; those scene sizes leave exported size unchanged. Shape selection belongs to Playground; component size belongs to the component editor. See [avatar playground](docs/avatar-playground.md).
 - Primary action: `button button-accent`, gradient fill and white text. Preserve existing accent actions including Copy code, Apply configuration, Save preset and Copy agent prompt.
 - Secondary action: neutral surface, border and foreground. Text action: muted text, minimum target height, clear hover/focus state.
 - Selected tabs/pills: gradient fill, white text; inactive states remain neutral. A label badge is not a selected control and stays muted.

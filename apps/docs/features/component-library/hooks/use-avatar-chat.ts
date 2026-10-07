@@ -1,14 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
 import { avatarDemoReply } from '../lib/avatar-chat'
+import type { Props } from '../lib/config'
+
+export type ChatBot = { name: string; props: Props; profile?: string }
 
 export type ChatMessage = {
   id: string
   role: 'user' | 'assistant'
   text: string
   name?: string
+  avatar?: Props
 }
 
-type Conversation = { id: string; title: string; messages: ChatMessage[] }
+type Conversation = {
+  id: string
+  title: string
+  messages: ChatMessage[]
+  bot?: ChatBot
+  example?: string
+}
 
 export function useAvatarChat() {
   const [conversations, setConversations] = useState<Conversation[]>([
@@ -82,29 +92,37 @@ export function useAvatarChat() {
       )
     setPending(undefined)
   }
-  const send = (text: string, name: string, title?: string) => {
+  const send = (text: string, bot: ChatBot, title?: string) => {
     const value = text.trim().slice(0, 2000)
     if (!value || !online || pending) return
     const token = ++generation.current
     progress.current = 0
     const message = crypto.randomUUID()
-    setConversations((items) =>
-      items.map((item) =>
-        item.id === active
+    const conversation = title ? crypto.randomUUID() : active
+    const turn: ChatMessage[] = [
+      { id: crypto.randomUUID(), role: 'user', text: value },
+      { id: message, role: 'assistant', text: '', name: bot.name, avatar: { ...bot.props } },
+    ]
+    setConversations((items) => {
+      if (title)
+        return [
+          ...items.slice(-19),
+          { id: conversation, title, messages: turn, bot, example: title },
+        ]
+      return items.map((item) =>
+        item.id === conversation
           ? {
               ...item,
-              title: item.messages.length ? item.title : (title || value).slice(0, 60),
-              messages: [
-                ...item.messages.slice(-38),
-                { id: crypto.randomUUID(), role: 'user', text: value },
-                { id: message, role: 'assistant', text: '', name },
-              ],
+              title: item.messages.length ? item.title : value.slice(0, 60),
+              messages: [...item.messages.slice(-38), ...turn],
+              bot,
             }
           : item
       )
-    )
+    })
+    setActive(conversation)
     setDraft('')
-    setPending({ conversation: active, message, text: avatarDemoReply(value, name), token })
+    setPending({ conversation, message, text: avatarDemoReply(value, bot.name), token })
   }
   const newChat = () => {
     stop()

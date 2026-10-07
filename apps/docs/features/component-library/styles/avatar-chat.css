@@ -98,39 +98,94 @@
 .agent-libraries .avatar-chat-who h2 {
   font-size: 22px;
 }
-.agent-libraries .avatar-chat-who .select-control {
-  width: 160px;
+.agent-libraries .avatar-chat-bot-trigger {
   max-width: 100%;
+  gap: var(--livenui-space-2);
 }
-.agent-libraries .avatar-chat-who select {
-  background: var(--gradient-accent);
-  color: white;
-  border-color: transparent;
-  font-weight: 550;
+.agent-libraries .avatar-chat-bot-trigger > span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-.agent-libraries .avatar-chat-who .select-control svg {
-  color: white;
+.agent-libraries .avatar-chat-bot-trigger svg {
+  flex-shrink: 0;
 }
-.agent-libraries .avatar-chat-who option,
-.agent-libraries .avatar-chat-who optgroup {
+.agent-libraries .avatar-chat-bot-picker {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: var(--livenui-space-2);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--livenui-radius-panel);
   background: var(--surface);
   color: var(--foreground);
+  box-shadow: var(--shadow);
+  overscroll-behavior: contain;
+}
+.agent-libraries .avatar-chat-bot-picker fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.agent-libraries .avatar-chat-bot-picker legend {
+  width: 100%;
+  margin: 0;
+  padding: var(--livenui-space-3);
+  color: var(--muted);
+  font-size: var(--livenui-font-caption);
+}
+.agent-libraries .avatar-chat-bot-picker [role="option"] {
+  display: flex;
+  align-items: center;
+  gap: var(--livenui-space-2);
+  width: 100%;
+  min-height: var(--livenui-control-height);
+  padding: var(--livenui-space-2) var(--livenui-space-3);
+  border: 0;
+  border-radius: var(--livenui-radius-control);
+  background: transparent;
+  color: var(--foreground);
+  text-align: start;
+}
+.agent-libraries .avatar-chat-bot-picker [role="option"]:hover {
+  background: var(--track);
+}
+.agent-libraries .avatar-chat-bot-picker [aria-selected="true"] {
+  background: var(--gradient-accent);
+  color: white;
+}
+.agent-libraries .avatar-chat-bot-option-text {
+  display: flex;
+  align-items: baseline;
+  gap: var(--livenui-space-2);
+  flex: 1;
+  min-width: 0;
+}
+.agent-libraries .avatar-chat-bot-option-text strong {
+  flex-shrink: 0;
+  max-width: 50%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--livenui-font-label);
+  font-weight: 550;
+}
+.agent-libraries .avatar-chat-bot-option-text > span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--livenui-font-caption);
+  opacity: 0.8;
 }
 .agent-libraries .avatar-chat-character[data-conversation] {
-  flex-direction: row;
-  justify-content: start;
-  gap: var(--livenui-space-2);
-  padding: var(--livenui-space-2) var(--livenui-space-6);
+  align-items: start;
+  gap: 0;
+  padding: 0 var(--livenui-space-6);
   width: 100%;
   max-width: calc(var(--livenui-space-8) * 24);
-  margin: 0 auto;
-}
-.agent-libraries .avatar-chat-character[data-conversation] .avatar-chat-who h2,
-.agent-libraries .avatar-chat-character[data-conversation] .avatar-chat-purpose {
-  display: none;
-}
-.agent-libraries .avatar-chat-character[data-conversation] .avatar-chat-who .select-control {
-  width: 112px;
+  margin: 0 auto calc(var(--livenui-space-3) * -1);
 }
 .agent-libraries .avatar-chat-messages {
   display: flex;
@@ -165,7 +220,7 @@
   font-weight: 550;
 }
 .agent-libraries .avatar-chat-message-avatar {
-  flex: 0 0 var(--livenui-space-8);
+  flex: 0 0 var(--livenui-space-6);
 }
 .agent-libraries .avatar-chat-composer-area {
   width: 100%;
@@ -323,6 +378,9 @@
   font-size: var(--livenui-font-label);
   overflow-wrap: anywhere;
 }
+.agent-libraries .avatar-chat-list button .avatar-chat-outfit-dot {
+  width: var(--livenui-space-2);
+}
 .agent-libraries .avatar-chat-list button:hover {
   background: var(--track);
 }
@@ -359,7 +417,7 @@
 }
 .agent-libraries .avatar-chat-settings-fields {
   display: grid;
-  gap: var(--livenui-space-5);
+  gap: var(--livenui-space-3);
   min-width: 0;
 }
 .agent-libraries .avatar-chat-choice {
