@@ -12,7 +12,7 @@ import {
   X,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { AvatarChatBotPicker } from '../components/avatar-chat-bot-picker'
 import { AvatarChatPanel, containDialogFocus } from '../components/avatar-chat-panel'
 import { AvatarChatSettings } from '../components/avatar-chat-settings'
@@ -32,6 +32,17 @@ import { avatarColors, optionLabel } from '../lib/content'
 import type { Navigate, Theme } from '../lib/types'
 
 type BotProfile = { id: string; name: string; purpose: string; props: Props }
+
+const initialChat = `(() => {
+  const dialog = document.currentScript?.parentElement;
+  if (!(dialog instanceof HTMLDialogElement)) return;
+  dialog.showModal();
+  if (dialog.clientWidth >= 1100) {
+    for (const panel of dialog.querySelectorAll('.avatar-chat-layout > .avatar-chat-panel')) {
+      panel.show();
+    }
+  }
+})();`
 
 function CreateBot({
   onCreate,
@@ -163,7 +174,7 @@ export function AvatarChat({
       color: typeof profile.props.color === 'string' ? profile.props.color : avatarColors[0].value,
     })),
   ]
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = dialog.current
     element?.showModal()
     const focus = requestAnimationFrame(() => composer.current?.focus({ preventScroll: true }))
@@ -172,9 +183,10 @@ export function AvatarChat({
       element?.close()
     }
   }, [open])
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = root.current
     if (!element) return
+    setWide(element.getBoundingClientRect().width >= 1100)
     const observer = new ResizeObserver(([entry]) => setWide(entry.contentRect.width >= 1100))
     observer.observe(element)
     return () => observer.disconnect()
@@ -213,6 +225,7 @@ export function AvatarChat({
   return (
     <dialog
       ref={dialog}
+      suppressHydrationWarning
       className="avatar-chat-dialog"
       aria-label="Bot avatar chat playground"
       onKeyDown={containDialogFocus}
@@ -616,6 +629,7 @@ export function AvatarChat({
           />
         )}
       </div>
+      <script dangerouslySetInnerHTML={{ __html: initialChat }} />
     </dialog>
   )
 }

@@ -1,5 +1,5 @@
 import { X } from 'lucide-react'
-import { type KeyboardEvent, type ReactNode, useEffect, useRef } from 'react'
+import { type KeyboardEvent, type ReactNode, useLayoutEffect, useRef } from 'react'
 
 export function containDialogFocus(event: KeyboardEvent<HTMLDialogElement>) {
   if (event.key !== 'Tab' || event.defaultPrevented) return
@@ -41,7 +41,7 @@ export function AvatarChatPanel({
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const previous = useRef<HTMLElement | null>(null)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = dialog.current
     if (!element) return
     const focus = document.activeElement
@@ -60,9 +60,10 @@ export function AvatarChatPanel({
   return (
     <dialog
       ref={dialog}
+      suppressHydrationWarning
       className={`avatar-chat-panel avatar-chat-${side}`}
       aria-label={title}
-      aria-modal={!wide}
+      aria-modal={!wide && expanded ? true : undefined}
       onKeyDown={(event) => {
         if (!wide) containDialogFocus(event)
       }}

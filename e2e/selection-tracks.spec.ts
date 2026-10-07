@@ -107,11 +107,14 @@ test('native activity choices slide without moving controls and respect reduced 
     await track.locator('.selection-indicator').evaluate((node) => node.getAnimations().length)
   ).toBe(0)
   await page.setViewportSize({ width: 320, height: 800 })
-  await expect(settings).toHaveAttribute('aria-modal', 'true')
   if (testInfo.project.use.viewport?.width === 1440) {
     await expect(settings).not.toBeVisible()
+    await expect(settings).not.toHaveAttribute('aria-modal')
+    await expect.poll(() => settings.evaluate((node) => node.matches(':modal'))).toBe(false)
     await chat.getByRole('button', { name: 'Playground', exact: true }).click()
   }
+  await expect(settings).toHaveAttribute('aria-modal', 'true')
+  await expect.poll(() => settings.evaluate((node) => node.matches(':modal'))).toBe(true)
   await aligned(track)
   await page.setViewportSize({ width: 640, height: 1000 })
   await page.evaluate(() => {

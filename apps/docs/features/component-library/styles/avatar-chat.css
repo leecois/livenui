@@ -87,6 +87,8 @@
 .agent-libraries .avatar-chat-actor {
   display: grid;
   place-items: center;
+  width: calc(var(--livenui-space-8) * 4);
+  height: calc(var(--livenui-space-8) * 4);
   max-width: 100%;
 }
 .agent-libraries .avatar-chat-who {
@@ -188,6 +190,10 @@
   width: 100%;
   max-width: calc(var(--livenui-space-8) * 24);
   margin: 0 auto calc(var(--livenui-space-3) * -1);
+}
+.agent-libraries .avatar-chat-character[data-conversation] .avatar-chat-actor {
+  width: calc(var(--livenui-space-8) * 2);
+  height: calc(var(--livenui-space-8) * 2);
 }
 .agent-libraries .avatar-chat-messages {
   display: flex;
