@@ -62,7 +62,7 @@ Preview / Install & Usage is the main task switch. Keep Open in Studio and Copy 
 
 Bot avatars initially open the local chat playground. Component preview leads with the character workspace, followed by code and starting examples. At feature widths of at least 900px, the preview sits beside a 384px settings panel and stays sticky; narrower containers stack them. The fullscreen chat uses 256px Examples and 320px Playground columns beside the conversation at widths of at least 1100px. Smaller containers use native modal overlays. Headers are 64px, panel contents scroll independently, and Customize/Code stays outside the scrolling content. The composer stays below the feed. See [avatar playground](docs/avatar-playground.md).
 
-The stage keeps a stable minimum height instead of growing with settings. Configuration survives task switches while hidden render resources release. Guides avoid Saved/JSON tabs and advanced search inside quick settings. Studio handoff carries validated configuration and effective playback/theme through the existing mechanism.
+The stage keeps a stable minimum height instead of growing with settings. Fullscreen chat clips overflow at its outer dialog; only the sidebars and message feed scroll, so wheel input or focus cannot move the entire layout offscreen. Configuration survives task switches while hidden render resources release. Guides avoid Saved/JSON tabs and advanced search inside quick settings. Studio handoff carries validated configuration and effective playback/theme through the existing mechanism.
 
 ## Settings composition
 

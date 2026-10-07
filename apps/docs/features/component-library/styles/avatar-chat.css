@@ -8,6 +8,8 @@
   margin: 0;
   padding: 0;
   border: 0;
+  overflow: clip;
+  overscroll-behavior: none;
   color: var(--foreground);
   background: var(--background);
 }
