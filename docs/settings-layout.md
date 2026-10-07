@@ -25,7 +25,11 @@ Use the functional layout with local tokens: 20px panel insets, 12px field gaps,
 - Place the compact Controls/Saved/JSON track beside the heading on wide containers and on its own row below 550px. Reset remains beside the heading. Guides omit the administrative tabs.
 - Keep advanced discovery in the footer, separated by a quiet divider. Search only appears when advanced controls are expanded. Keep Saved input/action together and let JSON actions/help wrap at narrow widths. Validation feedback stays beside the panel.
 
-Value columns follow the feature container: three at 900px or wider, two below 900px and one below 550px. Categorical rows use two columns at 900px or wider and one below; wide groups occupy a full row. See [design](../design.md) and [development](development.md).
+Value columns follow the settings panel width: three at 900px or wider, two below 900px and one below 550px. Categorical rows use two columns at 900px or wider and one below; wide groups occupy a full row. See [design](../design.md) and [development](development.md).
+
+## Avatar workspace
+
+[Bot avatars](avatar-playground.md) place essential configuration beside the character on wide feature containers and below it on compact screens. Each controls panel queries its own width. Shape choices use a native thumbnail radio grid with a disclosure for the full catalog; Color, Hat and Glasses join essential settings. Quick color samples retain the exact editor and native picker.
 
 ## Verification
 

@@ -38,6 +38,10 @@ The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUB
 
 `lint:docs` currently includes a formatting/lint write step inherited from the existing app script. Review `git diff` after every gate; do not assume validation is entirely read-only. `bun run release` publishes and `bun run version` changes release metadata: neither is authorized by ordinary maintenance tasks.
 
+## Avatar configuration
+
+Read [avatar playground](avatar-playground.md) before changing the character workspace. Keep shape options sourced from catalog metadata, thumbnails in the existing paused preview boundary, and runtime SDK imports in the preview adapter. Color swatches use the retained SDK palette and share the exact-entry state owner. Check container-based stacking, selected-shape retention, accessory/code equality and renderer identity.
+
 ## Fix a layout defect
 
 1. Reproduce its route, query parameters, theme and container width in the browser. Inspect computed styles and element boxes, not only JSX.

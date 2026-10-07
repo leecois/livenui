@@ -140,10 +140,13 @@ test('categorical rows and value grids align across Guide and Studio libraries',
         if (!heading || !tabs) throw new Error('Missing settings navigation')
         expect(tabs.width).toBeLessThan(230)
         expect(tabs.y).toBeGreaterThanOrEqual(heading.y)
-        if (testInfo.project.use.viewport?.width === 1440) {
-          const title = await panel.getByRole('heading', { name: 'Customize' }).boundingBox()
-          if (!title) throw new Error('Missing settings title')
+        const title = await panel.getByRole('heading', { name: 'Customize' }).boundingBox()
+        const panelBox = await panel.boundingBox()
+        if (!title || !panelBox) throw new Error('Missing settings title or panel')
+        if (panelBox.width >= 550) {
           expect(Math.abs(title.y + title.height / 2 - (tabs.y + tabs.height / 2))).toBeLessThan(1)
+        } else {
+          expect(tabs.y).toBeGreaterThanOrEqual(title.y + title.height)
         }
       }
       await panel.screenshot({ path: testInfo.outputPath(`settings-${library}-${view}.png`) })

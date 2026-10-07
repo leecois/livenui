@@ -40,8 +40,13 @@ test('quick settings, installation and Studio preserve one avatar configuration'
   await page
     .locator('.playground-column')
     .screenshot({ path: testInfo.outputPath('configured-preview.png') })
-  await page.evaluate(() => window.scrollTo(0, 0))
-  await expect(page.locator('.showcase-example').first().locator('canvas')).toBeVisible()
+  const example = page.locator('.showcase-example').first()
+  await example.scrollIntoViewIfNeeded()
+  await expect(example.locator('canvas')).toBeVisible()
+  await example.screenshot({ path: testInfo.outputPath('guide-example.png') })
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(0)
+  await expect(page.locator('.preview-stage canvas')).toBeVisible()
   await page.screenshot({ path: testInfo.outputPath('guide-preview.png'), fullPage: true })
   await page.getByRole('button', { name: /Get installation steps/ }).click()
   await expect(page.getByRole('tab', { name: 'Install & Usage', exact: true })).toHaveAttribute(

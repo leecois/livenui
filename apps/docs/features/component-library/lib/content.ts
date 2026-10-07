@@ -15,6 +15,15 @@ type ComponentContent = {
 
 export const libraryOrder = ['beam', 'orbs', 'avatars', 'gooey', 'voice', 'metal', 'image']
 
+export const avatarColors = [
+  { name: 'Sky', value: '#41C4FF' },
+  { name: 'Mint', value: '#1ED3C6' },
+  { name: 'Lilac', value: '#ACAAF3' },
+  { name: 'Gold', value: '#EFDB8E' },
+  { name: 'Peach', value: '#EAA06F' },
+  { name: 'Leaf', value: '#2FCB7A' },
+]
+
 export const content: Record<string, ComponentContent> = {
   beam: {
     purpose: 'Draw attention',
@@ -77,7 +86,7 @@ export const content: Record<string, ComponentContent> = {
     description:
       'Give an assistant a character that follows the pointer and responds to working or sleeping states.',
     hint: 'Try an agent mascot or choose another shape. Move the pointer to change its gaze; click to hop.',
-    controls: ['type', 'state', 'shading', 'size'],
+    controls: ['type', 'state', 'shading', 'size', 'color', 'hat', 'glasses'],
     labels: { type: 'Shape', state: 'Activity', shading: 'Material' },
     choices: {
       size: [32, 64, 96],

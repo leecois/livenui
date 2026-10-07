@@ -5,7 +5,8 @@ import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library, Preset } from '../lib/config'
 import { content } from '../lib/content'
 import { controlGroup } from '../lib/controls'
-import type { Navigate } from '../lib/types'
+import type { Navigate, Theme } from '../lib/types'
+import { AvatarShapeControl } from './avatar-shape-control'
 import { FieldControl } from './field-control'
 import { Link } from './link'
 
@@ -45,6 +46,7 @@ export function ControlsPanel({
   state,
   studio = true,
   studioLink,
+  theme,
 }: {
   library: Library
   presets: Preset[]
@@ -52,6 +54,7 @@ export function ControlsPanel({
   state: PlaygroundState
   studio?: boolean
   studioLink?: string
+  theme: Theme
 }) {
   const {
     controls,
@@ -168,21 +171,31 @@ export function ControlsPanel({
                         key={`divider-${group}`}
                       />
                     ),
-                    <FieldControl
-                      key={`${field.name}-${state.controlVersion}`}
-                      library={state.activeLibrary}
-                      field={field}
-                      value={props[field.name]}
-                      label={content[library.id].labels?.[field.name]}
-                      choices={
-                        content[library.id].choices?.[field.name] ||
-                        (field.kind === 'select' && field.options.length <= 6
-                          ? field.options
-                          : undefined)
-                      }
-                      set={(value) => update(field.name, value)}
-                      onDraft={state.editControl}
-                    />,
+                    library.id === 'avatars' && field.name === 'type' ? (
+                      <AvatarShapeControl
+                        key={`${field.name}-${state.controlVersion}`}
+                        field={field}
+                        value={props[field.name]}
+                        set={(value) => update(field.name, value)}
+                        theme={theme}
+                      />
+                    ) : (
+                      <FieldControl
+                        key={`${field.name}-${state.controlVersion}`}
+                        library={state.activeLibrary}
+                        field={field}
+                        value={props[field.name]}
+                        label={content[library.id].labels?.[field.name]}
+                        choices={
+                          content[library.id].choices?.[field.name] ||
+                          (field.kind === 'select' && field.options.length <= 6
+                            ? field.options
+                            : undefined)
+                        }
+                        set={(value) => update(field.name, value)}
+                        onDraft={state.editControl}
+                      />
+                    ),
                   ]
                 })}
               </div>

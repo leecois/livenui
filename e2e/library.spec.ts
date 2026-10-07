@@ -53,10 +53,18 @@ for (const [id, renderer] of Object.entries(renderers)) {
           return { x: rect.x, y: rect.y, right: rect.right, bottom: rect.bottom }
         })
       )
-    expect(boxes[1].y).toBeGreaterThanOrEqual(boxes[0].bottom)
-    expect(Math.abs(boxes[0].x - boxes[1].x)).toBeLessThan(2)
-    expect(Math.abs(boxes[0].right - boxes[1].right)).toBeLessThan(2)
-    expect(boxes[2].y).toBeGreaterThanOrEqual(boxes[1].bottom)
+    const workspaceWidth = await page
+      .locator('.preview-settings')
+      .evaluate((element) => element.clientWidth)
+    if (id === 'avatars' && workspaceWidth >= 900) {
+      expect(Math.abs(boxes[0].y - boxes[1].y)).toBeLessThan(2)
+      expect(boxes[1].x - boxes[0].right).toBeCloseTo(24, 0)
+    } else {
+      expect(boxes[1].y).toBeGreaterThanOrEqual(boxes[0].bottom)
+      expect(Math.abs(boxes[0].x - boxes[1].x)).toBeLessThan(2)
+      expect(Math.abs(boxes[0].right - boxes[1].right)).toBeLessThan(2)
+    }
+    expect(boxes[2].y).toBeGreaterThanOrEqual(Math.max(boxes[0].bottom, boxes[1].bottom))
     const controls = await page
       .locator('.controls-panel input:not([type="checkbox"]), .controls-panel select')
       .evaluateAll((nodes) =>
@@ -127,7 +135,11 @@ for (const [id, renderer] of Object.entries(renderers)) {
     }
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
-    await expect(page.locator('.showcase-example').first().locator(renderer).first()).toBeVisible()
+    await expect(
+      id === 'avatars'
+        ? page.locator('.preview-stage canvas')
+        : page.locator('.showcase-example').first().locator(renderer).first()
+    ).toBeVisible()
     await page.screenshot({ path: testInfo.outputPath('full-page.png'), fullPage: true })
     expect(errors).toEqual([])
   })

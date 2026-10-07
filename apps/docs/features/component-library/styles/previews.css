@@ -81,11 +81,36 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  gap: var(--livenui-space-6);
+  max-width: 100%;
 }
-.agent-libraries .avatar-demo > p {
+.agent-libraries .stage-avatars {
+  min-height: calc(var(--livenui-space-8) * 14);
+}
+@container (width < 550px) {
+  .agent-libraries .stage-avatars {
+    min-height: calc(var(--livenui-space-8) * 10 + var(--livenui-space-5));
+  }
+}
+.agent-libraries .avatar-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--livenui-space-2);
+  text-align: center;
+}
+.agent-libraries .avatar-identity h3 {
+  font-size: 22px;
+}
+.agent-libraries .avatar-identity .eyebrow {
   color: var(--muted);
-  font-size: 12px;
+}
+.agent-libraries .avatar-activity {
+  padding: var(--livenui-space-1) var(--livenui-space-3);
+  border-radius: var(--livenui-radius-control);
+  background: var(--track);
+  color: var(--muted);
+  font-size: var(--livenui-font-caption);
 }
 .agent-libraries .voice-demo {
   width: 390px;

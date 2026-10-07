@@ -1,7 +1,7 @@
 import { Select } from '@livenui/agent-ui'
 import { useState } from 'react'
 import type { Library } from '../lib/config'
-import { fieldLabel, optionLabel } from '../lib/content'
+import { avatarColors, fieldLabel, optionLabel } from '../lib/content'
 import { booleanDefault, isColorField, numberSpec } from '../lib/controls'
 import { ColorControl } from './color-control'
 import { NumberControl } from './number-control'
@@ -27,6 +27,10 @@ export function FieldControl({
   const [customSize, setCustomSize] = useState(false)
   const sizeSpec =
     library.id === 'avatars' && field.name === 'size' ? numberSpec(library, 'size') : undefined
+  const selected =
+    value === undefined && library.id === 'avatars' && ['hat', 'glasses'].includes(field.name)
+      ? 'none'
+      : value
   if (choices?.length)
     return (
       <fieldset
@@ -46,7 +50,7 @@ export function FieldControl({
                   type="radio"
                   name={id}
                   value={String(option)}
-                  checked={value === option && (!sizeSpec || !customSize)}
+                  checked={selected === option && (!sizeSpec || !customSize)}
                   onChange={() => {
                     setCustomSize(false)
                     set(option)
@@ -169,6 +173,7 @@ export function FieldControl({
         set={set}
         onDraft={onDraft}
         format={library.id === 'orbs' ? 'rgb' : library.id === 'avatars' ? 'rgb-hsl' : 'css'}
+        palette={library.id === 'avatars' && field.name === 'color' ? avatarColors : undefined}
       />
     )
   return (

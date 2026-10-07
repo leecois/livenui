@@ -42,6 +42,24 @@ function Workbench({
     setView('install')
     requestAnimationFrame(() => installPanel.current?.focus())
   }
+  const showcase = !studio && (
+    <ComponentShowcase
+      library={library}
+      theme={session.theme}
+      navigate={session.navigate}
+      state={state}
+      onSelect={(example) => {
+        state.selectExample(example)
+        requestAnimationFrame(() => {
+          playground.current?.scrollIntoView({
+            block: 'start',
+            behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+          })
+          playground.current?.focus({ preventScroll: true })
+        })
+      }}
+    />
+  )
   return (
     <section
       className={`workbench ${studio ? 'workbench-studio' : 'workbench-guide'}`}
@@ -102,26 +120,7 @@ function Workbench({
       >
         {view === 'preview' && (
           <>
-            {!studio && (
-              <ComponentShowcase
-                library={library}
-                theme={session.theme}
-                navigate={session.navigate}
-                state={state}
-                onSelect={(example) => {
-                  state.selectExample(example)
-                  requestAnimationFrame(() => {
-                    playground.current?.scrollIntoView({
-                      block: 'start',
-                      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
-                        ? 'instant'
-                        : 'smooth',
-                    })
-                    playground.current?.focus({ preventScroll: true })
-                  })
-                }}
-              />
-            )}
+            {library.id !== 'avatars' && showcase}
             {!studio && (
               <div className="playground-heading">
                 <h2 ref={playground} tabIndex={-1}>
@@ -130,22 +129,28 @@ function Workbench({
                 <p className="helper-text">Adjust the quick settings and try the interaction.</p>
               </div>
             )}
-            <PreviewPanel
-              library={library}
-              theme={session.theme}
-              state={state}
-              width={previewWidth}
-              onWidthChange={setPreviewWidth}
-            />
-            <ControlsPanel
-              library={library}
-              presets={session.presets}
-              navigate={session.navigate}
-              state={state}
-              studio={studio}
-              studioLink={studioLink}
-            />
+            <div
+              className={`preview-settings${library.id === 'avatars' ? ' avatar-workspace' : ''}`}
+            >
+              <PreviewPanel
+                library={library}
+                theme={session.theme}
+                state={state}
+                width={previewWidth}
+                onWidthChange={setPreviewWidth}
+              />
+              <ControlsPanel
+                library={library}
+                presets={session.presets}
+                navigate={session.navigate}
+                state={state}
+                studio={studio}
+                studioLink={studioLink}
+                theme={session.theme}
+              />
+            </div>
             <CodePanel state={state} onInstall={install} />
+            {library.id === 'avatars' && showcase}
             {studio && <ConfigurationDetails library={library} state={state} />}
           </>
         )}

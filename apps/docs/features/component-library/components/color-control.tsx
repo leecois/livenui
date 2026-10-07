@@ -9,6 +9,7 @@ export function ColorControl({
   set,
   onDraft,
   format = 'css',
+  palette,
 }: {
   name: string
   label: string
@@ -17,6 +18,7 @@ export function ColorControl({
   set: (value: unknown) => void
   onDraft: () => void
   format?: 'css' | 'rgb' | 'rgb-hsl'
+  palette?: { name: string; value: string }[]
 }) {
   const text = typeof value === 'string' ? value : ''
   const [draft, setDraft] = useState(text)
@@ -126,6 +128,28 @@ export function ColorControl({
           <RotateCcw size={13} aria-hidden="true" />
         </button>
       </div>
+      {palette && (
+        <fieldset className="color-palette" aria-label={`${label} palette`}>
+          {palette.map((color) => (
+            <button
+              type="button"
+              className="pill color-palette-option"
+              key={color.value}
+              aria-label={`Use ${color.name} color`}
+              title={color.name}
+              aria-pressed={text.toLowerCase() === color.value.toLowerCase()}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                setDraft(color.value)
+                setError('')
+                set(color.value)
+              }}
+            >
+              <span aria-hidden="true" style={{ background: color.value }} />
+            </button>
+          ))}
+        </fieldset>
+      )}
       <p id={`${id}-hint`} className="sr-only">
         {hint} Enter applies; Escape cancels; Default omits this prop.
       </p>
