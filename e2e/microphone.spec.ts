@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
+import { changeLibrary } from './helpers/choices'
 
 declare global {
   interface Window {
@@ -47,7 +48,7 @@ for (const action of ['pause', 'replay', 'navigate', 'install']) {
       await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
       await expect(page.locator('.voice-host')).toHaveCount(0)
     } else {
-      await page.getByLabel('Component', { exact: true }).selectOption('orbs')
+      await changeLibrary(page, 'orbs')
       await expect(page.locator('.stage-orbs')).toBeVisible()
     }
     await page.evaluate(() => window.__captureRequests[0].resolve())

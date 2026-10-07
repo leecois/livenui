@@ -1,8 +1,8 @@
-import { Select, SelectionTrack } from '@livenui/agent-ui'
 import { useState } from 'react'
 import type { Library } from '../lib/config'
 import { avatarColors, fieldLabel, optionLabel } from '../lib/content'
 import { booleanDefault, isColorField, numberSpec } from '../lib/controls'
+import { ChoiceField } from './choice-field'
 import { ColorControl } from './color-control'
 import { NumberControl } from './number-control'
 
@@ -11,7 +11,7 @@ export function FieldControl({
   value,
   set,
   label = fieldLabel(field.name),
-  choices,
+  choices: quickChoices,
   library,
   onDraft,
 }: {
@@ -31,59 +31,41 @@ export function FieldControl({
     value === undefined && library.id === 'avatars' && ['hat', 'glasses'].includes(field.name)
       ? 'none'
       : value
+  const choices = quickChoices || (field.kind === 'select' ? field.options : undefined)
   if (choices?.length)
     return (
-      <fieldset
-        className="field field-choice"
-        aria-label={label}
-        data-wide={choices.length > 3 || undefined}
+      <ChoiceField
+        label={label}
+        description={field.description}
+        value={
+          sizeSpec && (customSize || (value !== undefined && !choices.includes(value as number)))
+            ? 'custom-size'
+            : selected
+        }
+        onDefault={field.kind === 'select' ? () => set(undefined) : undefined}
+        options={[
+          ...choices.map((option) => ({
+            value: option,
+            label: optionLabel(field.name, option),
+            icon:
+              sizeSpec && typeof option === 'number' ? (
+                <svg className="size-preview" viewBox="0 0 16 16" aria-hidden="true">
+                  <circle cx="8" cy="8" r={option / 16} fill="currentColor" />
+                </svg>
+              ) : undefined,
+          })),
+          ...(sizeSpec ? [{ value: 'custom-size', label: 'Custom' }] : []),
+        ]}
+        onChange={(option) => {
+          if (sizeSpec && option === 'custom-size') {
+            onDraft()
+            setCustomSize(true)
+          } else {
+            setCustomSize(false)
+            set(option)
+          }
+        }}
       >
-        <legend className="sr-only">{label}</legend>
-        <div className="choice-row">
-          <span className="field-heading" title={field.description} aria-hidden="true">
-            {label}
-          </span>
-          <SelectionTrack className="field-options">
-            {choices.map((option) => (
-              <label className="field-option" key={String(option)}>
-                <input
-                  type="radio"
-                  name={id}
-                  value={String(option)}
-                  checked={selected === option && (!sizeSpec || !customSize)}
-                  onChange={() => {
-                    setCustomSize(false)
-                    set(option)
-                  }}
-                />
-                <span>
-                  {sizeSpec && typeof option === 'number' && (
-                    <svg className="size-preview" viewBox="0 0 16 16" aria-hidden="true">
-                      <circle cx="8" cy="8" r={option / 16} fill="currentColor" />
-                    </svg>
-                  )}
-                  {optionLabel(field.name, option)}
-                </span>
-              </label>
-            ))}
-            {sizeSpec && (
-              <label className="field-option">
-                <input
-                  type="radio"
-                  name={id}
-                  checked={
-                    customSize || (value !== undefined && !choices.includes(value as number))
-                  }
-                  onChange={() => {
-                    onDraft()
-                    setCustomSize(true)
-                  }}
-                />
-                <span>Custom</span>
-              </label>
-            )}
-          </SelectionTrack>
-        </div>
         {sizeSpec &&
           (customSize || (value !== undefined && !choices.includes(value as number))) && (
             <NumberControl
@@ -100,30 +82,7 @@ export function FieldControl({
         {!sizeSpec && value !== undefined && !choices.includes(value as string | number) && (
           <p className="helper-text">Custom value: {String(value).slice(0, 80)}</p>
         )}
-      </fieldset>
-    )
-  if (field.kind === 'select')
-    return (
-      <div className="field field-select">
-        <label className="field-heading" htmlFor={id} title={field.description}>
-          {label}
-        </label>
-        <Select
-          id={id}
-          value={value === undefined ? '' : String(value)}
-          onChange={(event) => {
-            const next = field.options.find((option) => String(option) === event.target.value)
-            set(next)
-          }}
-        >
-          <option value="">Use default</option>
-          {field.options.map((option) => (
-            <option key={String(option)} value={String(option)}>
-              {optionLabel(field.name, option)}
-            </option>
-          ))}
-        </Select>
-      </div>
+      </ChoiceField>
     )
   if (field.kind === 'boolean')
     return (

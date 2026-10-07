@@ -1,9 +1,9 @@
-import { Select } from '@livenui/agent-ui'
 import type { PlaygroundState } from '../hooks/use-playground'
 import { type Library, libraries } from '../lib/config'
 import { content } from '../lib/content'
 import { examples } from '../lib/examples'
 import type { Navigate } from '../lib/types'
+import { ChoiceField } from './choice-field'
 import { Link } from './link'
 
 export function StudioContext({
@@ -17,42 +17,38 @@ export function StudioContext({
 }) {
   return (
     <div className="studio-context">
-      <div className="studio-choice">
-        <label htmlFor="studio-library">Component</label>
-        <Select
-          id="studio-library"
-          value={library.id}
-          onChange={(event) => navigate(`/studio?library=${event.target.value}`)}
-        >
+      <nav className="studio-choice" aria-label="Component">
+        <span className="field-heading">Component</span>
+        <div className="studio-library-options">
           {libraries.map((item) => (
-            <option key={item.id} value={item.id}>
+            <Link
+              key={item.id}
+              href={`/studio?library=${item.id}`}
+              navigate={navigate}
+              className="pill"
+              aria-current={library.id === item.id ? 'page' : undefined}
+            >
               {item.name}
-            </option>
+            </Link>
           ))}
-        </Select>
-      </div>
+        </div>
+      </nav>
       <span className="context-description">{content[library.id].purpose}</span>
       <Link href={`/agents/${library.id}`} navigate={navigate} className="text-button">
         Read the guide ↗
       </Link>
       <div className="studio-starting-point">
-        <label htmlFor="starting-example">Starting point</label>
-        <Select
-          id="starting-example"
+        <ChoiceField
+          label="Starting point"
           value={state.startingPoint}
-          onChange={(event) => state.selectExample(event.target.value)}
-        >
-          <option value="" disabled>
-            Your configuration
-          </option>
-          {examples
+          onChange={(value) => state.selectExample(String(value))}
+          options={examples
             .filter((example) => example.library === library.id)
-            .map((example) => (
-              <option key={example.id} value={example.id}>
-                {example.name}
-              </option>
-            ))}
-        </Select>
+            .map((example) => ({ value: example.id, label: example.name }))}
+          limit={6}
+        >
+          {!state.startingPoint && <p className="helper-text">Your configuration</p>}
+        </ChoiceField>
         <Link
           href={`/agents/gallery?library=${library.id}`}
           navigate={navigate}

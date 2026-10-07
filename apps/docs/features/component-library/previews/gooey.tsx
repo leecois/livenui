@@ -1,4 +1,3 @@
-import { Select } from '@livenui/agent-ui'
 import { Liquid, type LiquidEffect, type LiquidItemProps, type LiquidProps } from 'liquid-gooey'
 import { FilePlus2, FolderPlus, ImagePlus, Plus } from 'lucide-react'
 import {
@@ -11,6 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { ChoiceField } from '../components/choice-field'
 import type { PreviewProps } from '../components/preview'
 import { meltDemoImages } from '../lib/media'
 
@@ -391,7 +391,6 @@ export default function GooeyPreview({ props, paused, showcase, onPropsChange }:
   const item = (rawItem || {}) as LiquidItemProps
   const effect = item.effect || 'morph'
   const Scene = scenes[effect] || MorphScene
-  const selectorId = useId()
   const group = {
     shadow: '0 2px 6px color-mix(in srgb, var(--foreground) 8%, transparent)',
     ...groupProps,
@@ -402,20 +401,12 @@ export default function GooeyPreview({ props, paused, showcase, onPropsChange }:
       <p className="demo-note">{hints[effect]}</p>
       {onPropsChange && (
         <div className="demo-actions">
-          <label className="sr-only" htmlFor={selectorId}>
-            Liquid behavior
-          </label>
-          <Select
-            id={selectorId}
+          <ChoiceField
+            label="Liquid behavior"
             value={effect}
-            onChange={(event) =>
-              onPropsChange('item', { ...item, effect: event.target.value as LiquidEffect })
-            }
-          >
-            {['morph', 'move', 'bend', 'melt'].map((option) => (
-              <option key={option}>{option}</option>
-            ))}
-          </Select>
+            options={['morph', 'move', 'bend', 'melt'].map((value) => ({ value, label: value }))}
+            onChange={(value) => onPropsChange('item', { ...item, effect: value as LiquidEffect })}
+          />
         </div>
       )}
     </div>

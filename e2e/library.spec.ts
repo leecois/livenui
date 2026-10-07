@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
+import { chooseOption } from './helpers/choices'
 import { openAvatarComponentPreview } from './helpers/component-preview'
 
 const renderers = {
@@ -155,46 +156,39 @@ test('Studio context remains aligned at desktop, tablet and compact widths', asy
   page,
 }, testInfo) => {
   await page.goto('/studio?library=orbs')
-  await expect(page.locator('#studio-library')).toBeVisible()
+  const navigation = page.getByRole('navigation', { name: 'Component', exact: true })
+  await expect(navigation.getByRole('link')).toHaveCount(7)
   for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 })
     await noOverflow(page)
     const measure = await page.locator('.studio-context').evaluate((context) => {
-      const label = context.querySelector('label')
-      const select = context.querySelector('select')
       const hint = context.querySelector('.context-description')
-      if (!label || !select || !hint) throw new Error('Incomplete Studio context')
+      if (!hint) throw new Error('Missing Studio description')
       const root = context.getBoundingClientRect()
-      const rect = (node: Element) => {
-        const box = node.getBoundingClientRect()
-        return {
-          y: box.y,
-          center: box.y + box.height / 2,
-          bottom: box.bottom,
-          right: box.right,
-          x: box.x,
-          height: box.height,
-        }
-      }
       return {
-        label: rect(label),
-        select: rect(select),
-        hint: rect(hint),
-        right: root.right,
-        selectFont: getComputedStyle(select).fontSize,
         hintMargin: getComputedStyle(hint).marginTop,
-        row: getComputedStyle(context).display === 'flex',
+        options: [...context.querySelectorAll('.studio-library-options a,input[type="radio"]')].map(
+          (node) => {
+            const box = node.getBoundingClientRect()
+            return {
+              font: getComputedStyle(node).fontSize,
+              height: box.height,
+              contained: box.left >= root.left && box.right <= root.right,
+            }
+          }
+        ),
+        selects: context.querySelectorAll('select').length,
+        active: context.querySelectorAll('[aria-current="page"]').length,
       }
     })
-    expect(measure.selectFont).toBe('13px')
-    expect(measure.select.height).toBeGreaterThanOrEqual(44)
     expect(measure.hintMargin).toBe('0px')
-    expect(measure.select.right).toBeLessThanOrEqual(measure.right)
-    if (measure.row) {
-      expect(Math.abs(measure.label.center - measure.select.center)).toBeLessThan(1)
-      if (Math.abs(measure.hint.center - measure.select.center) < 44)
-        expect(Math.abs(measure.hint.center - measure.select.center)).toBeLessThan(1)
-    } else expect(measure.hint.y).toBeGreaterThanOrEqual(measure.select.bottom)
+    expect(measure.selects).toBe(0)
+    expect(measure.active).toBe(1)
+    for (const option of measure.options) {
+      expect(option.font).toBe('13px')
+      expect(option.height).toBeGreaterThanOrEqual(44)
+      expect(option.contained).toBe(true)
+    }
     await page.screenshot({ path: testInfo.outputPath(`context-${width}.png`) })
   }
 })
@@ -232,7 +226,7 @@ test('discovery, shareable filters and Metal variants', async ({ page }) => {
 test('JSON, local presets, installation and portable transfer', async ({ page }) => {
   await page.goto('/studio?library=orbs')
   const code = page.locator('.code-panel code')
-  await expect(page.locator('#prop-state')).toBeVisible()
+  await expect(page.getByRole('group', { name: 'State', exact: true })).toBeVisible()
   for (const tab of await page
     .getByRole('tablist', { name: 'Configuration view' })
     .getByRole('tab')
@@ -260,7 +254,7 @@ test('JSON, local presets, installation and portable transfer', async ({ page })
   await expect(code).toContainText('listening')
   await page.getByRole('button', { name: 'Delete Device preset', exact: true }).click()
   await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
-  await page.getByLabel('Package manager', { exact: true }).selectOption('pnpm')
+  await chooseOption(page, 'Package manager', 'pnpm')
   await expect(page.locator('.install-command code')).toHaveText(
     'pnpm dlx shadcn@latest add http://localhost:3000/r/orbs.json'
   )
@@ -376,9 +370,8 @@ test('all examples remain reachable and preview variants retain interactions', a
   }
   await page.goto('/studio?library=gooey')
   await page.getByRole('button', { name: '▶ Play', exact: true }).click()
-  const behavior = page.getByLabel('Liquid behavior', { exact: true })
   for (const variant of ['morph', 'move', 'bend', 'melt']) {
-    await behavior.selectOption(variant)
+    await chooseOption(page, 'Liquid behavior', variant)
     await expect(page.locator('.code-panel code')).toContainText(`"effect":"${variant}"`)
     await page
       .locator('.preview-stage')
@@ -487,13 +480,12 @@ test('installation commands and copied code use maintained Liven UI source', asy
     page.getByRole('heading', { name: '1. Add Liven UI source', exact: true })
   ).toBeVisible()
   await expect(page.locator('.code-panel code')).toContainText("from '@/components/livenui/orbs'")
-  const manager = page.getByLabel('Package manager', { exact: true })
   for (const [value, runner] of [
     ['npm', 'npx'],
     ['pnpm', 'pnpm dlx'],
     ['bun', 'bunx'],
   ] as const) {
-    await manager.selectOption(value)
+    await chooseOption(page, 'Package manager', value)
     await expect(page.locator('.install-command code')).toHaveText(
       `${runner} shadcn@latest add http://localhost:3000/r/orbs.json`
     )

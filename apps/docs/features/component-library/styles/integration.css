@@ -64,12 +64,11 @@
 .agent-libraries .manager-choice {
   display: flex;
   align-items: center;
+  min-width: 0;
+  max-width: 100%;
   gap: var(--livenui-space-2);
   font-size: var(--livenui-font-caption);
   color: var(--muted);
-}
-.agent-libraries .manager-choice .select-control {
-  width: 92px;
 }
 .agent-libraries .install-command {
   display: flex;

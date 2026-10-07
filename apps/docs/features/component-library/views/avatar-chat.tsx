@@ -568,6 +568,7 @@ export function AvatarChat({
               hidden={settingsView !== 'playground'}
             >
               <AvatarChatSettings
+                theme={theme}
                 library={library}
                 state={state}
                 online={chat.online}

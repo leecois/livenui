@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { imageDemoSources, meltDemoImages } from '../apps/docs/features/component-library/lib/media'
+import { chooseOption } from './helpers/choices'
 
 test.beforeEach(async ({ page }, testInfo) => {
   const theme = testInfo.project.name.endsWith('dark') ? 'dark' : 'light'
@@ -101,7 +102,7 @@ test('Melt renders original ribbon art and exports matching image paths', async 
   page,
 }, testInfo) => {
   await page.goto('/studio?library=gooey')
-  await page.getByLabel('Liquid behavior', { exact: true }).selectOption('melt')
+  await chooseOption(page, 'Liquid behavior', 'melt')
   const cards = page.locator('.preview-stage .liquid-melt-card img')
   await expect(cards).toHaveCount(2)
   for (const [index, image] of meltDemoImages.entries()) {

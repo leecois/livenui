@@ -1,10 +1,12 @@
 import { SelectionTrack } from '@livenui/agent-ui'
 import { useId } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
-import { avatarHelperProps, avatarHelpers, avatarOutfits, selectedOutfit } from '../lib/avatar-chat'
+import { avatarHelpers, avatarOutfits, selectedOutfit } from '../lib/avatar-chat'
 import type { Library } from '../lib/config'
 import { content } from '../lib/content'
-import { AvatarChatBotPicker } from './avatar-chat-bot-picker'
+import type { Theme } from '../lib/types'
+import { AvatarShapeControl } from './avatar-shape-control'
+import { ChoiceField } from './choice-field'
 import { FieldControl } from './field-control'
 
 export function ChatChoice({
@@ -52,6 +54,7 @@ export function AvatarChatSettings({
   connect,
   replies,
   setReplies,
+  theme,
 }: {
   library: Library
   state: PlaygroundState
@@ -59,11 +62,20 @@ export function AvatarChatSettings({
   connect: (value: boolean) => void
   replies: string
   setReplies: (value: string) => void
+  theme: Theme
 }) {
   const outfit = selectedOutfit(state.props)
   const field = (name: string) => {
     const field = library.fields.find((item) => item.name === name)
-    return field ? (
+    return field && name === 'type' ? (
+      <AvatarShapeControl
+        key={`${name}-${state.controlVersion}`}
+        field={field}
+        value={state.props[name]}
+        set={(value) => state.update(name, value)}
+        theme={theme}
+      />
+    ) : field ? (
       <FieldControl
         key={`${name}-${state.controlVersion}`}
         library={library}
@@ -84,29 +96,24 @@ export function AvatarChatSettings({
       <section className="avatar-chat-settings-fields" aria-label="Character">
         <h3>Character</h3>
         {field('type')}
-        <div className="avatar-chat-outfit-row">
-          <span className="field-heading" aria-hidden="true">
-            Outfit
-          </span>
-          <AvatarChatBotPicker
-            label="outfit"
-            name={outfit ?? 'Custom'}
-            value={outfit ?? ''}
-            options={avatarHelpers.map((helper) => ({
-              id: helper.outfit,
-              name: helper.outfit,
-              description: helper.description,
-              group: helper.group,
-              color: String(avatarHelperProps(helper.outfit).color),
-            }))}
-            onPick={(value) => {
-              const item = avatarOutfits.find((item) => item.name === value)
-              if (!item) return
-              for (const name of ['hat', 'glasses', 'headphones', 'bowTie'] as const)
-                state.update(name, item[name])
-            }}
-          />
-        </div>
+        <ChoiceField
+          label="Outfit"
+          value={outfit ?? ''}
+          limit={6}
+          options={avatarOutfits.map((outfit) => ({
+            value: outfit.name,
+            label: outfit.name,
+            description: avatarHelpers.find((helper) => helper.outfit === outfit.name)?.description,
+          }))}
+          onChange={(value) => {
+            const item = avatarOutfits.find((item) => item.name === value)
+            if (!item) return
+            for (const name of ['hat', 'glasses', 'headphones', 'bowTie'] as const)
+              state.update(name, item[name])
+          }}
+        >
+          {!outfit && <p className="helper-text">Custom outfit</p>}
+        </ChoiceField>
         {field('color')}
       </section>
       <section className="avatar-chat-settings-fields" aria-label="Animation">

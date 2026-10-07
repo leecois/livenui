@@ -1,4 +1,5 @@
 import { expect, type Locator, test } from '@playwright/test'
+import { chooseOption } from './helpers/choices'
 
 async function aligned(track: Locator) {
   await expect(track).toHaveAttribute('data-selection-ready', '')
@@ -129,9 +130,9 @@ test('Guide, Studio, workflow and device tracks share selection geometry', async
     const panel = page.locator('.controls-panel')
     const style = panel.getByRole('group', { name: 'Style', exact: true })
     await style.getByRole('radio', { name: 'Inner pulse', exact: true }).check()
-    await aligned(style.locator('.field-options'))
+    await expect(style.locator('.choice-grid')).toBeVisible()
     await expect(page.locator('.code-panel code')).toContainText('size={"pulse-inner"}')
-    await panel.getByRole('combobox', { name: 'Color Variant', exact: true }).selectOption('sunset')
+    await chooseOption(panel, 'Color Variant', 'sunset')
     await expect(page.locator('.code-panel code')).toContainText('colorVariant={"sunset"}')
     await aligned(page.getByRole('tablist', { name: 'Component workflow', exact: true }))
     const devices = page.getByRole('group', { name: 'Preview device', exact: true })

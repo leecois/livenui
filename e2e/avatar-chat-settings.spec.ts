@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { chooseOption } from './helpers/choices'
 
 test('chat settings keep navigation stable and show compact appearance choices', async ({
   page,
@@ -43,32 +44,24 @@ test('chat settings keep navigation stable and show compact appearance choices',
   await actor.evaluate((element) => {
     element.dataset.settingsProbe = 'retained'
   })
-  const shape = settings.getByRole('combobox', { name: 'Shape', exact: true })
+  const shape = settings.getByRole('group', { name: 'Shape', exact: true })
   await expect(shape).toBeVisible()
-  const outfit = settings.getByRole('button', { name: 'Choose outfit: Resting', exact: true })
-  await expect(outfit).toBeVisible()
-  const row = await settings.locator('.avatar-chat-outfit-row').boundingBox()
-  expect(row?.height).toBe(54)
+  const outfits = settings.getByRole('group', { name: 'Outfit', exact: true })
+  await expect(outfits.getByRole('radio')).toHaveCount(6)
   await settings.getByRole('button', { name: 'Use Mint color', exact: true }).click()
-  await outfit.click()
-  const choices = settings.getByRole('listbox', { name: 'Choose an outfit', exact: true })
-  await expect(choices).toBeVisible()
-  await expect(choices.getByRole('option')).toHaveCount(18)
+  await outfits.getByRole('button', { name: 'Browse all 18 outfit options', exact: true }).click()
+  await expect(outfits.getByRole('radio')).toHaveCount(18)
   await page.screenshot({
-    path: testInfo.outputPath('chat-outfit-menu-full-page.png'),
+    path: testInfo.outputPath('chat-outfit-options-full-page.png'),
     fullPage: true,
   })
-  await page.keyboard.press('Escape')
-  await expect(choices).not.toBeVisible()
-  await expect(outfit).toBeFocused()
-  await expect(settings).toBeVisible()
-  await outfit.click()
-  await choices.getByRole('option', { name: /^Builder / }).click()
-  await expect(
-    settings.getByRole('button', { name: 'Choose outfit: Builder', exact: true })
-  ).toBeFocused()
+  const builder = await chooseOption(settings, 'Outfit', 'Builder')
+  await builder.focus()
+  await expect(builder).toBeFocused()
+  await outfits.getByRole('button', { name: 'Show fewer outfit options', exact: true }).click()
+  await expect(builder).toBeChecked()
   await expect(actor).toHaveAttribute('data-settings-probe', 'retained')
-  await shape.selectOption('connector')
+  await chooseOption(settings, 'Shape', 'connector')
   await expect(actor).toHaveAttribute('data-bot-avatar', 'connector')
   await expect(actor).toHaveAttribute('data-settings-probe', 'retained')
   await settings.locator('summary').click()
@@ -91,6 +84,8 @@ test('chat settings keep navigation stable and show compact appearance choices',
   await code.press('Home')
   await expect(customize).toBeFocused()
   await expect(
-    settings.getByRole('button', { name: 'Choose outfit: Builder', exact: true })
+    settings
+      .getByRole('group', { name: 'Outfit', exact: true })
+      .getByRole('radio', { name: 'Builder', exact: true })
   ).toBeVisible()
 })

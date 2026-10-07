@@ -65,8 +65,9 @@
   line-height: 1.5;
   white-space: nowrap;
   transition:
-    background-color 160ms,
-    border-color 160ms;
+    background-color var(--livenui-motion-feedback),
+    border-color var(--livenui-motion-feedback),
+    transform var(--livenui-motion-feedback) var(--livenui-ease-selection);
 }
 .agent-libraries .button:hover {
   border-color: var(--muted);
@@ -78,6 +79,9 @@
 }
 .agent-libraries .button-accent:hover {
   border-color: transparent;
+}
+.agent-libraries .button:active:not(:disabled) {
+  transform: scale(0.98);
 }
 .agent-libraries .button span[aria-hidden] {
   font-size: 16px;
@@ -247,6 +251,9 @@
   color: var(--muted);
 }
 @media (prefers-reduced-motion: reduce) {
+  .agent-libraries .button:active {
+    transform: none;
+  }
   .agent-libraries *,
   .agent-libraries *::before,
   .agent-libraries *::after {

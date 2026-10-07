@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import { libraries, parseConfiguration } from '../apps/docs/features/component-library/lib/config'
 import { content } from '../apps/docs/features/component-library/lib/content'
 import { findExample } from '../apps/docs/features/component-library/lib/examples'
+import { changeLibrary, chooseOption } from './helpers/choices'
 import { openAvatarComponentPreview } from './helpers/component-preview'
 
 test.beforeEach(async ({ page }, testInfo) => {
@@ -61,7 +62,7 @@ test('quick settings, installation and Studio preserve one avatar configuration'
     page.getByRole('heading', { name: '1. Add Liven UI source', exact: true })
   ).toBeVisible()
   await expect(code).toHaveText(original || '')
-  await page.getByLabel('Package manager', { exact: true }).selectOption('bun')
+  await chooseOption(page, 'Package manager', 'bun')
   await page.screenshot({ path: testInfo.outputPath('guide-install.png'), fullPage: true })
   await page.getByRole('tab', { name: 'Install & Usage', exact: true }).focus()
   await page.keyboard.press('Home')
@@ -72,7 +73,9 @@ test('quick settings, installation and Studio preserve one avatar configuration'
   await expect(code).toHaveText(original || '')
   await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'JSON', exact: true })).toBeVisible()
-  await expect(page.getByLabel('Starting point', { exact: true })).toHaveValue('')
+  const starting = page.getByRole('group', { name: 'Starting point', exact: true })
+  await expect(starting.locator('input:checked')).toHaveCount(0)
+  await expect(starting.getByText('Your configuration', { exact: true })).toBeVisible()
   await page.screenshot({ path: testInfo.outputPath('studio-preview.png'), fullPage: true })
   await page.reload()
   await expect(code).toHaveText(original || '')
@@ -206,9 +209,11 @@ test('a Metal starting example preserves its component, props and integration gu
     font: '500 24px/1.2 system-ui',
     paused: true,
   })
-  await page.getByLabel('Starting point', { exact: true }).selectOption('metal-badge')
+  await chooseOption(page, 'Starting point', 'metal-badge')
   await expect(page.locator('.code-panel code')).toContainText('<MetalBadge')
-  await expect(page.getByLabel('Starting point', { exact: true })).toHaveValue('metal-badge')
+  await expect(
+    page.getByRole('group', { name: 'Starting point', exact: true }).locator('input:checked')
+  ).toHaveValue('metal-badge')
   await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
   await expect(page.locator('.integration-guidance')).toContainText('useMetalBend')
   await expect(page.locator('.code-panel code')).toContainText('<MetalBadge')
@@ -236,7 +241,7 @@ test('invalid shared configuration falls back safely and fragment history restor
   await expect(page.locator('.code-panel code')).toContainText('state={"listening"}')
   await page.goForward()
   await expect(page.locator('.code-panel code')).toContainText('state={"searching"}')
-  await page.getByLabel('Component', { exact: true }).selectOption('avatars')
+  await changeLibrary(page, 'avatars')
   await expect(page).toHaveURL(/studio\?library=avatars$/)
   await expect(page.locator('.code-panel code')).toContainText('type={"clover"}')
   await expect(page.locator('.control-notice')).toBeEmpty()

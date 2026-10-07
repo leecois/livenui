@@ -1,97 +1,111 @@
 # Liven UI design guide
 
-This is the visual contract for the developer component library, including its agent-maintained UI. Read [architecture](docs/architecture.md) for ownership and [testing](docs/testing.md) for verification.
+Liven UI is a developer component library. Design the shortest useful path: **find a component → interact with it → configure it → copy working integration code**. The rendered component leads; controls explain how to change it.
 
-## Product structure
+This is the implemented interface contract. Read [architecture](docs/architecture.md) for ownership, [development](docs/development.md) for change recipes and [testing](docs/testing.md) for acceptance. The public-reference review is recorded in [interface research](docs/interface-research.md).
 
-Keep Fumadocs Glass as the application shell. One page-tree entry owns each navigation destination; do not add a second shortcut that activates for the same route. Overview explains the task each component serves. Examples compare configurations. Component guides show a few starting examples and essential settings. Studio offers complete customization, JSON editing and browser-local saved presets, with a visible starting-point selector.
+## Design direction
 
-Preview / Install & Usage is the primary task switch on guides and Studio. Keep Open in Studio and Copy agent prompt beside it. Preview source order is starting examples on guides → preview → controls → current React code; Bot avatars initially open the complete local chat playground; Component preview returns to preview and controls, followed by code and starting examples; Studio begins with component and starting-point context instead of a showcase. Install & Usage contains the source command, current code, integration guidance and optional API disclosure. Import/export stays in Studio. Switching views preserves configuration and releases hidden preview resources.
+Use quiet shell surfaces, restrained borders, small section labels and direct controls. Put choices where they can be compared before selection. A control should reveal its purpose, current state and available actions without opening a menu. Whitespace separates tasks; decorative containers should not create extra steps.
 
-Preview spans the available content width, followed by customization and current code. The Bot avatars component editor uses a character-first workspace with preview beside a 384px settings panel at feature widths of at least 900px; narrower containers stack them. Its preview stays sticky while settings scroll with the page. The fullscreen chat uses 256px examples and 320px settings columns beside a flexible conversation at container widths of at least 1100px; narrower containers use modal overlays. Chat headers are 64px, panels scroll independently and the composer stays below the feed. Native dialogs contain focus and make covered content inert. See [avatar playground](docs/avatar-playground.md). Fields use three columns on wide containers, two below 900px and one below 550px. The stage keeps a stable minimum height instead of stretching to the number of settings. Guides keep administrative tabs and advanced control search out of the quick-settings panel. Their Studio links carry validated props, variant, effective theme when supported and playback.
+The reference catalog's strongest patterns are the object-first demos, visible chip families, parameter dials, contextual side panels and motion tied to gestures. Adapt these patterns with Liven UI's tokens and native behavior. Keep original artwork, product identity, SDK effects and legal attribution.
 
-Desktop, Tablet (768px) and Mobile (375px) presets form an icon group on a neutral rounded-full track beside playback. The preview frame starts at the left edge, with a vertical grip at its right boundary for pointer/touch dragging. The grip has a 44px hit area, visible focus and a width badge inside the stage. Reserve the grip's width plus 8px in the scene's right padding when resizing is available, so it never covers hosts or interaction buttons. Arrow keys change width by 10px, Shift increases the step to 50px, Home/End select the limits and double-click returns to full width. Escape or pointer cancellation restores the width before dragging. All presets remain accessible on compact screens; the stage caps its width to available space and reports its actual size. The grip hides when the available width is at most 320px. Device selection survives task switches, changes neither SDK props nor exported code, and does not remount the renderer. This is a container-width preview, not browser or hardware emulation. See [preview layout research](docs/preview-layout.md).
+## Choose the right control
 
-## Token source
-
-[packages/agent-ui/src/tokens.css](packages/agent-ui/src/tokens.css) is the sole owner of Liven UI emphasis, spacing, control geometry and application type-size constants. Theme-dependent colors map to the existing shell's `--color-fd-*` tokens. Do not introduce a parallel `data-theme` palette or hardcoded light/dark surface colors.
-
-| Token | Value or source | Use |
+| User task | Control | Contract |
 | --- | --- | --- |
-| `--gradient-accent` | 120° blue-to-violet gradient | Bright primary actions and selected accent pills |
+| Switch between two or three modes | Balanced segmented track | Native radios, equal cells, neutral track and one moving selected pill |
+| Compare four or more finite variants | Visible chip grid | Separate rounded-full targets; no wrapping capsule or floating menu |
+| Browse a long enum or preset family | Chip grid with inline expansion | Show the first eight options; retain a selected option outside that subset; reveal the complete list in place |
+| Choose a component in Studio | Visible navigation links | All seven destinations remain discoverable; one current route |
+| Choose a starting example | Inline preset choices | Show six initially; selection loads the existing example; current custom configuration remains explicit |
+| Choose a bot shape | Native thumbnail radios | Eight featured shapes, expandable to the complete catalog; selected shape stays visible after collapse |
+| Choose a chat outfit | Inline outfit chips | Six initially, all eighteen through expansion; descriptions in tooltips; custom accessory combinations remain explicit |
+| Tune a number | Full-field drag dial plus exact entry | Pointer position reaches both limits inside the field; exact editing and cancellation remain available |
+| Enable a feature | Native checkbox with a decorative switch | A visible label and effective On/Off state; Auto remains explicit |
+| Choose a color | Swatches plus exact expression | Native color picker and validated text; retain documented CSS/RGB/HSL forms |
+| Enter text, JSON or code | Native editor | Visible label, local overflow and nearby validation feedback |
+
+Owned configuration, installation, Studio context and Liquid behavior controls use direct choices. Do not introduce dropdowns for an existing finite enum. The shared native `Select` remains available for a future genuinely large search-oriented domain; using it requires a documented reason and keyboard/mobile verification. Never replace a native control with a focusless clickable div.
+
+Every enum keeps its original typed value. Display names such as Idle are presentation only. Default actions omit the prop rather than invent a new enum value. A missing optional value shows “Using component default”; imported custom values stay visible. Numeric avatar size presets retain numeric values; Custom continues to accept pixels and CSS lengths.
+
+## Tokens and identity
+
+[packages/agent-ui/src/tokens.css](packages/agent-ui/src/tokens.css) owns emphasis, spacing, geometry, type sizes and control motion. Theme colors come from the shell's `--color-fd-*` tokens. Do not add a second light/dark palette.
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--gradient-accent` | Existing 120° blue-to-violet gradient | Primary actions and selected accent controls |
 | `--foreground` / `--background` | Shell foreground/background | Content and canvas surroundings |
-| `--surface` / `--surface-glass` | Shell card / 94% card mix | Cards and preview surfaces |
-| `--track` | Shell muted | Neutral tracks, command backgrounds, secondary badges |
-| `--muted` / `--border` / `--ring` | Shell muted foreground/border/ring | Supporting text, dividers, focus |
-| `--livenui-space-1/2/3/4/5/6/8` | 4/8/12/16/20/24/32px | Spacing scale |
-| `--livenui-control-height` | 44px | Form controls, buttons, tabs and actionable pills |
-| `--livenui-radius-control` | 9999px | Rounded-full controls |
-| `--livenui-radius-panel` | 24px | Panels, preview corners, cards |
-| `--livenui-font-body/label/caption` | 14/13/12px | Owned application UI |
-| `--livenui-motion-selection` / `--livenui-ease-selection` | 240ms / cubic-bezier(0.22, 1, 0.36, 1) | Finite selected-pill movement |
+| `--surface` / `--surface-glass` | Shell card / 94% card mix | Panels and preview surfaces |
+| `--track` | Shell muted surface | Inset tracks and command backgrounds |
+| `--muted` / `--border` / `--ring` | Shell semantic colors | Help text, dividers and focus |
+| `--livenui-space-1/2/3/4/5/6/8` | 4/8/12/16/20/24/32px | Contextual spacing |
+| `--livenui-control-height` | 44px | Minimum interactive height |
+| `--livenui-radius-control` | 9999px | Buttons, chips and tracks |
+| `--livenui-radius-panel` | 24px | Panels, cards and preview corners |
+| `--livenui-font-body/label/caption` | 14/13/12px | Application text |
+| `--livenui-motion-feedback` | 160ms | Hover, border and pressed feedback |
+| `--livenui-motion-selection` | 240ms | Selected indicator movement |
+| `--livenui-ease-selection` | cubic-bezier(0.22, 1, 0.36, 1) | Finite control motion |
 
-SDK scenes can use their documented geometry and typography when those affect rendering. Their aesthetic parameters are not reasons to enlarge ordinary labels, shrink form targets or create new app colors.
+Keep bright accent actions and selected pills filled with `--gradient-accent` and white text in both themes. Accent contrast warnings are accepted design trade-offs. Secondary actions use neutral surfaces and borders; text actions use muted text with a full-height target. Badges that do not select anything remain neutral.
 
-## Website identity
+The original rounded L and unfolding leaf use the canonical SVG. Keep the navigation mark 24px, wordmark 15px/600 with -0.025em tracking, and gradient fill in both themes. See [brand ownership](docs/brand.md). Preserve legal licenses and attribution. Public copy, metadata and UI must not expose founder, executive or internal team identities; team-profile recommendations are skipped requirements.
 
-The website identity uses an original rounded L and unfolding leaf, documented in [brand ownership and research](docs/brand.md). Keep the navigation mark at 24px with its intrinsic clear space, the wordmark at 15px/600 and -0.025em tracking, and the mark filled with `--gradient-accent` in both themes. The icon is decorative beside the visible product name. Preserve its silhouette and use the canonical SVG for favicon and sharing artwork.
+## Page anatomy
 
-## Typography and spacing
+Keep the Glass shell and a single page-tree destination for each route. Overview explains component use cases, Gallery compares configurations, guides provide essential controls, and Studio offers all controls, JSON and browser-local saved presets.
 
-Application headings use weight 550, line-height 1.3 and restrained -0.025em tracking. Catalog headings are 24px; panel headings 20–22px; subsection headings 15–16px. The shell owns page H1 and document prose typography. Use 1.5 line-height for labels/controls, 1.6 for help text and 1.8 for code.
+Preview / Install & Usage is the main task switch. Keep Open in Studio and Copy agent prompt nearby. Ordinary guides show starting examples, preview, quick settings and current code in reading order. Studio begins with visible component links and starting-point choices. Installation combines the source command, current configured code, integration guidance and optional API reference. Package manager choices are visible beside the command. Import/export remains in Studio.
 
-Help text has **zero margin by default**, left alignment and a semantic class (`helper-text` or `context-description`). Parents own gaps. `.demo-note` is limited to preview scenes where centered, separated explanatory copy is intentional. Never reuse a margin-bearing preview utility in a toolbar or form row.
+Bot avatars initially open the local chat playground. Component preview leads with the character workspace, followed by code and starting examples. At feature widths of at least 900px, the preview sits beside a 384px settings panel and stays sticky; narrower containers stack them. The fullscreen chat uses 256px Examples and 320px Playground columns beside the conversation at widths of at least 1100px. Smaller containers use native modal overlays. Headers are 64px, panel contents scroll independently, and Customize/Code stays outside the scrolling content. The composer stays below the feed. See [avatar playground](docs/avatar-playground.md).
 
-Studio's label, select and inline description share the vertical center on wide containers. On narrow containers the label sits above its select and the description moves to a dedicated row. Component labels and selectors must not be scaled by page prose styles. Form labels are 13px; selected text is 13px; selectors are at least 44px high.
+The stage keeps a stable minimum height instead of growing with settings. Configuration survives task switches while hidden render resources release. Guides avoid Saved/JSON tabs and advanced search inside quick settings. Studio handoff carries validated configuration and effective playback/theme through the existing mechanism.
 
-Use 24px between primary panels and 20px inside panels. Essential settings use a single dense grid with 12px field gaps. Expanded Studio settings group Appearance, Motion and Interaction with 20px between groups. Choice and switch rows align labels beside compact controls; below 550px their labels move above with an 8px gap. Selects, numeric dials, color and text fields place labels and values inside 54px shells with 4px insets and a 1px border around 44px native targets. Radio and tab tracks use 4px padding, 4px gaps and 44px native targets inside a 1px border, producing a 54px strip that grows when choices wrap. Numeric values appear once. Compact toolbar padding is 12–16px. Maintain quiet whitespace; no giant inherited margins, empty decorative sections or repeated heading blocks. See [settings layout](docs/settings-layout.md).
+## Settings composition
 
-## Control recipes
+Use 24px between primary panels, 20px panel padding and 12px between fields. Advanced Studio groups use Appearance, Motion and Interaction with restrained headings and 20px separation. Categoricals precede a quiet divider and the numeric/color/text grid. DOM order must match reading order; do not repair ordering with CSS.
 
-- Use the shared `Button` for actions and `Select` for owned dropdowns. Both preserve native props and refs. Select forwards native props (including `className`) and refs to its `select`; its `.select-control` wrapper owns the chevron. It retains native keyboard/mobile selection with an inert decorative chevron and explicit padding; do not replace it with a focusless custom div.
-- The chat helper picker uses the shared Button and a native auto popover containing a grouped listbox with role descriptions and a selection mark. Keep its options at least 44px high with native button activation, ArrowUp/Down, Home/End, Escape and light dismissal. Show helper selection and New bot only in an empty conversation. Chat avatars use 128px at welcome, 64px above the composer's left edge and 24px in replies; those scene sizes leave exported size unchanged. Shape selection belongs to Playground; component size belongs to the component editor. See [avatar playground](docs/avatar-playground.md).
-- Chat settings reuse that popover for Outfit in one 54px compound row, with one trigger focus ring. Place Shape, Outfit and Color in Character; keep Activity beside playback and simulated connection/reply choices in Chat demo. Its two-option native radios use inset tracks beside 80px labels. Customize/Code use equal 44px targets in a 54px inset strip outside the scrolling panel content. Tabs and chat choices use a single 2px inset shadow in `--ring` for visible keyboard focus without overflowing the strip. See [avatar playground](docs/avatar-playground.md).
-- Primary action: `button button-accent`, gradient fill and white text. Preserve existing accent actions including Copy code, Apply configuration, Save preset and Copy agent prompt.
-- Secondary action: neutral surface, border and foreground. Text action: muted text, minimum target height, clear hover/focus state.
-- Selected tabs/pills: gradient fill, white text; inactive states remain neutral. A label badge is not a selected control and stays muted.
-- Field: visible associated label and a 44px native target. Choice and switch rows align a 112px label column beside compact controls with a 12px gap; below 550px labels move above with an 8px gap. Selects keep label and value inside one 54px rounded-full row at every width. Numeric dials place the label, drag-window caption, tabular exact input, contextual unit and 44px Default action inside the same shell. A full-area neutral fill shows the numeric position. The native range covers the shell including the displayed value, except the Default action and a focused exact editor. Pressing does not change the value; after 4px of horizontal movement, pointer position maps across the full field to its drag limits. Clicking the value focuses the exact editor. Double-click or Default omits the prop; Escape, pointer cancellation or lost capture restores the value before dragging. Per-field drag windows and editing limits live in pure control metadata; soft windows do not cap valid custom input. Exact edits commit on Enter/blur; Escape cancels; invalid drafts preserve the last valid preview. Auto omits the prop. Keep step instructions in the accessible hint and tooltip. Numeric, color, text and select inputs share one shell focus ring; focus never inserts content or shifts layout. Color and text labels share the inline row, with an 80px label column; exact inputs stay flexible and expose the complete value in a tooltip. Color fields pair a native swatch picker with validated expression entry; avatar Custom size accepts numeric pixels and CSS lengths. Relevant material/look fields hide without deleting values. Native checkboxes use a decorative switch track, a 44px target and visible focus; checked tracks keep the accent gradient and white thumb.
-- Short enumerations of up to six options use native radio inputs in one inset neutral strip sized to its contents, with 4px padding and gaps and 12px horizontal option padding. Selected options remain rounded-full gradient pills with white text. Categorical controls occupy two columns at 900px or wider and one below; groups with more than three options span the whole row. Numeric, color and text fields occupy a separate three/two/one-column grid, with a quiet divider when categorical controls precede them. Preserve native arrow-key selection and a visible focus ring. Long lists remain native selects; avatar shapes use the thumbnail radio grid described in the avatar playground. The shared SelectionTrack moves one decorative accent indicator between measured native targets using the selection motion tokens. First paint and resize position it directly; changed selection animates position and size. Native checked/selected states own semantics, and selected labels stay white. Reduced motion disables movement. Shape thumbnail grids retain their separate native card layout. Human labels such as Idle map to API values without changing exported props; size presets retain their numeric types, and custom values remain visible.
-- Search: accessible name, neutral rounded-full track, focus ring around the composed field. Empty results include an actionable reset.
-- JSON/code areas: readable monospace, scroll locally. Multiline editors use a 16px radius rather than capsule geometry. API tables scroll inside their container instead of widening the page.
-- Feedback: adjacent `role="status"` or `aria-live` text. Invalid JSON must leave the last valid preview/code intact. Do not convey success or failure only through color.
+Two- or three-option rows align labels in a 112px column beside a track; below 550px, labels sit above with an 8px gap. The track has 4px padding, 4px gaps, a 1px border and equal 44px cells, giving a 54px single row. Selected text stays white. `SelectionTrack` measures native selected targets without owning configuration. Initial layout and resize snap directly; selection animates. It is for single-row choices, tabs and device groups.
 
-## Responsive behavior
+Larger enums put the heading above a two- or three-column grid with 8px gaps. Each chip has its own neutral surface/border and at least 44px height. The grid background stays transparent. Long labels wrap within their cell. Chips use local color/border feedback; do not animate an indicator across grid rows. Inline expansion keeps the chosen item visible and the complete list reachable. Expand/collapse does not create a popup or move keyboard focus away from its control.
 
-Use the **owning container width**, not viewport width. Settings panels establish their own inline-size container; the feature container owns workspace composition: the Glass sidebar changes usable width.
+Shape thumbnails have four columns in wider settings containers and two below 550px. Chat keeps its compact shape/outfit grids at two columns. Thumbnails render retained SDK silhouettes in a paused boundary. The main avatar renderer does not remount when choosing appearance.
 
-| Container | Contract |
-| --- | --- |
-| Below 900px | Gallery becomes two columns |
-| Below 900px | Customization fields become two columns |
-| Below 550px | Customization fields and catalog/gallery cards become one column; configuration tabs move below the heading; device controls keep accessible icon labels; guide starting examples use two columns except Liquid's full-width interaction scenes; heading/search stack; Studio context gets a separate help row; command and transfer actions wrap |
+Numeric, color and text rows place labels and values inside a 54px shell, with 4px insets around 44px native targets. Values appear once. Numeric dials include the label, drag-window caption, tabular exact input, unit and Default action. The range covers the complete shell except Default and a focused exact editor. Pressing does not jump; after 4px horizontal movement, pointer position maps across the field to its limits. Clicking the value enters exact editing; double-click/Default omits the prop. Escape, cancellation or lost capture restores the original value. Enter/blur commits valid exact edits; invalid drafts preserve the last valid preview. Soft drag windows do not cap valid SDK custom values. See [settings layout](docs/settings-layout.md).
 
-At viewport widths 320, 390, 768, 1024 and 1440px, no document overflow is allowed. Image, voice, beam and liquid hosts fit their stage. Native selectors, command text, tabs and long preset names must not force the page wider. Zoom and longer labels are checked manually when changing composition.
+Color/text labels use an 80px column and flexible exact entries. Focus creates one shell ring without resizing or inserting content. Contextual controls can hide while preserving their values. The same state drives controls, preview, transfer and code.
+
+## Typography and responsive layout
+
+Application headings use weight 550, line-height 1.3 and -0.025em tracking. Catalog headings are 24px, panels 20–22px, subsections 15–16px. The shell owns page H1 and prose. Labels/controls use 13px and 1.5 line-height, help text 12px and 1.6, code 1.8. Help text has zero margin; parents own spacing. Do not reuse margin-bearing scene notes in a toolbar or form.
+
+Use the owning container width. The Glass sidebar changes available space, and settings panels establish their own inline-size containers. Numeric/color/text fields use three columns at 900px or wider, two below 900px and one below 550px. Categorical fields use two columns on wide settings and one below 900px. Each enum grid fits its field; shape grids span the complete row. Gallery becomes two columns below 900px and one below 550px. Heading/search and task actions wrap on compact layouts.
+
+At 320, 390, 768, 1024 and 1440px, controls, preset names, commands, API tables and scenes must not widen the document. Editors/tables scroll locally. Multiline editors use a 16px radius rather than capsule geometry. Check longer labels and 200% zoom after composition changes.
+
+## Preview and avatar interaction
+
+Desktop, Tablet (768px) and Mobile (375px) form a labeled icon group beside playback. A right-edge separator provides a 44px pointer/touch target, visible focus and an actual-width badge. Reserve the grip width plus 8px in the scene padding. Arrows change width by 10px, Shift uses 50px, Home/End choose limits, double-click restores full width and cancellation restores the previous request. Below 320px available width, hide the grip while retaining presets. Width stays capped to the container and survives task switches without changing exported props or remounting the renderer. These are container previews, not hardware/browser emulation. See [preview layout](docs/preview-layout.md).
+
+Chat Shape, Outfit and Color belong to Character. Activity and playback belong to Animation; connection/reply modes belong to Chat demo. Advanced appearance/motion uses contextual disclosure. Helper selection and New bot appear only in the empty conversation. The welcome avatar is 128px, composer avatar 64px, reply avatar 24px; these presentation sizes do not alter exported size. The existing helper popover is a named-profile picker, with grouped descriptions and keyboard/light-dismiss behavior, not a substitute for settings choices. Replies remain scripted and local.
 
 ## Motion and accessibility
 
-Prefer reduced motion in regression captures; real effects initially pause when reduced motion is requested. Play enables the preview; SDKs may still reduce CSS motion according to the system preference. Replay replaces only the current preview instance. Lazy cards mount around the viewport; do not allocate all 87 GPU scenes at once.
+Motion explains a gesture or state change. A selection pill travels to the newly selected cell; a pressed action compresses to 0.98 and returns; grid options change local emphasis. Do not add bouncing labels, animated panel height, diagonal selection flights or perpetual control decoration. Feedback must settle and keep the layout stationary. Never apply control animations to SDK scene children.
 
-Controls remain keyboard reachable. Tabs implement ArrowLeft/Right and Home/End with one tab stop. Mobile navigation contains focus, supports Escape and restores the opener. Focus rings use `--ring`; visible focus must survive clipping and theme changes. Decorative symbols/chevrons use `aria-hidden` and never become standalone focus targets.
+Reduced motion snaps control transitions and initially pauses effects. Play is explicit; Replay replaces only the current preview. Lazy cards mount near the viewport instead of allocating every gallery scene. Native SDK materials, state and pointer interactions remain intact. Release frames, observers and microphone resources at their existing teardown boundaries.
 
-Sidebar destinations use 18px decorative SVG icons with consistent strokes and 44px row targets. Icon detail motion follows each destination's function, runs once for hover or keyboard focus and settles within 840ms. Selecting a destination adds a short appearance cue. Keep labels and row positions stationary, retain the shell's navigation colors and disable all icon animation for reduced motion. Avoid perpetual sidebar effects or extra render engines.
+Use native radios, checkboxes, inputs and buttons. Radios retain native arrow-key selection. Tabs implement ArrowLeft/Right and Home/End with one tab stop. Selected state must be semantic, not only visual. Segmented cells and grid chips use one 2px inset `--ring` for keyboard focus. Other compound fields use one outer shell ring. Focus must remain visible without clipping, duplicate halos or layout shifts.
 
-The mobile drawer keeps its header and theme footer outside the scrollable destination list. Keyboard focus must reveal the whole destination row at compact heights; fixed controls must never cover it.
+Dialogs contain focus, support Escape and restore their opener. The mobile drawer keeps header/footer outside its scrolling destination list; focused rows must be fully visible. Decorative icons are `aria-hidden` and unfocusable. Sidebar icons are 18px with 44px rows; their finite detail motion settles within 840ms and disappears under reduced motion.
 
-Microphone access starts only through an explicit user action; simulation is separate. Stop tracks and render resources on teardown. Do not add autoplay capture or cloud persistence to local examples.
+Search has an accessible name and an actionable empty-state reset. Feedback stays adjacent with `role="status"`/`aria-live`; invalid configuration preserves working preview/code. Microphone access requires an explicit action and simulation stays separate.
 
-## CSS ownership and prohibited patterns
+## Ownership and acceptance
 
-The feature's [style entry](apps/docs/features/component-library/styles.css) imports foundation, catalog, playground, integration and preview styles. Each file owns its component selectors. Every rule is scoped to `.agent-libraries`; shell styles remain in `app/global.css`.
+Shared tokens/native primitives belong in `packages/agent-ui/src`. `ChoiceField` owns radio presentation and inline expansion; `FieldControl` owns dispatch; the existing numeric/color controls own draft gestures. Feature CSS is scoped to `.agent-libraries` and split by its owning component family. Edit the owning selector instead of appending an override layer. Do not globally restyle every select, label, details or pre, and target decorative icons explicitly rather than `span:last-child`.
 
-Do not append a new override layer to repair an earlier rule. Edit the owning selector and responsive rule. Avoid global styling of every `select`, `details`, `label` or `pre` that can affect SDK children. Do not use `span:last-child` for button icons: a one-span button may contain its primary label. Target explicit decorative attributes instead.
-
-Do not copy reference colors, branding, gradients or spacing. Preserve SDK legal notices separately from public interface copy. Founder/executive/internal team identity display recommendations are skipped. Bright-gradient contrast warnings are accepted design trade-offs in both themes; do not recolor those actions during audits.
-
-## Acceptance
-
-Run the checks described in [testing](docs/testing.md), then review full-page desktop light/dark and mobile light/dark captures. Confirm alignment, typography, long labels, control states, preview quality and source order. Browser layout assertions enforce measurable dimensions; screenshots still require visual review. Update this guide and token contracts together when an intentional design rule changes.
+A UI change is complete after `bun run check`, browser acceptance against a fresh production build, and full-page desktop/mobile light/dark inspection. Verify target geometry, keyboard/default behavior, long labels, expansion, zoom, code parity and renderer/resource retention. Report actual browser scope and local commit status. A compilation pass alone is insufficient.

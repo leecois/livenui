@@ -432,31 +432,8 @@
 .agent-libraries .avatar-chat-choice .field-options {
   justify-self: end;
 }
-.agent-libraries .avatar-chat-outfit-row {
-  display: flex;
-  align-items: center;
-  gap: var(--livenui-space-2);
-  min-height: calc(var(--livenui-control-height) + var(--livenui-space-2) + 2px);
-  padding: var(--livenui-space-1);
-  border: 1px solid var(--border);
-  border-radius: var(--livenui-radius-control);
-  background: var(--track);
-}
-.agent-libraries .avatar-chat-outfit-row > .field-heading {
-  flex: 0 0 calc(var(--livenui-space-5) * 4);
-  padding-inline-start: var(--livenui-space-2);
-}
-.agent-libraries .avatar-chat-outfit-row > .avatar-chat-bot-trigger {
-  flex: 1;
-  min-width: 0;
-  justify-content: space-between;
-}
-.agent-libraries .avatar-chat-outfit-row:has(> .avatar-chat-bot-trigger:focus-visible) {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
-.agent-libraries .avatar-chat-outfit-row > .avatar-chat-bot-trigger:focus-visible {
-  outline: none;
+.agent-libraries .avatar-chat-settings-fields .choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .agent-libraries .avatar-chat-outfit-dot {
   flex: 0 0 var(--livenui-space-2);

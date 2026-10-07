@@ -21,6 +21,7 @@
   --livenui-font-caption: 12px;
   --livenui-motion-selection: 240ms;
   --livenui-ease-selection: cubic-bezier(0.22, 1, 0.36, 1);
+  --livenui-motion-feedback: 160ms;
 }
 .agent-libraries {
   --foreground: var(--color-fd-foreground);

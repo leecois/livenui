@@ -1,9 +1,10 @@
-import { Button, Select } from '@livenui/agent-ui'
+import { Button } from '@livenui/agent-ui'
 import { siteUrl } from '../../../lib/site'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library } from '../lib/config'
 import { content, installCommand } from '../lib/content'
 import type { Navigate } from '../lib/types'
+import { ChoiceField } from './choice-field'
 import { CodePanel } from './code-panel'
 import { Copy } from './copy'
 import { Link } from './link'
@@ -36,16 +37,15 @@ export function IntegrationPanel({
         <div className="code-heading">
           <h3>1. Add Liven UI source</h3>
           <div className="manager-choice">
-            <label htmlFor="package-manager">Package manager</label>
-            <Select
-              id="package-manager"
+            <ChoiceField
+              label="Package manager"
               value={manager}
-              onChange={(event) => setManager(event.target.value as typeof manager)}
-            >
-              <option value="npm">npm</option>
-              <option value="pnpm">pnpm</option>
-              <option value="bun">Bun</option>
-            </Select>
+              options={['npm', 'pnpm', 'bun'].map((value) => ({
+                value,
+                label: value === 'bun' ? 'Bun' : value,
+              }))}
+              onChange={(value) => setManager(value as typeof manager)}
+            />
           </div>
         </div>
         <div className="install-command">

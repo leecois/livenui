@@ -25,7 +25,7 @@ async function alignedFields(panel: Locator) {
   const fields = await panel.locator('.fields > .field').evaluateAll((nodes) =>
     nodes.map((node) => {
       const label = node.querySelector('.field-heading')
-      const heading = label?.getBoundingClientRect()
+      const heading = (node.querySelector('.choice-heading') || label)?.getBoundingClientRect()
       const shell = (
         node.matches('.field-select')
           ? node
@@ -53,11 +53,17 @@ async function alignedFields(panel: Locator) {
           heading.bottom <= shell.bottom,
         inset: shell.left - heading.right,
         centered: Math.abs(heading.top + heading.height / 2 - (shell.top + shell.height / 2)),
+        grid: node.hasAttribute('data-choice-grid'),
+        headingGap:
+          shell.top -
+          (node.querySelector('.choice-heading')?.getBoundingClientRect().bottom ?? heading.bottom),
         minimumHeight: node.matches('.field-switch')
           ? 44
           : node.matches('.field-avatar-shapes')
             ? 52
-            : 54,
+            : node.hasAttribute('data-choice-grid')
+              ? 44
+              : 54,
         top: node.getBoundingClientRect().top,
         bottom: node.getBoundingClientRect().bottom,
         headingTop: heading.top,
@@ -72,7 +78,9 @@ async function alignedFields(panel: Locator) {
   for (const field of fields) {
     expect(field.labelFont).toBe('13px')
     expect(field.labelLine).toBe('19.5px')
-    if (field.inline) {
+    if (field.grid) {
+      expect(field.headingGap).toBeCloseTo(8, 0)
+    } else if (field.inline) {
       expect(field.contained).toBe(true)
       expect(field.centered).toBeLessThan(1)
       expect(field.valueGap).toBeGreaterThanOrEqual(0)
@@ -208,7 +216,9 @@ test('numeric focus has one indicator and keeps quick settings geometry stable',
   await panel.screenshot({ path: testInfo.outputPath('metal-focused-settings.png') })
 })
 
-test('Guide and Studio share inset style choices and compound native selects', async ({ page }) => {
+test('Guide and Studio expose categorical grids with native keys and default actions', async ({
+  page,
+}) => {
   for (const path of ['/agents/beam', '/studio?library=beam']) {
     await page.goto(path)
     const panel = page.locator('.controls-panel')
@@ -217,19 +227,12 @@ test('Guide and Studio share inset style choices and compound native selects', a
     expect(
       await styles.locator('.field-options').evaluate((element) => ({
         gap: getComputedStyle(element).gap,
-        padding: getComputedStyle(element).padding,
         heights: [...element.querySelectorAll('label')].map(
           (child) => child.getBoundingClientRect().height
         ),
-        indicator: getComputedStyle(element.querySelector('.selection-indicator') as HTMLElement)
-          .backgroundImage,
+        columns: getComputedStyle(element).gridTemplateColumns.split(' ').length,
       }))
-    ).toEqual({
-      gap: '4px',
-      padding: '4px',
-      heights: Array(5).fill(44),
-      indicator: expect.stringContaining('linear-gradient'),
-    })
+    ).toEqual({ gap: '8px', heights: Array(5).fill(44), columns: expect.any(Number) })
     const line = styles.getByRole('radio', { name: 'Line', exact: true })
     await line.check()
     await expect(page.locator('.code-panel code')).toContainText('size={"line"}')
@@ -237,30 +240,32 @@ test('Guide and Studio share inset style choices and compound native selects', a
     await line.press('ArrowRight')
     await expect(styles.getByRole('radio', { name: 'Outer pulse', exact: true })).toBeChecked()
     await expect(page.locator('.code-panel code')).toContainText('size={"pulse-outside"}')
-    const select = panel.getByRole('combobox', { name: 'Color Variant', exact: true })
-    await select.selectOption('sunset')
+    const colors = panel.getByRole('group', { name: 'Color Variant', exact: true })
+    const sunset = colors.getByRole('radio', { name: 'Sunset', exact: true })
+    await sunset.check()
     await expect(page.locator('.code-panel code')).toContainText('colorVariant={"sunset"}')
-    await select.focus()
-    expect(
-      await select
-        .locator('..')
-        .locator('..')
-        .evaluate((element) => ({
-          width: element.getBoundingClientRect().width,
+    await sunset.press('Space')
+    await expect
+      .poll(() =>
+        sunset.evaluate((element) => ({
           height: element.getBoundingClientRect().height,
-          targetHeight: element.querySelector('select')?.getBoundingClientRect().height,
-          rings: [element, ...element.querySelectorAll('*')].filter(
-            (node) => getComputedStyle(node).outlineStyle === 'solid'
-          ).length,
-          chevron: getComputedStyle(element.querySelector('svg') as SVGElement).pointerEvents,
+          outline: getComputedStyle(element.nextElementSibling as Element).outlineStyle,
+          shadow: getComputedStyle(element.nextElementSibling as Element).boxShadow,
+          background: getComputedStyle(element.nextElementSibling as Element).backgroundImage,
+          color: getComputedStyle(element.nextElementSibling as Element).color,
         }))
-    ).toEqual({
-      width: expect.any(Number),
-      height: 54,
-      targetHeight: 44,
-      rings: 1,
-      chevron: 'none',
-    })
+      )
+      .toEqual({
+        height: 44,
+        outline: 'none',
+        shadow: expect.stringContaining('inset'),
+        background: expect.stringContaining('linear-gradient'),
+        color: 'rgb(255, 255, 255)',
+      })
+    await colors.getByRole('button', { name: 'Use default for Color Variant', exact: true }).click()
+    await expect(page.locator('.code-panel code')).not.toContainText('colorVariant={')
+    await expect(colors.getByText('Using component default', { exact: true })).toBeVisible()
+    await expect(panel.locator('select')).toHaveCount(0)
     await contained(panel)
   }
 })

@@ -8,6 +8,7 @@ import {
 import { buildForm, PAD, SPAN, tierFor } from '../packages/bot-avatars/src/plastic'
 import { botAvatarPresets } from '../packages/bot-avatars/src/presets'
 import { SHAPE_PATHS } from '../packages/bot-avatars/src/shapes'
+import { chooseOption } from './helpers/choices'
 import { openAvatarComponentPreview } from './helpers/component-preview'
 
 const mascots = ['arrowhead', 'chat', 'connector', 'bulb'] as const
@@ -321,7 +322,7 @@ test('every mascot follows the pointer, hops on click and freezes when paused', 
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   const canvas = page.locator('.preview-stage canvas[data-bot-avatar]')
   for (const type of mascots) {
-    await page.getByLabel('Starting point', { exact: true }).selectOption(`avatars-type-${type}`)
+    await chooseOption(page, 'Starting point', `avatars-type-${type}`)
     await page
       .getByRole('group', { name: 'Material', exact: true })
       .getByRole('radio', { name: 'Flat', exact: true })

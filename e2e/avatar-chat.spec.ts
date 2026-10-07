@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
+import { chooseOption } from './helpers/choices'
 
 const chat = (page: Page) =>
   page.getByRole('dialog', { name: 'Bot avatar chat playground', exact: true })
@@ -64,12 +65,11 @@ test('avatar guide opens a complete chat playground with independent sidebars an
   }
   await page.screenshot({ path: testInfo.outputPath('chat-empty-full-page.png'), fullPage: true })
   const settings = await openPanel(page, 'settings')
-  await settings.getByRole('button', { name: 'Choose outfit: Resting', exact: true }).click()
-  await expect(
-    settings.getByRole('listbox', { name: 'Choose an outfit', exact: true }).getByRole('option')
-  ).toHaveCount(18)
-  await page.keyboard.press('Escape')
-  await expect(settings).toBeVisible()
+  const outfits = settings.getByRole('group', { name: 'Outfit', exact: true })
+  await expect(outfits.getByRole('radio')).toHaveCount(6)
+  await outfits.getByRole('button', { name: 'Browse all 18 outfit options', exact: true }).click()
+  await expect(outfits.getByRole('radio')).toHaveCount(18)
+  await outfits.getByRole('button', { name: 'Show fewer outfit options', exact: true }).click()
   if (testInfo.project.use.viewport?.width === 390) {
     await expect.poll(() => settings.evaluate((element) => element.matches(':modal'))).toBe(true)
     const close = settings.getByRole('button', { name: 'Close Playground', exact: true })
@@ -162,11 +162,7 @@ test('outfits, colors, named bots and code share the existing avatar configurati
     element.dataset.chatProbe = 'configured'
   })
   const settings = await openPanel(page, 'settings')
-  await settings.getByRole('button', { name: 'Choose outfit: Resting', exact: true }).click()
-  await settings
-    .getByRole('listbox', { name: 'Choose an outfit', exact: true })
-    .getByRole('option', { name: /^Builder / })
-    .click()
+  await chooseOption(settings, 'Outfit', 'Builder')
   await settings.getByRole('button', { name: 'Use Mint color', exact: true }).click()
   await settings
     .getByRole('group', { name: 'Activity', exact: true })
@@ -177,7 +173,7 @@ test('outfits, colors, named bots and code share the existing avatar configurati
     .getByRole('group', { name: 'Material', exact: true })
     .getByRole('radio', { name: 'Plastic', exact: true })
     .check()
-  await settings.getByRole('combobox', { name: 'Shape', exact: true }).selectOption('connector')
+  await chooseOption(settings, 'Shape', 'connector')
   await expect(actor).toHaveAttribute('data-bot-avatar', 'connector')
   await expect(actor).toHaveAttribute('data-chat-probe', 'configured')
   await settings.getByRole('tab', { name: 'Code', exact: true }).click()
