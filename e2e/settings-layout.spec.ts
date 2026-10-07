@@ -53,7 +53,11 @@ async function alignedFields(panel: Locator) {
           heading.bottom <= shell.bottom,
         inset: shell.left - heading.right,
         centered: Math.abs(heading.top + heading.height / 2 - (shell.top + shell.height / 2)),
-        minimumHeight: node.matches('.field-switch') ? 44 : node.matches('.field-choice') ? 46 : 54,
+        minimumHeight: node.matches('.field-switch')
+          ? 44
+          : node.matches('.field-avatar-shapes')
+            ? 52
+            : 54,
         top: node.getBoundingClientRect().top,
         bottom: node.getBoundingClientRect().bottom,
         headingTop: heading.top,
@@ -204,9 +208,7 @@ test('numeric focus has one indicator and keeps quick settings geometry stable',
   await panel.screenshot({ path: testInfo.outputPath('metal-focused-settings.png') })
 })
 
-test('Guide and Studio share joined style choices and compound native selects', async ({
-  page,
-}) => {
+test('Guide and Studio share inset style choices and compound native selects', async ({ page }) => {
   for (const path of ['/agents/beam', '/studio?library=beam']) {
     await page.goto(path)
     const panel = page.locator('.controls-panel')
@@ -216,11 +218,18 @@ test('Guide and Studio share joined style choices and compound native selects', 
       await styles.locator('.field-options').evaluate((element) => ({
         gap: getComputedStyle(element).gap,
         padding: getComputedStyle(element).padding,
-        rowHeight:
-          (element.getBoundingClientRect().height - 2) /
-          new Set([...element.children].map((child) => child.getBoundingClientRect().top)).size,
+        heights: [...element.querySelectorAll('label')].map(
+          (child) => child.getBoundingClientRect().height
+        ),
+        indicator: getComputedStyle(element.querySelector('.selection-indicator') as HTMLElement)
+          .backgroundImage,
       }))
-    ).toEqual({ gap: '0px', padding: '0px', rowHeight: 44 })
+    ).toEqual({
+      gap: '4px',
+      padding: '4px',
+      heights: Array(5).fill(44),
+      indicator: expect.stringContaining('linear-gradient'),
+    })
     const line = styles.getByRole('radio', { name: 'Line', exact: true })
     await line.check()
     await expect(page.locator('.code-panel code')).toContainText('size={"line"}')

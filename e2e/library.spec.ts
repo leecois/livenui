@@ -17,8 +17,12 @@ async function noOverflow(page: Page) {
 
 async function accent(locator: Locator) {
   const style = await locator.evaluate((element) => {
-    const computed = getComputedStyle(element)
-    return { background: computed.backgroundImage, color: computed.color }
+    const fill =
+      element.closest('[data-selection-ready]')?.querySelector('.selection-indicator') ?? element
+    return {
+      background: getComputedStyle(fill).backgroundImage,
+      color: getComputedStyle(element).color,
+    }
   })
   expect(style.background).toContain('linear-gradient')
   expect(style.color).toBe('rgb(255, 255, 255)')

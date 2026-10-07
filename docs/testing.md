@@ -76,6 +76,8 @@ Connector's raster regression samples transparent centerlines inside both openin
 
 Add targeted moving-scene tests for animation-engine changes: time-varying frames, per-instance pause, pointer interaction, material isolation and teardown are not proven by a paused layout capture.
 
+`e2e/selection-tracks.spec.ts` verifies inset target geometry, actual intermediate indicator motion and final alignment, native radio keys, reduced-motion snapping, renderer retention, exported props, all owned tab/device contexts, 320px containment and 200% zoom. Inspect chat settings and Guide/Studio full-page captures in all four projects. Gradient assertions inspect the actual shared indicator and white selected labels; they also retain direct-fill checks for controls without an indicator.
+
 ## Evidence
 
 `e2e/branding.spec.ts` verifies the shared navigation title's accessible name and keyboard destination, the 24px decorative gradient mask, metadata icon declarations, decoded SVG/ICO/touch dimensions and visible accent pixels in the actual 1200×630 sharing image. Transparent favicon bounds must remain unclipped at 16/32/48px. Inspect its isolated marks, icons, sharing image and four full-page theme/viewport captures; see [brand ownership](brand.md).

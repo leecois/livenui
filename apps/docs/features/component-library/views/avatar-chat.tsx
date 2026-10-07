@@ -1,4 +1,4 @@
-import { Button } from '@livenui/agent-ui'
+import { Button, SelectionTrack } from '@livenui/agent-ui'
 import {
   ArrowLeft,
   ArrowUp,
@@ -521,7 +521,7 @@ export function AvatarChat({
             expanded={panel === 'settings'}
             onClose={() => setPanel(undefined)}
             toolbar={
-              <div
+              <SelectionTrack
                 className="avatar-chat-settings-tabs"
                 role="tablist"
                 aria-label="Chat playground view"
@@ -557,7 +557,7 @@ export function AvatarChat({
                     {view === 'code' ? 'Code' : 'Customize'}
                   </button>
                 ))}
-              </div>
+              </SelectionTrack>
             }
           >
             <div

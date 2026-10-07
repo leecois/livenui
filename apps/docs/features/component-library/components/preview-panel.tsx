@@ -1,3 +1,4 @@
+import { SelectionTrack } from '@livenui/agent-ui'
 import { Monitor, Smartphone, Tablet } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
@@ -44,7 +45,7 @@ export function PreviewPanel({
   return (
     <div className="playground-column">
       <div className="preview-toolbar">
-        <fieldset className="preview-devices" aria-label="Preview device">
+        <SelectionTrack as="fieldset" className="preview-devices" aria-label="Preview device">
           {devices.map((device) => (
             <button
               type="button"
@@ -58,7 +59,7 @@ export function PreviewPanel({
               <device.icon size={16} aria-hidden="true" />
             </button>
           ))}
-        </fieldset>
+        </SelectionTrack>
         <div className="preview-playback">
           <button
             type="button"

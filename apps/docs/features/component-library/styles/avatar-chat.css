@@ -393,12 +393,7 @@
   color: white;
 }
 .agent-libraries .avatar-chat-settings-tabs {
-  display: flex;
-  gap: 0;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--livenui-radius-control);
-  background: var(--track);
+  flex-wrap: nowrap;
 }
 .agent-libraries .avatar-chat-settings-tabs button {
   flex: 1;
@@ -410,10 +405,6 @@
   background: transparent;
   color: var(--muted);
   font-size: var(--livenui-font-label);
-}
-.agent-libraries .avatar-chat-settings-tabs button:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--ring);
 }
 .agent-libraries .avatar-chat-settings-tabs [aria-selected="true"] {
   background: var(--gradient-accent);
@@ -440,10 +431,6 @@
 }
 .agent-libraries .avatar-chat-choice .field-options {
   justify-self: end;
-}
-.agent-libraries .avatar-chat-choice input:focus-visible + span {
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--ring);
 }
 .agent-libraries .avatar-chat-outfit-row {
   display: flex;

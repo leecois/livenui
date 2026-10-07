@@ -1,5 +1,6 @@
 'use client'
 
+import { SelectionTrack } from '@livenui/agent-ui'
 import { useEffect, useId, useRef, useState } from 'react'
 import { siteUrl } from '../../../lib/site'
 import { CodePanel } from '../components/code-panel'
@@ -69,7 +70,7 @@ function Workbench({
     >
       {studio && <StudioContext library={library} navigate={session.navigate} state={state} />}
       <div className="workbench-navigation">
-        <div className="workbench-tabs" role="tablist" aria-label="Component workflow">
+        <SelectionTrack className="workbench-tabs" role="tablist" aria-label="Component workflow">
           {tabs.map((tab) => (
             <button
               type="button"
@@ -100,7 +101,7 @@ function Workbench({
               {tab === 'preview' ? 'Preview' : 'Install & Usage'}
             </button>
           ))}
-        </div>
+        </SelectionTrack>
         <div className="workbench-actions">
           {library.id === 'avatars' && (
             <button

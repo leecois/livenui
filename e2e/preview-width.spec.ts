@@ -47,8 +47,11 @@ test('device widths resize every live adapter without changing integration code'
       )
       const style = await button.evaluate((element) => {
         const style = getComputedStyle(element)
+        const fill =
+          element.closest('[data-selection-ready]')?.querySelector('.selection-indicator') ??
+          element
         return {
-          fill: style.backgroundImage,
+          fill: getComputedStyle(fill).backgroundImage,
           color: style.color,
           height: element.getBoundingClientRect().height,
         }

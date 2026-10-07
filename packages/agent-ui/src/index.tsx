@@ -1,5 +1,7 @@
 import { type ButtonHTMLAttributes, forwardRef, type SelectHTMLAttributes } from 'react'
 
+export { SelectionTrack } from './selection-track'
+
 export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement>>(
   ({ className = '', ...props }, ref) => (
     <button type="button" className={`button ${className}`} {...props} ref={ref} />

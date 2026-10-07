@@ -156,6 +156,50 @@
   background: var(--gradient-accent);
   flex-shrink: 0;
 }
+.agent-libraries .selection-track {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--livenui-space-1);
+  min-width: 0;
+  padding: var(--livenui-space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--livenui-radius-control);
+  background: var(--track);
+}
+.agent-libraries .selection-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  border-radius: var(--livenui-radius-control);
+  background: var(--gradient-accent);
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    transform var(--livenui-motion-selection) var(--livenui-ease-selection),
+    width var(--livenui-motion-selection) var(--livenui-ease-selection),
+    height var(--livenui-motion-selection) var(--livenui-ease-selection);
+}
+.agent-libraries .selection-track[data-selection-ready] > .selection-indicator {
+  visibility: visible;
+}
+.agent-libraries .selection-track > :is(button, label) {
+  position: relative;
+  z-index: 1;
+}
+.agent-libraries
+  .selection-track[data-selection-ready]
+  > button:is([aria-selected="true"], [aria-pressed="true"]),
+.agent-libraries .selection-track[data-selection-ready] > label:has(> input:checked) > span {
+  background: transparent;
+  color: white;
+}
+.agent-libraries .selection-track > button:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--ring);
+}
 .agent-libraries .select-control {
   display: inline-flex;
   position: relative;

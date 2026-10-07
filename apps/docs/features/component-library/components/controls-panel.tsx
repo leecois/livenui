@@ -1,4 +1,4 @@
-import { Button } from '@livenui/agent-ui'
+import { Button, SelectionTrack } from '@livenui/agent-ui'
 import { RotateCcw } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
@@ -93,7 +93,7 @@ export function ControlsPanel({
       <div className="controls-heading">
         <h2>{studio ? 'Customize' : 'Quick settings'}</h2>
         {studio && (
-          <div className="control-tabs" role="tablist" aria-label="Configuration view">
+          <SelectionTrack className="control-tabs" role="tablist" aria-label="Configuration view">
             {['controls', 'presets', 'json'].map((item) => (
               <button
                 type="button"
@@ -127,7 +127,7 @@ export function ControlsPanel({
                 {item === 'json' ? 'JSON' : item === 'presets' ? 'Saved' : 'Controls'}
               </button>
             ))}
-          </div>
+          </SelectionTrack>
         )}
         <Button className="controls-reset" onClick={reset}>
           <RotateCcw size={14} aria-hidden="true" />

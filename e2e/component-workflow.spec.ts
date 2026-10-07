@@ -174,14 +174,20 @@ test('guide controls and starting examples fit compact widths and keep visible k
         if (!pill) throw new Error('Missing radio pill')
         const style = getComputedStyle(pill)
         return {
+          visible: input.matches(':focus-visible'),
           outline: style.outlineStyle,
-          width: style.outlineWidth,
+          shadow: style.boxShadow,
           gradient: style.backgroundImage,
           color: style.color,
         }
       })
     )
-    .toMatchObject({ outline: 'solid', width: '2px', color: 'rgb(255, 255, 255)' })
+    .toMatchObject({
+      visible: true,
+      outline: 'none',
+      shadow: expect.stringContaining('2px inset'),
+      color: 'rgb(255, 255, 255)',
+    })
   await page
     .locator('.controls-panel')
     .screenshot({ path: testInfo.outputPath('compact-controls.png') })

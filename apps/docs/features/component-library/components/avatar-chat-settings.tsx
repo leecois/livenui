@@ -1,3 +1,4 @@
+import { SelectionTrack } from '@livenui/agent-ui'
 import { useId } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import { avatarHelperProps, avatarHelpers, avatarOutfits, selectedOutfit } from '../lib/avatar-chat'
@@ -25,7 +26,7 @@ export function ChatChoice({
         <span className="field-heading" aria-hidden="true">
           {label}
         </span>
-        <div className="field-options">
+        <SelectionTrack className="field-options">
           {options.map((option) => (
             <label className="field-option" key={option}>
               <input
@@ -38,7 +39,7 @@ export function ChatChoice({
               <span>{option}</span>
             </label>
           ))}
-        </div>
+        </SelectionTrack>
       </div>
     </fieldset>
   )

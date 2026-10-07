@@ -1,4 +1,4 @@
-import { Select } from '@livenui/agent-ui'
+import { Select, SelectionTrack } from '@livenui/agent-ui'
 import { useState } from 'react'
 import type { Library } from '../lib/config'
 import { avatarColors, fieldLabel, optionLabel } from '../lib/content'
@@ -43,7 +43,7 @@ export function FieldControl({
           <span className="field-heading" title={field.description} aria-hidden="true">
             {label}
           </span>
-          <div className="field-options">
+          <SelectionTrack className="field-options">
             {choices.map((option) => (
               <label className="field-option" key={String(option)}>
                 <input
@@ -82,7 +82,7 @@ export function FieldControl({
                 <span>Custom</span>
               </label>
             )}
-          </div>
+          </SelectionTrack>
         </div>
         {sizeSpec &&
           (customSize || (value !== undefined && !choices.includes(value as number))) && (
