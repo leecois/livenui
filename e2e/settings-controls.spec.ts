@@ -93,8 +93,8 @@ test('filled dials drag without jumping, keep the renderer and support cancellat
   await page.mouse.move(box.x + box.width * 0.2, box.y + box.height / 2)
   await page.mouse.down()
   await expect(speed).toHaveValue('2.45')
-  await page.mouse.move(box.x + box.width * 0.8, box.y + box.height / 2, { steps: 6 })
-  await expect(speed).not.toHaveValue('2.45')
+  await page.mouse.move(box.x + box.width * 0.9, box.y + box.height / 2, { steps: 6 })
+  await expect(speed).toHaveValue('2.75')
   await page.keyboard.press('Escape')
   await page.mouse.move(box.x + box.width * 0.7, box.y + box.height / 2)
   await page.mouse.up()
@@ -142,7 +142,59 @@ test('filled dials drag without jumping, keep the renderer and support cancellat
   })
 })
 
-test('touch dials drag relatively, restore on cancellation and retain released values', async ({
+test('dials drag from the displayed value and map the full field to its limits', async ({
+  page,
+}) => {
+  await page.goto('/studio?library=image')
+  const range = page.getByRole('slider', { name: 'Adjust Speed', exact: true })
+  const speed = page.getByRole('spinbutton', { name: 'Speed', exact: true })
+  const code = page.locator('.code-panel code')
+  await page.locator('.preview-stage').scrollIntoViewIfNeeded()
+  await expect(page.locator('.preview-stage canvas').first()).toBeVisible()
+  await range.scrollIntoViewIfNeeded()
+  const box = await range.boundingBox()
+  const valueBox = await speed.boundingBox()
+  if (!box || !valueBox) throw new Error('Missing numeric field')
+  const valueX = valueBox.x + valueBox.width / 2
+  const y = box.y + box.height / 2
+  await page.mouse.move(valueX, y)
+  await page.mouse.down()
+  await expect(speed).toHaveValue('1')
+  await page.mouse.move(valueX + 2, y)
+  await expect(speed).toHaveValue('1')
+  await page.mouse.move(box.x + box.width - 1, y, { steps: 6 })
+  await expect(speed).toHaveValue('3')
+  await page.mouse.up()
+  await expect(code).toContainText('speed={3}')
+  await page.mouse.move(valueX, y)
+  await page.mouse.down()
+  await expect(speed).toHaveValue('3')
+  await page.mouse.move(box.x + 1, y, { steps: 6 })
+  await expect(speed).toHaveValue('0.25')
+  await page.mouse.move(box.x + box.width * 0.6, y, { steps: 6 })
+  await expect(speed).toHaveValue('1.9')
+  const fill = await range.evaluate((input) =>
+    Number.parseFloat(
+      (input.closest('.number-row') as HTMLElement).style.getPropertyValue('--number-fill')
+    )
+  )
+  expect(fill).toBeCloseTo(60, 0)
+  await page.mouse.move(box.x - 40, y)
+  await expect(speed).toHaveValue('0.25')
+  await page.mouse.move(box.x + box.width + 40, y)
+  await expect(speed).toHaveValue('3')
+  await page.mouse.up()
+  await page.mouse.click(valueX, y)
+  await expect(speed).toBeFocused()
+  await page.keyboard.type('1.75')
+  await page.keyboard.press('Enter')
+  await expect(code).toContainText('speed={1.75}')
+  await speed.dblclick()
+  await expect(speed).toHaveValue('1.75')
+  await expect(code).toContainText('speed={1.75}')
+})
+
+test('touch dials follow position, restore on cancellation and retain released values', async ({
   page,
 }) => {
   await page.goto('/studio?library=image')
@@ -151,7 +203,8 @@ test('touch dials drag relatively, restore on cancellation and retain released v
   await expect(page.locator('.preview-stage canvas').first()).toBeVisible()
   await range.scrollIntoViewIfNeeded()
   const box = await range.boundingBox()
-  if (!box) throw new Error('Missing numeric track')
+  const valueBox = await page.locator('#prop-speed').boundingBox()
+  if (!box || !valueBox) throw new Error('Missing numeric field')
   const session = await page.context().newCDPSession(page)
   try {
     await session.send('Input.dispatchTouchEvent', {
@@ -163,22 +216,22 @@ test('touch dials drag relatively, restore on cancellation and retain released v
       type: 'touchMove',
       touchPoints: [{ x: box.x + box.width * 0.8, y: box.y + box.height / 2 }],
     })
-    await expect(page.locator('#prop-speed')).not.toHaveValue('1')
+    await expect(page.locator('#prop-speed')).toHaveValue('2.45')
     await session.send('Input.dispatchTouchEvent', { type: 'touchCancel', touchPoints: [] })
     await expect(page.locator('#prop-speed')).toHaveValue('1')
     await session.send('Input.dispatchTouchEvent', {
       type: 'touchStart',
-      touchPoints: [{ x: box.x + box.width * 0.2, y: box.y + box.height / 2 }],
+      touchPoints: [{ x: valueBox.x + valueBox.width / 2, y: box.y + box.height / 2 }],
     })
     await expect(page.locator('#prop-speed')).toHaveValue('1')
     await session.send('Input.dispatchTouchEvent', {
       type: 'touchMove',
       touchPoints: [{ x: box.x + box.width * 0.4, y: box.y + box.height / 2 }],
     })
-    await expect(page.locator('#prop-speed')).toHaveValue('1.55')
+    await expect(page.locator('#prop-speed')).toHaveValue('1.35')
     await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
-    await expect(page.locator('#prop-speed')).toHaveValue('1.55')
-    await expect(page.locator('.code-panel code')).toContainText('speed={1.55}')
+    await expect(page.locator('#prop-speed')).toHaveValue('1.35')
+    await expect(page.locator('.code-panel code')).toContainText('speed={1.35}')
   } finally {
     await session.detach()
   }

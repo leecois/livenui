@@ -27,12 +27,13 @@ export function NumberControl({
   const [error, setError] = useState('')
   const [dragging, setDragging] = useState(false)
   const invalidNumber = useRef(false)
+  const exact = useRef<HTMLInputElement>(null)
   const gesture = useRef<{
     value: unknown
-    start: number
     x: number
-    width: number
     pointer: number
+    edit: boolean
+    moved?: boolean
     cancelled?: boolean
   } | null>(null)
   if (previous !== value) {
@@ -46,7 +47,7 @@ export function NumberControl({
   const position = Math.max(0, Math.min(1, (numeric - spec.min) / (spec.max - spec.min)))
   const custom = typeof value === 'number' && (value < spec.min || value > spec.max)
   const range = `${spec.min}–${spec.max}${spec.unit || ''}`
-  const hint = `${range} while dragging, in steps of ${spec.step}. Drag left or right to adjust without jumping. Arrow keys adjust; Shift uses larger steps. Enter applies a typed value; Escape cancels. Double-click or Default omits this prop.`
+  const hint = `${range} while dragging, in steps of ${spec.step}. Drag across the field; its left and right edges select the minimum and maximum. Click the value to type. Arrow keys adjust; Shift uses larger steps. Enter applies a typed value; Escape cancels. Double-click the track or use Default to omit this prop.`
 
   const commit = () => {
     const input = draft.trim()
@@ -89,6 +90,9 @@ export function NumberControl({
     setDragging(false)
     if (cancel && !active.cancelled) set(active.value)
     if (input.hasPointerCapture(active.pointer)) input.releasePointerCapture(active.pointer)
+    if (!cancel && !active.cancelled && !active.moved && active.edit) {
+      exact.current?.focus({ preventScroll: true })
+    }
   }
   return (
     <div className="field field-numeric">
@@ -129,17 +133,17 @@ export function NumberControl({
             event.preventDefault()
             const initial = commit()
             const input = event.currentTarget
+            const valueBounds = exact.current?.parentElement?.getBoundingClientRect()
             input.focus({ preventScroll: true })
             input.setPointerCapture(event.pointerId)
             gesture.current = {
               value: initial,
-              start:
-                typeof initial === 'number'
-                  ? Math.max(spec.min, Math.min(spec.max, initial))
-                  : spec.min,
               x: event.clientX,
-              width: input.getBoundingClientRect().width,
               pointer: event.pointerId,
+              edit:
+                !!valueBounds &&
+                event.clientX >= valueBounds.left &&
+                event.clientX <= valueBounds.right,
             }
             onDraft()
             setDragging(true)
@@ -147,8 +151,11 @@ export function NumberControl({
           onPointerMove={(event) => {
             const active = gesture.current
             if (!active || active.cancelled || event.pointerId !== active.pointer) return
-            const delta = ((event.clientX - active.x) / active.width) * (spec.max - spec.min)
-            set(snapNumber(active.start + delta, spec))
+            if (!active.moved && Math.abs(event.clientX - active.x) < 4) return
+            active.moved = true
+            const bounds = event.currentTarget.getBoundingClientRect()
+            const position = (event.clientX - bounds.left) / bounds.width
+            set(snapNumber(spec.min + position * (spec.max - spec.min), spec))
           }}
           onPointerUp={(event) => finish(event.currentTarget, event.pointerId)}
           onPointerCancel={(event) => finish(event.currentTarget, event.pointerId, true)}
@@ -182,6 +189,7 @@ export function NumberControl({
         </label>
         <div className="number-value">
           <input
+            ref={exact}
             id={id}
             type={allowLength ? 'text' : 'number'}
             inputMode="decimal"

@@ -469,6 +469,11 @@
   flex: 0 0 88px;
   min-width: 0;
   gap: var(--livenui-space-1);
+  pointer-events: none;
+}
+
+.agent-libraries .number-value:focus-within {
+  pointer-events: auto;
 }
 .agent-libraries .field .number-value input,
 .agent-libraries .field .color-row > input {
