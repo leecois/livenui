@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { openAvatarComponentPreview } from './helpers/component-preview'
 
 test.beforeEach(async ({ page }, testInfo) => {
   const theme = testInfo.project.name.endsWith('dark') ? 'dark' : 'light'
@@ -11,6 +12,7 @@ test('device widths resize every live adapter without changing integration code'
   test.setTimeout(90000)
   for (const library of ['beam', 'orbs', 'metal', 'gooey', 'voice', 'image', 'avatars']) {
     await page.goto(`/agents/${library}`)
+    if (library === 'avatars') await openAvatarComponentPreview(page)
     const stage = page.locator('.preview-stage')
     await stage.scrollIntoViewIfNeeded()
     await expect(

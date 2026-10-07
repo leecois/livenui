@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import { libraries, parseConfiguration } from '../apps/docs/features/component-library/lib/config'
 import { content } from '../apps/docs/features/component-library/lib/content'
 import { findExample } from '../apps/docs/features/component-library/lib/examples'
+import { openAvatarComponentPreview } from './helpers/component-preview'
 
 test.beforeEach(async ({ page }, testInfo) => {
   const theme = testInfo.project.name.endsWith('dark') ? 'dark' : 'light'
@@ -12,6 +13,7 @@ test('quick settings, installation and Studio preserve one avatar configuration'
   page,
 }, testInfo) => {
   await page.goto('/agents/avatars')
+  await openAvatarComponentPreview(page)
   await expect(page.getByRole('tab', { name: 'JSON', exact: true })).toHaveCount(0)
   await expect(page.getByRole('tab', { name: 'Saved', exact: true })).toHaveCount(0)
   await page.getByRole('button', { name: 'Try Chat bot', exact: true }).click()
@@ -85,6 +87,7 @@ test('every guide carries a valid public configuration into Studio', async ({ pa
   test.setTimeout(90000)
   for (const library of libraries) {
     await page.goto(`/agents/${library.id}`)
+    if (library.id === 'avatars') await openAvatarComponentPreview(page)
     await expect(page.locator('.preview-stage')).toBeVisible()
     const link = page.getByRole('link', { name: /Open in Studio/ })
     const href = await link.getAttribute('href')
@@ -140,6 +143,7 @@ test('guide controls and starting examples fit compact widths and keep visible k
   page,
 }, testInfo) => {
   await page.goto('/agents/avatars')
+  await openAvatarComponentPreview(page)
   for (const width of [768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

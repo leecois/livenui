@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { openAvatarComponentPreview } from './helpers/component-preview'
 
 test.beforeEach(async ({ page }, testInfo) => {
   await page.addInitScript(
@@ -12,6 +13,7 @@ test('avatar workspace brings the character and configuration before code and ex
 }, testInfo) => {
   for (const route of ['/agents/avatars', '/studio?library=avatars']) {
     await page.goto(route)
+    if (route === '/agents/avatars') await openAvatarComponentPreview(page)
     const workspace = page.locator('.avatar-workspace')
     const preview = workspace.locator('.playground-column')
     const controls = workspace.locator('.controls-panel')

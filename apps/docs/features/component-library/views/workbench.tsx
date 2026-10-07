@@ -14,6 +14,7 @@ import { useLibrarySession } from '../hooks/use-library-session'
 import { usePlayground } from '../hooks/use-playground'
 import { type Library, libraries, prompt, studioHref } from '../lib/config'
 import { type Example, findExample } from '../lib/examples'
+import { AvatarChat } from './avatar-chat'
 
 function Workbench({
   library,
@@ -29,6 +30,7 @@ function Workbench({
 }) {
   const state = usePlayground({ library, initialExample, configuration, ...session })
   const [view, setView] = useState('preview')
+  const [chatOpen, setChatOpen] = useState(library.id === 'avatars' && !studio)
   const [previewWidth, setPreviewWidth] = useState<number | null>(null)
   const id = useId()
   const playground = useRef<HTMLHeadingElement>(null)
@@ -100,6 +102,18 @@ function Workbench({
           ))}
         </div>
         <div className="workbench-actions">
+          {library.id === 'avatars' && (
+            <button
+              type="button"
+              className="button button-accent"
+              onClick={() => {
+                setView('preview')
+                setChatOpen(true)
+              }}
+            >
+              Chat playground
+            </button>
+          )}
           {!studio && studioLink && (
             <Link href={studioLink} navigate={session.navigate} className="button">
               Open in Studio <span aria-hidden="true">↗</span>
@@ -118,7 +132,7 @@ function Workbench({
         hidden={view !== 'preview'}
         tabIndex={-1}
       >
-        {view === 'preview' && (
+        {view === 'preview' && !chatOpen && (
           <>
             {library.id !== 'avatars' && showcase}
             {!studio && (
@@ -173,6 +187,18 @@ function Workbench({
           />
         )}
       </div>
+      {library.id === 'avatars' && (
+        <AvatarChat
+          open={chatOpen}
+          library={library}
+          state={state}
+          theme={session.theme}
+          navigate={session.navigate}
+          studioLink={studioLink}
+          onClose={() => setChatOpen(false)}
+          onInstall={install}
+        />
+      )}
     </section>
   )
 }

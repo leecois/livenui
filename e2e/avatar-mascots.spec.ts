@@ -8,6 +8,7 @@ import {
 import { buildForm, PAD, SPAN, tierFor } from '../packages/bot-avatars/src/plastic'
 import { botAvatarPresets } from '../packages/bot-avatars/src/presets'
 import { SHAPE_PATHS } from '../packages/bot-avatars/src/shapes'
+import { openAvatarComponentPreview } from './helpers/component-preview'
 
 const mascots = ['arrowhead', 'chat', 'connector', 'bulb'] as const
 
@@ -218,6 +219,7 @@ test('mascots retain clear faces, native materials, states, sizes and portable c
 }, testInfo) => {
   test.setTimeout(120000)
   await page.goto('/agents/avatars')
+  await openAvatarComponentPreview(page)
   const clearance = await page.evaluate(
     (items) => {
       const context = document.createElement('canvas').getContext('2d')
@@ -303,6 +305,7 @@ test('mascots retain clear faces, native materials, states, sizes and portable c
     await expect(page.locator('.code-panel code')).toHaveText(original || '')
     await expect(page.locator('.preview-stage canvas')).toHaveAttribute('data-bot-avatar', type)
     await page.goto('/agents/avatars')
+    await openAvatarComponentPreview(page)
   }
   expect(bodies.size).toBe(4)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

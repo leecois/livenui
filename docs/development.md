@@ -40,7 +40,7 @@ The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUB
 
 ## Avatar configuration
 
-Read [avatar playground](avatar-playground.md) before changing the character workspace. Keep shape options sourced from catalog metadata, thumbnails in the existing paused preview boundary, and runtime SDK imports in the preview adapter. Color swatches use the retained SDK palette and share the exact-entry state owner. Check container-based stacking, selected-shape retention, accessory/code equality and renderer identity.
+Read [avatar playground](avatar-playground.md) before changing chat or the character workspace. Keep chat scheduling in its hook, full-height composition in its view and control panels supplied with callbacks. Native dialogs own covered-content isolation and compact focus containment. Validate Stop, Offline, re-entry and teardown before changing scripted reply scheduling. Keep shape options sourced from catalog metadata, thumbnails in the existing paused preview boundary, and runtime SDK imports in the preview adapter. Color swatches use the retained SDK palette and share the exact-entry state owner. Check container-based stacking, selected-shape retention, accessory/code equality and renderer identity.
 
 ## Fix a layout defect
 

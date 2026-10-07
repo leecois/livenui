@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
+import { openAvatarComponentPreview } from './helpers/component-preview'
 
 const renderers = {
   beam: '[data-beam]',
@@ -36,6 +37,7 @@ for (const [id, renderer] of Object.entries(renderers)) {
       if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`)
     })
     expect((await page.goto(`/agents/${id}`))?.status()).toBe(200)
+    if (id === 'avatars') await openAvatarComponentPreview(page)
     await page.locator('.preview-stage').scrollIntoViewIfNeeded()
     await expect(page.locator('.preview-stage')).toBeInViewport()
     await expect(page.locator(`.preview-stage ${renderer}`).first()).toBeVisible()

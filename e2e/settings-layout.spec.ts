@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
+import { openAvatarComponentPreview } from './helpers/component-preview'
 
 async function contained(panel: Locator) {
   expect(
@@ -123,6 +124,7 @@ test('categorical rows and value grids align across Guide and Studio libraries',
   for (const library of ['beam', 'orbs', 'metal', 'gooey', 'voice', 'image', 'avatars']) {
     for (const view of ['guide', 'studio']) {
       await page.goto(view === 'guide' ? `/agents/${library}` : `/studio?library=${library}`)
+      if (library === 'avatars' && view === 'guide') await openAvatarComponentPreview(page)
       const panel = page.locator('.controls-panel')
       await expect(
         panel.getByRole('heading', {
