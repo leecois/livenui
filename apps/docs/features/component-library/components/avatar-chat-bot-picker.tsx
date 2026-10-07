@@ -15,11 +15,13 @@ export function AvatarChatBotPicker({
   value,
   options,
   onPick,
+  label = 'bot',
 }: {
   name: string
   value: string
   options: ChatBotOption[]
   onPick: (value: string) => void
+  label?: 'bot' | 'outfit'
 }) {
   const id = useId()
   const trigger = useRef<HTMLButtonElement>(null)
@@ -61,7 +63,7 @@ export function AvatarChatBotPicker({
       <Button
         ref={trigger}
         className="button-accent avatar-chat-bot-trigger"
-        aria-label={`Choose bot: ${name}`}
+        aria-label={`Choose ${label}: ${name}`}
         aria-haspopup="listbox"
         aria-expanded={expanded}
         aria-controls={id}
@@ -82,7 +84,7 @@ export function AvatarChatBotPicker({
         id={id}
         popover="auto"
         role="listbox"
-        aria-label="Choose a bot"
+        aria-label={label === 'outfit' ? 'Choose an outfit' : 'Choose a bot'}
         className="avatar-chat-bot-picker"
         onToggle={(event) => setExpanded((event.nativeEvent as ToggleEvent).newState === 'open')}
         onKeyDown={(event) => {

@@ -1,8 +1,9 @@
 import { useId } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
-import { avatarOutfits, selectedOutfit } from '../lib/avatar-chat'
+import { avatarHelperProps, avatarHelpers, avatarOutfits, selectedOutfit } from '../lib/avatar-chat'
 import type { Library } from '../lib/config'
-import { avatarColors, content } from '../lib/content'
+import { content } from '../lib/content'
+import { AvatarChatBotPicker } from './avatar-chat-bot-picker'
 import { FieldControl } from './field-control'
 
 export function ChatChoice({
@@ -18,22 +19,26 @@ export function ChatChoice({
 }) {
   const id = useId()
   return (
-    <fieldset className="avatar-chat-choice" aria-label={label}>
-      <legend>{label}</legend>
-      <div>
-        {options.map((option) => (
-          <label key={option}>
-            <input
-              className="avatar-chat-radio"
-              type="radio"
-              name={id}
-              value={option}
-              checked={value === option}
-              onChange={() => onChange(option)}
-            />
-            <span className="pill">{option}</span>
-          </label>
-        ))}
+    <fieldset className="field field-choice avatar-chat-choice" aria-label={label}>
+      <legend className="sr-only">{label}</legend>
+      <div className="choice-row">
+        <span className="field-heading" aria-hidden="true">
+          {label}
+        </span>
+        <div className="field-options">
+          {options.map((option) => (
+            <label className="field-option" key={option}>
+              <input
+                type="radio"
+                name={id}
+                value={option}
+                checked={value === option}
+                onChange={() => onChange(option)}
+              />
+              <span>{option}</span>
+            </label>
+          ))}
+        </div>
       </div>
     </fieldset>
   )
@@ -55,7 +60,6 @@ export function AvatarChatSettings({
   setReplies: (value: string) => void
 }) {
   const outfit = selectedOutfit(state.props)
-  const id = useId()
   const field = (name: string) => {
     const field = library.fields.find((item) => item.name === name)
     return field ? (
@@ -75,54 +79,73 @@ export function AvatarChatSettings({
     ) : null
   }
   return (
-    <div className="avatar-chat-settings-fields">
-      <fieldset className="avatar-chat-choice avatar-chat-outfits" aria-label="Outfit">
-        <legend>Outfit</legend>
-        <div>
-          {avatarOutfits.map((item, index) => (
-            <label key={item.name}>
-              <input
-                className="avatar-chat-radio"
-                type="radio"
-                name={id}
-                value={item.name}
-                checked={outfit === item.name}
-                onChange={() => {
-                  for (const name of ['hat', 'glasses', 'headphones', 'bowTie'] as const)
-                    state.update(name, item[name])
-                }}
-              />
-              <span className="pill">
-                <span
-                  className="avatar-chat-outfit-dot"
-                  aria-hidden="true"
-                  style={{ background: avatarColors[index % avatarColors.length].value }}
-                />
-                {item.name}
-              </span>
-            </label>
-          ))}
+    <div className="avatar-chat-settings-fields avatar-chat-settings-groups">
+      <section className="avatar-chat-settings-fields" aria-label="Character">
+        <h3>Character</h3>
+        {field('type')}
+        <div className="avatar-chat-outfit-row">
+          <span className="field-heading" aria-hidden="true">
+            Outfit
+          </span>
+          <AvatarChatBotPicker
+            label="outfit"
+            name={outfit ?? 'Custom'}
+            value={outfit ?? ''}
+            options={avatarHelpers.map((helper) => ({
+              id: helper.outfit,
+              name: helper.outfit,
+              description: helper.description,
+              group: helper.group,
+              color: String(avatarHelperProps(helper.outfit).color),
+            }))}
+            onPick={(value) => {
+              const item = avatarOutfits.find((item) => item.name === value)
+              if (!item) return
+              for (const name of ['hat', 'glasses', 'headphones', 'bowTie'] as const)
+                state.update(name, item[name])
+            }}
+          />
         </div>
-      </fieldset>
-      {field('state')}
-      {field('color')}
-      <ChatChoice
-        label="Connection"
-        options={['Online', 'Offline']}
-        value={online ? 'Online' : 'Offline'}
-        onChange={(value) => connect(value === 'Online')}
-      />
-      <ChatChoice
-        label="Replies"
-        options={['Stream', 'Instant']}
-        value={replies}
-        onChange={setReplies}
-      />
+        {field('color')}
+      </section>
+      <section className="avatar-chat-settings-fields" aria-label="Animation">
+        {field('state')}
+        <div className="avatar-chat-playback">
+          <button
+            type="button"
+            className="pill"
+            aria-pressed={!state.paused}
+            onClick={() => state.setPaused(!state.paused)}
+          >
+            {state.paused ? 'Play avatar' : 'Pause avatar'}
+          </button>
+          <button type="button" className="pill" onClick={state.replay}>
+            Replay
+          </button>
+        </div>
+      </section>
+      <section className="avatar-chat-settings-fields" aria-label="Chat demo">
+        <h3>Chat demo</h3>
+        <ChatChoice
+          label="Connection"
+          options={['Online', 'Offline']}
+          value={online ? 'Online' : 'Offline'}
+          onChange={(value) => connect(value === 'Online')}
+        />
+        <ChatChoice
+          label="Replies"
+          options={['Stream', 'Instant']}
+          value={replies}
+          onChange={setReplies}
+        />
+        <p className="helper-text">
+          Scripted replies. Connection controls simulate availability. Messages stay in this tab.
+        </p>
+      </section>
       <details className="avatar-chat-appearance">
         <summary>Appearance & motion</summary>
         <div className="avatar-chat-settings-fields">
           {[
-            'type',
             'shading',
             'face',
             'hat',
@@ -134,26 +157,9 @@ export function AvatarChatSettings({
           ].map(field)}
         </div>
       </details>
-      <div className="avatar-chat-playback">
-        <button
-          type="button"
-          className="pill"
-          aria-pressed={!state.paused}
-          onClick={() => state.setPaused(!state.paused)}
-        >
-          {state.paused ? 'Play avatar' : 'Pause avatar'}
-        </button>
-        <button type="button" className="pill" onClick={state.replay}>
-          Replay
-        </button>
-        <button type="button" className="text-button" onClick={state.reset}>
-          Reset appearance
-        </button>
-      </div>
-      <p className="helper-text">
-        Local chat demo with scripted replies. Connection controls simulate availability. Messages
-        stay in this tab.
-      </p>
+      <button type="button" className="text-button" onClick={state.reset}>
+        Reset appearance
+      </button>
     </div>
   )
 }

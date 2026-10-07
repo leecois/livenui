@@ -520,44 +520,46 @@ export function AvatarChat({
             wide={wide}
             expanded={panel === 'settings'}
             onClose={() => setPanel(undefined)}
+            toolbar={
+              <div
+                className="avatar-chat-settings-tabs"
+                role="tablist"
+                aria-label="Chat playground view"
+              >
+                {['playground', 'code'].map((view) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    key={view}
+                    id={`${tabsId}-${view}`}
+                    aria-controls={`${tabsId}-panel-${view}`}
+                    aria-selected={settingsView === view}
+                    tabIndex={settingsView === view ? 0 : -1}
+                    onClick={() => setSettingsView(view)}
+                    onKeyDown={(event) => {
+                      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+                      event.preventDefault()
+                      const next =
+                        event.key === 'Home'
+                          ? 'playground'
+                          : event.key === 'End'
+                            ? 'code'
+                            : view === 'code'
+                              ? 'playground'
+                              : 'code'
+                      setSettingsView(next)
+                      event.currentTarget.parentElement
+                        ?.querySelector<HTMLButtonElement>(`[data-view="${next}"]`)
+                        ?.focus()
+                    }}
+                    data-view={view}
+                  >
+                    {view === 'code' ? 'Code' : 'Customize'}
+                  </button>
+                ))}
+              </div>
+            }
           >
-            <div
-              className="avatar-chat-settings-tabs"
-              role="tablist"
-              aria-label="Chat playground view"
-            >
-              {['playground', 'code'].map((view) => (
-                <button
-                  type="button"
-                  role="tab"
-                  key={view}
-                  id={`${tabsId}-${view}`}
-                  aria-controls={`${tabsId}-panel-${view}`}
-                  aria-selected={settingsView === view}
-                  tabIndex={settingsView === view ? 0 : -1}
-                  onClick={() => setSettingsView(view)}
-                  onKeyDown={(event) => {
-                    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
-                    event.preventDefault()
-                    const next =
-                      event.key === 'Home'
-                        ? 'playground'
-                        : event.key === 'End'
-                          ? 'code'
-                          : view === 'code'
-                            ? 'playground'
-                            : 'code'
-                    setSettingsView(next)
-                    event.currentTarget.parentElement
-                      ?.querySelector<HTMLButtonElement>(`[data-view="${next}"]`)
-                      ?.focus()
-                  }}
-                  data-view={view}
-                >
-                  {view === 'code' ? 'Code' : 'Customize'}
-                </button>
-              ))}
-            </div>
             <div
               className="avatar-chat-settings-view"
               role="tabpanel"

@@ -64,9 +64,12 @@ test('avatar guide opens a complete chat playground with independent sidebars an
   }
   await page.screenshot({ path: testInfo.outputPath('chat-empty-full-page.png'), fullPage: true })
   const settings = await openPanel(page, 'settings')
+  await settings.getByRole('button', { name: 'Choose outfit: Resting', exact: true }).click()
   await expect(
-    settings.getByRole('group', { name: 'Outfit', exact: true }).getByRole('radio')
+    settings.getByRole('listbox', { name: 'Choose an outfit', exact: true }).getByRole('option')
   ).toHaveCount(18)
+  await page.keyboard.press('Escape')
+  await expect(settings).toBeVisible()
   if (testInfo.project.use.viewport?.width === 390) {
     await expect.poll(() => settings.evaluate((element) => element.matches(':modal'))).toBe(true)
     const close = settings.getByRole('button', { name: 'Close Playground', exact: true })
@@ -159,7 +162,11 @@ test('outfits, colors, named bots and code share the existing avatar configurati
     element.dataset.chatProbe = 'configured'
   })
   const settings = await openPanel(page, 'settings')
-  await settings.getByRole('radio', { name: 'Builder', exact: true }).check()
+  await settings.getByRole('button', { name: 'Choose outfit: Resting', exact: true }).click()
+  await settings
+    .getByRole('listbox', { name: 'Choose an outfit', exact: true })
+    .getByRole('option', { name: /^Builder / })
+    .click()
   await settings.getByRole('button', { name: 'Use Mint color', exact: true }).click()
   await settings
     .getByRole('group', { name: 'Activity', exact: true })

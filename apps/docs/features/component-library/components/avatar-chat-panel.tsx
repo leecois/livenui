@@ -28,6 +28,7 @@ export function AvatarChatPanel({
   wide,
   expanded,
   onClose,
+  toolbar,
   children,
 }: {
   title: string
@@ -35,6 +36,7 @@ export function AvatarChatPanel({
   wide: boolean
   expanded: boolean
   onClose: () => void
+  toolbar?: ReactNode
   children: ReactNode
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
@@ -84,6 +86,7 @@ export function AvatarChatPanel({
           <X size={18} aria-hidden="true" />
         </button>
       </div>
+      {toolbar && <div className="avatar-chat-panel-toolbar">{toolbar}</div>}
       <div className="avatar-chat-panel-content">{children}</div>
     </dialog>
   )
