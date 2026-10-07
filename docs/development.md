@@ -62,7 +62,7 @@ If a cached build still renders earlier brand colors after a source revert, run 
 
 Edit `lib/navigation-icon.tsx` for route-specific SVG anatomy and `app/navigation.css` for shell-scoped motion. The source loader attaches icons to existing page-tree entries; preserve Studio URL normalization, accessible labels and a single active destination. Keep icons decorative and server-rendered, use local color tokens and finite CSS animation, and verify keyboard focus, hover, reduced motion and the mobile drawer with `e2e/sidebar-icons.spec.ts`.
 
-The owned drawer class keeps the existing shell header and footer fixed in its flex layout while the middle destination list owns scrolling. Verify the first and last link stay visible and hit-testable at compact heights when changing shell spacing or upgrading the layout package.
+The owned drawer class keeps the existing shell header and footer fixed in its flex layout while the middle destination list owns scrolling. Verify the first and last link stay visible and hit-testable at compact heights when changing shell spacing or upgrading the layout package. Deferred initial focus must preserve an already-focused drawer descendant; `e2e/library.spec.ts` exercises this startup race alongside focus containment and opener restoration.
 
 ## Add or change an example
 

@@ -14,7 +14,9 @@ export function MobileNavigation() {
     if (!open || mode !== 'drawer') return
     const previous = document.activeElement
     const focusFrame = requestAnimationFrame(() => {
-      document.getElementById('nd-sidebar-mobile')?.querySelector<HTMLElement>(focusable)?.focus()
+      const drawer = document.getElementById('nd-sidebar-mobile')
+      if (drawer && !drawer.contains(document.activeElement))
+        drawer.querySelector<HTMLElement>(focusable)?.focus()
     })
     return () => {
       cancelAnimationFrame(focusFrame)

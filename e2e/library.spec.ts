@@ -297,11 +297,28 @@ test('JSON, local presets, installation and portable transfer', async ({ page })
 test('mobile navigation contains keyboard focus and restores it', async ({ page }, testInfo) => {
   test.skip(testInfo.project.use.viewport?.width === 1440, 'Drawer is a mobile surface')
   await page.goto('/agents')
+  await page.evaluate(() => {
+    const observer = new MutationObserver(() => {
+      const drawer = document.querySelector('#nd-sidebar-mobile[data-state="open"]')
+      const target = drawer?.querySelector<HTMLAnchorElement>('a[href="/agents/integration"]')
+      if (!target || !target.getClientRects().length) return
+      target.focus()
+      if (document.activeElement === target) observer.disconnect()
+    })
+    observer.observe(document.body, { childList: true, attributes: true, subtree: true })
+  })
   const open = page.getByRole('button', { name: 'Open Sidebar', exact: true })
   await open.focus()
   await page.keyboard.press('Enter')
   const dialog = page.getByRole('dialog', { name: 'Navigation', exact: true })
   await expect(dialog).toBeVisible()
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      )
+  )
+  await expect(dialog.getByRole('link', { name: 'Get started', exact: true })).toBeFocused()
   await expect
     .poll(() => dialog.evaluate((node) => node.contains(document.activeElement)))
     .toBe(true)
