@@ -1,6 +1,6 @@
 # Preview layout and responsive controls
 
-The component preview occupies the content width. Customization follows in a responsive field grid, then the current integration snippet. Navigation, installation and Studio transfers retain their existing owners and contracts.
+On guides, the component preview occupies the content width. Customization follows in a responsive field grid, then the current integration snippet. Studio uses a persistent central preview beside its inspector, stacking the two in compact windows; see [Studio workspace](studio-workspace.md). Navigation, installation and Studio transfers retain their existing owners and contracts.
 
 ## Reference findings
 
@@ -13,9 +13,9 @@ The exact supplied URL could not be opened by the research browser. Findings are
 - Keep all three device choices accessible, even when the host is narrow. Cap the frame to the space available and show its actual width with a fit indicator. Preserve the requested preset when the host grows again.
 - Use a left-aligned frame with a vertical drag grip on its right edge, a compact icon group on a neutral track and a width badge inside the stage. Keep local panel radii and the existing selected gradient. Replace the earlier bottom slider with direct edge resizing.
 - Reserve the 44px hit area plus 8px inside the stage's right padding while resizing is available. The handle must not overlap scene hosts or buttons, including compact Voice and Image actions. Remove this reserve when the grip is hidden at widths of at most 320px.
-- Capture the primary pointer so mouse/touch dragging continues beyond the handle. Clamp widths between 320px and available space; hide the grip when resizing has no useful range. Double-click or Desktop resets to full width. Arrow keys use 10px steps, Shift uses 50px, Home/End select the limits. Escape and pointer cancellation restore the original request. Release capture on completion; leaving Preview removes the capture target without global listeners or document styles.
+- Capture the primary pointer so mouse/touch dragging continues beyond the handle. Clamp widths between 320px and available space; hide the grip when resizing has no useful range. Double-click or Desktop resets to full width. Arrow keys use 10px steps, Shift uses 50px, Home/End select the limits. Escape and pointer cancellation restore the original request. Release capture on completion; leaving a guide Preview or switching Studio components removes the capture target without global listeners or document styles.
 - Preserve the preview instance on resize, including held images and active interactions. Width is presentation state owned by the workbench; it survives Preview/Install switches but is not serialized into consumer code or saved props.
-- Place customization below the stable 340px minimum stage. Use three/two/one field columns according to the feature container, with ordinary document scrolling instead of an inner settings scroll region.
+- On guides, place customization below the stable 340px minimum stage. Use three/two/one field columns according to the feature container, with ordinary document scrolling instead of an inner settings scroll region.
 - Use local neutral surfaces, rounded-full 44px controls and the existing accent gradient with white selected text. Existing accent contrast warnings remain accepted design trade-offs.
 
 The nested preview frame establishes an inline-size container for scene styles. It changes available component space, without changing the page viewport, browser engine, pixel ratio or input hardware. SDK rendering, microphone permission and Replay ownership remain unchanged. Team-profile promotion is a skipped requirement; no reference sponsor or team content is added.

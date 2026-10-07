@@ -87,7 +87,7 @@ export function PreviewPanel({
                 id={library.id}
                 props={props}
                 paused={paused}
-                theme={theme}
+                theme={props.theme === 'dark' || props.theme === 'light' ? props.theme : theme}
                 variant={variant}
                 onVariantChange={chooseVariant}
                 onPropsChange={update}

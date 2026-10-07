@@ -10,10 +10,12 @@ export function StudioContext({
   library,
   navigate,
   state,
+  onExample,
 }: {
   library: Library
   navigate: Navigate
-  state: PlaygroundState
+  state?: PlaygroundState
+  onExample?: () => void
 }) {
   return (
     <div className="studio-context">
@@ -37,26 +39,31 @@ export function StudioContext({
       <Link href={`/agents/${library.id}`} navigate={navigate} className="text-button">
         Read the guide ↗
       </Link>
-      <div className="studio-starting-point">
-        <ChoiceField
-          label="Starting point"
-          value={state.startingPoint}
-          onChange={(value) => state.selectExample(String(value))}
-          options={examples
-            .filter((example) => example.library === library.id)
-            .map((example) => ({ value: example.id, label: example.name }))}
-          limit={6}
-        >
-          {!state.startingPoint && <p className="helper-text">Your configuration</p>}
-        </ChoiceField>
-        <Link
-          href={`/agents/gallery?library=${library.id}`}
-          navigate={navigate}
-          className="text-button"
-        >
-          Compare examples ↗
-        </Link>
-      </div>
+      {state && (
+        <div className="studio-starting-point">
+          <ChoiceField
+            label="Starting point"
+            value={state.startingPoint}
+            onChange={(value) => {
+              state.selectExample(String(value))
+              onExample?.()
+            }}
+            options={examples
+              .filter((example) => example.library === library.id)
+              .map((example) => ({ value: example.id, label: example.name }))}
+            limit={6}
+          >
+            {!state.startingPoint && <p className="helper-text">Your configuration</p>}
+          </ChoiceField>
+          <Link
+            href={`/agents/gallery?library=${library.id}`}
+            navigate={navigate}
+            className="text-button"
+          >
+            Compare examples ↗
+          </Link>
+        </div>
+      )}
     </div>
   )
 }

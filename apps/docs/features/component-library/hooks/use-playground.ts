@@ -15,6 +15,19 @@ import { controlVisible } from '../lib/controls'
 import { type Example, findExample } from '../lib/examples'
 import type { Theme } from '../lib/types'
 
+export type PlaygroundSnapshot = {
+  props: Props
+  variant: string
+  paused: boolean
+  draft: string
+  tab: string
+  startingPoint: string
+  all: boolean
+  query: string
+  presetName: string
+  manager: 'npm' | 'pnpm' | 'bun'
+}
+
 function playbackPaused(library: string, props: Props, fallback: boolean) {
   if (library === 'beam' || library === 'voice')
     return typeof props.active === 'boolean' ? !props.active : fallback
@@ -29,6 +42,7 @@ export function usePlayground({
   savePresets,
   initialExample,
   configuration,
+  resume,
 }: {
   library: Library
   theme: Theme
@@ -36,6 +50,7 @@ export function usePlayground({
   savePresets: (presets: Preset[]) => boolean
   initialExample?: Example
   configuration?: string
+  resume?: PlaygroundSnapshot
 }) {
   const [initial] = useState(() => {
     const fallback = {
@@ -43,6 +58,18 @@ export function usePlayground({
       variant: initialExample?.variant || 'ring',
       notice: '',
       shared: false,
+    }
+    if (!configuration && !initialExample && resume) {
+      try {
+        return {
+          ...parseConfiguration(
+            JSON.stringify({ library: library.id, variant: resume.variant, props: resume.props }),
+            library
+          ),
+          notice: 'Your unsaved configuration is restored.',
+          shared: true,
+        }
+      } catch {}
     }
     if (!configuration) return fallback
     try {
@@ -58,22 +85,25 @@ export function usePlayground({
       }
     }
   })
+  const [retained] = useState(!configuration && !initialExample ? resume : undefined)
   const [variant, setVariant] = useState(initial.variant)
   const activeLibrary = configuredLibrary(library, variant)
   const [props, setProps] = useState<Props>(initial.props)
-  const [tab, setTab] = useState('controls')
-  const [query, setQuery] = useState('')
-  const [all, setAll] = useState(false)
-  const [paused, setPaused] = useState(false)
+  const [tab, setTab] = useState(retained?.tab || 'controls')
+  const [query, setQuery] = useState(retained?.query || '')
+  const [all, setAll] = useState(retained?.all || false)
+  const [paused, setPaused] = useState(retained?.paused || false)
   const initialPlayback = playbackPaused(library.id, initial.props, false)
   useEffect(() => {
     setPaused(
-      initial.shared
-        ? initialPlayback
-        : matchMedia('(prefers-reduced-motion: reduce)').matches || initialPlayback
+      retained
+        ? retained.paused
+        : initial.shared
+          ? initialPlayback
+          : matchMedia('(prefers-reduced-motion: reduce)').matches || initialPlayback
     )
-  }, [initialPlayback, initial.shared])
-  const [draft, setDraftValue] = useState(JSON.stringify(props, null, 2))
+  }, [initialPlayback, initial.shared, retained])
+  const [draft, setDraftValue] = useState(retained?.draft ?? JSON.stringify(props, null, 2))
   const configurationRevision = useRef(0)
   useEffect(
     () => () => {
@@ -87,14 +117,16 @@ export function usePlayground({
   }
   const [notice, setNotice] = useState(initial.notice)
   const [transferNotice, setTransferNotice] = useState('')
-  const [startingPoint, setStartingPoint] = useState(initialExample?.id || '')
-  const [presetName, setPresetName] = useState('')
+  const [startingPoint, setStartingPoint] = useState(
+    initialExample?.id || retained?.startingPoint || ''
+  )
+  const [presetName, setPresetName] = useState(retained?.presetName || '')
   const [revision, setRevision] = useState(0)
   const [controlVersion, setControlVersion] = useState(0)
   const editControl = () => {
     configurationRevision.current++
   }
-  const [manager, setManager] = useState<'npm' | 'pnpm' | 'bun'>('npm')
+  const [manager, setManager] = useState<'npm' | 'pnpm' | 'bun'>(retained?.manager || 'npm')
   const importInput = useRef<HTMLInputElement>(null)
   const playbackProps = (values: Props, playback = paused): Props => ({
     ...values,
@@ -270,6 +302,18 @@ export function usePlayground({
     setRevision((value) => value + 1)
   }
   return {
+    snapshot: {
+      props,
+      variant,
+      paused,
+      draft,
+      tab,
+      startingPoint,
+      all,
+      query,
+      presetName,
+      manager,
+    } satisfies PlaygroundSnapshot,
     activeLibrary,
     controlVersion,
     editControl,

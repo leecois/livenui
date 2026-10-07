@@ -39,7 +39,7 @@ test('Image reveals each original artwork through the native renderer', async ({
     if (request.url().includes('/agent-images/')) requested.push(new URL(request.url()).pathname)
   })
   await page.goto('/studio?library=image')
-  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page.locator('.studio-json-toggle').click()
   for (const [index, src] of imageDemoSources.entries()) {
     await page
       .getByLabel('Edit component props')

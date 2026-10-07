@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
 import { chooseOption } from './helpers/choices'
 import { openAvatarComponentPreview } from './helpers/component-preview'
+import { closeStudioBrowser, openStudioBrowser, openStudioPresets } from './helpers/studio'
 
 const renderers = {
   beam: '[data-beam]',
@@ -156,11 +157,13 @@ test('Studio context remains aligned at desktop, tablet and compact widths', asy
   page,
 }, testInfo) => {
   await page.goto('/studio?library=orbs')
+  await openStudioBrowser(page)
   const navigation = page.getByRole('navigation', { name: 'Component', exact: true })
   await expect(navigation.getByRole('link')).toHaveCount(7)
   for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 })
     await noOverflow(page)
+    await openStudioBrowser(page)
     const measure = await page.locator('.studio-context').evaluate((context) => {
       const hint = context.querySelector('.context-description')
       if (!hint) throw new Error('Missing Studio description')
@@ -228,15 +231,17 @@ test('JSON, local presets, installation and portable transfer', async ({ page })
   const code = page.locator('.code-panel code')
   await expect(page.getByRole('group', { name: 'State', exact: true })).toBeVisible()
   for (const tab of await page
-    .getByRole('tablist', { name: 'Configuration view' })
+    .getByRole('tablist', { name: 'Studio view' })
     .getByRole('tab')
     .all()) {
     const target = await tab.getAttribute('aria-controls')
     await expect(page.locator(`[id="${target}"]`)).toHaveCount(1)
   }
-  await page.getByRole('tab', { name: 'Controls', exact: true }).focus()
+  await page.getByRole('tab', { name: 'Customize', exact: true }).focus()
   await page.keyboard.press('End')
-  await expect(page.getByRole('tab', { name: 'JSON', exact: true })).toBeFocused()
+  await expect(page.getByRole('tab', { name: 'Code', exact: true })).toBeFocused()
+  await page.keyboard.press('Home')
+  await page.locator('.studio-json-toggle').click()
   const original = await code.textContent()
   await page.getByLabel('Edit component props').fill('{"unknownProp":true}')
   await page.getByRole('button', { name: /Apply configuration/ }).click()
@@ -245,21 +250,24 @@ test('JSON, local presets, installation and portable transfer', async ({ page })
   await page.getByLabel('Edit component props').fill('{"state":"listening","size":32}')
   await page.getByRole('button', { name: /Apply configuration/ }).click()
   await expect(code).toContainText('listening')
-  await page.getByRole('tab', { name: 'Saved', exact: true }).click()
+  await openStudioPresets(page)
   await page.getByLabel('Preset name', { exact: true }).fill('Device preset')
   await page.getByRole('button', { name: /Save preset/ }).click()
   await page.reload()
-  await page.getByRole('tab', { name: 'Saved', exact: true }).click()
+  await openStudioPresets(page)
   await page.getByRole('button', { name: /^Device preset/ }).click()
   await expect(code).toContainText('listening')
   await page.getByRole('button', { name: 'Delete Device preset', exact: true }).click()
-  await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
+  await closeStudioBrowser(page)
+  await page.getByRole('tab', { name: 'Code', exact: true }).click()
   await chooseOption(page, 'Package manager', 'pnpm')
   await expect(page.locator('.install-command code')).toHaveText(
     'pnpm dlx shadcn@latest add http://localhost:3000/r/orbs.json'
   )
+  await expect(page.getByRole('button', { name: /Copy agent prompt/ })).toBeVisible()
+  await accent(page.locator('.studio-header').getByRole('button', { name: /Copy code/ }))
+  await page.getByRole('tab', { name: 'Customize', exact: true }).click()
   await page.locator('summary').filter({ hasText: 'Import & export' }).click()
-  await accent(page.getByRole('button', { name: /Copy agent prompt/ }))
   const file = page.getByLabel('Import configuration file')
   await file.setInputFiles({
     name: 'orbs.json',
@@ -299,7 +307,7 @@ test('mobile navigation contains keyboard focus and restores it', async ({ page 
     const observer = new MutationObserver(() => {
       const drawer = document.querySelector('#nd-sidebar-mobile[data-state="open"]')
       const target = drawer?.querySelector<HTMLAnchorElement>('a[href="/agents/integration"]')
-      if (!target || !target.getClientRects().length) return
+      if (!target?.getClientRects().length) return
       target.focus()
       if (document.activeElement === target) observer.disconnect()
     })
@@ -475,7 +483,7 @@ test('installation commands and copied code use maintained Liven UI source', asy
   request,
 }) => {
   await page.goto('/studio?library=orbs')
-  await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
+  await page.getByRole('tab', { name: 'Code', exact: true }).click()
   await expect(
     page.getByRole('heading', { name: '1. Add Liven UI source', exact: true })
   ).toBeVisible()

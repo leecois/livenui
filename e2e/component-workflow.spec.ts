@@ -4,6 +4,7 @@ import { content } from '../apps/docs/features/component-library/lib/content'
 import { findExample } from '../apps/docs/features/component-library/lib/examples'
 import { changeLibrary, chooseOption } from './helpers/choices'
 import { openAvatarComponentPreview } from './helpers/component-preview'
+import { closeStudioBrowser, openStudioBrowser } from './helpers/studio'
 
 test.beforeEach(async ({ page }, testInfo) => {
   const theme = testInfo.project.name.endsWith('dark') ? 'dark' : 'light'
@@ -72,14 +73,16 @@ test('quick settings, installation and Studio preserve one avatar configuration'
   await expect(page).toHaveURL(/studio\?library=avatars#config=/)
   await expect(code).toHaveText(original || '')
   await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toBeVisible()
-  await expect(page.getByRole('tab', { name: 'JSON', exact: true })).toBeVisible()
+  await expect(page.locator('.studio-json-toggle')).toBeVisible()
+  await openStudioBrowser(page)
   const starting = page.getByRole('group', { name: 'Starting point', exact: true })
   await expect(starting.locator('input:checked')).toHaveCount(0)
   await expect(starting.getByText('Your configuration', { exact: true })).toBeVisible()
+  await closeStudioBrowser(page)
   await page.screenshot({ path: testInfo.outputPath('studio-preview.png'), fullPage: true })
   await page.reload()
   await expect(code).toHaveText(original || '')
-  await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
+  await page.getByRole('tab', { name: 'Code', exact: true }).click()
   await expect(code).toHaveText(original || '')
   await page.screenshot({ path: testInfo.outputPath('studio-install.png'), fullPage: true })
   await page.setViewportSize({ width: 320, height: 1000 })
@@ -106,7 +109,7 @@ test('every guide carries a valid public configuration into Studio', async ({ pa
     await link.click()
     await expect(page.locator('.control-notice')).toHaveText('Your preview configuration is ready.')
     await expect(page.locator('.code-panel code')).toHaveText(code || '')
-    await expect(page.getByRole('tab', { name: 'Saved', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Name a preset', exact: true })).toBeVisible()
   }
 })
 
@@ -204,7 +207,7 @@ test('a Metal starting example preserves its component, props and integration gu
   await expect(page.locator('.code-panel code')).toContainText('<MetalText')
   await page.getByRole('link', { name: /Open in Studio/ }).click()
   await expect(page.locator('#prop-font')).toHaveValue('500 24px/1.2 system-ui')
-  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page.locator('.studio-json-toggle').click()
   expect(JSON.parse(await page.getByLabel('Edit component props').inputValue())).toMatchObject({
     font: '500 24px/1.2 system-ui',
     paused: true,
@@ -212,9 +215,11 @@ test('a Metal starting example preserves its component, props and integration gu
   await chooseOption(page, 'Starting point', 'metal-badge')
   await expect(page.locator('.code-panel code')).toContainText('<MetalBadge')
   await expect(
-    page.getByRole('group', { name: 'Starting point', exact: true }).locator('input:checked')
+    page
+      .getByRole('group', { name: 'Starting point', exact: true, includeHidden: true })
+      .locator('input:checked')
   ).toHaveValue('metal-badge')
-  await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
+  await page.getByRole('tab', { name: 'Code', exact: true }).click()
   await expect(page.locator('.integration-guidance')).toContainText('useMetalBend')
   await expect(page.locator('.code-panel code')).toContainText('<MetalBadge')
 })

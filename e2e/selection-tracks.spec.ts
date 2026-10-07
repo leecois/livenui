@@ -137,15 +137,20 @@ test('Guide, Studio, workflow and device tracks share selection geometry', async
     await expect(page.locator('.code-panel code')).toContainText('size={"pulse-inner"}')
     await chooseOption(panel, 'Color Variant', 'sunset')
     await expect(page.locator('.code-panel code')).toContainText('colorVariant={"sunset"}')
-    await aligned(page.getByRole('tablist', { name: 'Component workflow', exact: true }))
+    await aligned(
+      page.getByRole('tablist', {
+        name: path.startsWith('/studio') ? 'Studio view' : 'Component workflow',
+        exact: true,
+      })
+    )
     const devices = page.getByRole('group', { name: 'Preview device', exact: true })
     await devices.getByRole('button', { name: 'Mobile', exact: true }).click()
     await aligned(devices)
     if (path.startsWith('/studio')) {
-      const tabs = panel.getByRole('tablist', { name: 'Configuration view', exact: true })
-      await tabs.getByRole('tab', { name: 'Saved', exact: true }).click()
+      const tabs = page.getByRole('tablist', { name: 'Studio view', exact: true })
+      await tabs.getByRole('tab', { name: 'Code', exact: true }).click()
       await aligned(tabs)
-      await tabs.getByRole('tab', { name: 'Controls', exact: true }).click()
+      await tabs.getByRole('tab', { name: 'Customize', exact: true }).click()
       await aligned(tabs)
     }
     await page.screenshot({

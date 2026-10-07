@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { chooseOption } from './helpers/choices'
+import { openStudioBrowser } from './helpers/studio'
 
 test.beforeEach(async ({ page }, testInfo) => {
   await page.addInitScript(
@@ -12,6 +13,7 @@ test('long preset choices expand inline and keep the selected native configurati
   page,
 }, testInfo) => {
   await page.goto('/studio?library=avatars')
+  await openStudioBrowser(page)
   const context = page.locator('.studio-context')
   const starting = context.getByRole('group', { name: 'Starting point', exact: true })
   await expect(starting.getByRole('radio')).toHaveCount(6)
@@ -22,6 +24,7 @@ test('long preset choices expand inline and keep the selected native configurati
     'connector'
   )
   await expect(page.locator('.code-panel code')).toContainText('type={"connector"}')
+  await openStudioBrowser(page)
   await starting
     .getByRole('button', { name: 'Show fewer starting point options', exact: true })
     .click()
@@ -46,6 +49,7 @@ test('long preset choices expand inline and keep the selected native configurati
     document.documentElement.style.zoom = '2'
   })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await openStudioBrowser(page)
   await expect(selected).toBeVisible()
   await context.screenshot({ path: testInfo.outputPath('direct-choices-zoom.png') })
 })

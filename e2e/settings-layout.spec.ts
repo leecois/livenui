@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page, test } from '@playwright/test'
 import { openAvatarComponentPreview } from './helpers/component-preview'
+import { closeStudioBrowser, openStudioPresets } from './helpers/studio'
 
 async function contained(panel: Locator) {
   expect(
@@ -147,21 +148,14 @@ test('categorical rows and value grids align across Guide and Studio libraries',
       await contained(panel)
       await alignedFields(panel)
       await expect(panel.locator('.control-group-heading')).toHaveCount(0)
-      await expect(panel.getByRole('tablist')).toHaveCount(view === 'studio' ? 1 : 0)
+      await expect(panel.getByRole('tablist')).toHaveCount(0)
       if (view === 'studio') {
-        const heading = await panel.locator('.controls-heading').boundingBox()
-        const tabs = await panel.getByRole('tablist').boundingBox()
-        if (!heading || !tabs) throw new Error('Missing settings navigation')
-        expect(tabs.width).toBeLessThan(230)
-        expect(tabs.y).toBeGreaterThanOrEqual(heading.y)
+        const tabs = page.getByRole('tablist', { name: 'Studio view', exact: true })
+        await expect(tabs.getByRole('tab')).toHaveCount(2)
+        const bounds = await tabs.boundingBox()
         const title = await panel.getByRole('heading', { name: 'Customize' }).boundingBox()
-        const panelBox = await panel.boundingBox()
-        if (!title || !panelBox) throw new Error('Missing settings title or panel')
-        if (panelBox.width >= 550) {
-          expect(Math.abs(title.y + title.height / 2 - (tabs.y + tabs.height / 2))).toBeLessThan(1)
-        } else {
-          expect(tabs.y).toBeGreaterThanOrEqual(title.y + title.height)
-        }
+        if (!bounds || !title) throw new Error('Missing settings navigation')
+        expect(bounds.y + bounds.height).toBeLessThanOrEqual(title.y)
       }
       await panel.screenshot({ path: testInfo.outputPath(`settings-${library}-${view}.png`) })
       if (library === 'beam' || library === 'metal' || library === 'image') {
@@ -344,21 +338,24 @@ test('advanced settings and configuration tabs fit narrow widths and long saved 
   await expect(panel.getByText('No matching controls.', { exact: true })).toBeVisible()
   await panel.getByRole('button', { name: 'Show essential controls' }).click()
   await expect(search).toHaveCount(0)
-  const controls = panel.getByRole('tab', { name: 'Controls', exact: true })
-  await controls.focus()
+  const customize = page.getByRole('tab', { name: 'Customize', exact: true })
+  await customize.focus()
   await page.keyboard.press('ArrowRight')
-  await expect(panel.getByRole('tab', { name: 'Saved', exact: true })).toBeFocused()
+  await expect(page.getByRole('tab', { name: 'Code', exact: true })).toBeFocused()
+  await page.keyboard.press('Home')
+  await expect(customize).toBeFocused()
+  await openStudioPresets(page)
+  const saved = page.locator('.studio-presets')
   const name = 'A deliberately long preset name to check compact settings and wrapping'.slice(0, 80)
-  await panel.getByRole('textbox', { name: 'Preset name', exact: true }).fill(name)
-  await panel.getByRole('button', { name: 'Save preset' }).click()
+  await saved.getByRole('textbox', { name: 'Preset name', exact: true }).fill(name)
+  await saved.getByRole('button', { name: 'Save preset' }).click()
   await expect(
-    panel.locator('.preset-row').getByRole('button', { name, exact: true })
+    saved.locator('.preset-row').getByRole('button', { name, exact: true })
   ).toBeVisible()
-  await contained(panel)
-  await panel.screenshot({ path: testInfo.outputPath('saved-320.png') })
-  await panel.getByRole('tab', { name: 'Saved', exact: true }).focus()
-  await page.keyboard.press('End')
-  await expect(panel.getByRole('tab', { name: 'JSON', exact: true })).toBeFocused()
+  await contained(saved)
+  await saved.screenshot({ path: testInfo.outputPath('saved-320.png') })
+  await closeStudioBrowser(page)
+  await page.locator('.studio-json-toggle').click()
   await panel.getByRole('textbox', { name: 'Edit component props' }).fill('{invalid}')
   await panel.getByRole('button', { name: 'Apply configuration' }).click()
   await expect(panel.getByRole('status')).not.toBeEmpty()

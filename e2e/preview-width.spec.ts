@@ -108,9 +108,9 @@ test('custom width and device choice survive task switches and compact layouts',
   await expect(page.locator('.preview-dimensions')).toContainText('Custom · 320px')
   await page.keyboard.press('ArrowRight')
   await expect(resizer).toHaveAttribute('aria-valuenow', '330')
-  await page.getByRole('tab', { name: 'Install & Usage' }).click()
-  await expect(page.locator('.preview-stage')).toHaveCount(0)
-  await page.getByRole('tab', { name: 'Preview', exact: true }).click()
+  await page.getByRole('tab', { name: 'Code', exact: true }).click()
+  await expect(page.locator('.preview-stage .image-gen-shader')).toBeVisible()
+  await page.getByRole('tab', { name: 'Customize', exact: true }).click()
   await expect(resizer).toHaveAttribute('aria-valuenow', '330')
   await page.getByRole('button', { name: 'Tablet', exact: true }).click()
   for (const width of [1440, 1024, 768, 390, 320]) {
@@ -156,7 +156,7 @@ test('resizing a paused held image retains its canvas and painted content', asyn
 }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.goto('/studio?library=image')
-  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page.locator('.studio-json-toggle').click()
   await page.getByLabel('Edit component props').fill(
     JSON.stringify({
       images: ['/agent-images/prism-garden.webp'],
@@ -251,11 +251,12 @@ test('edge dragging captures the pointer, clamps widths and supports reset and c
   await expect(resizer).toHaveAttribute('aria-valuenow', String(full))
   await expect(resizer).toBeFocused()
   await drag(-100)
-  await page.getByRole('tab', { name: 'Install & Usage' }).focus()
+  await page.getByRole('tab', { name: 'Code' }).focus()
   await page.keyboard.press('Enter')
-  await expect(page.locator('.preview-viewport')).toHaveCount(0)
+  await expect(page.locator('.preview-viewport')).toHaveAttribute('data-resizing', 'true')
+  expect(await canvas?.evaluate((element) => element.isConnected)).toBe(true)
   await page.mouse.up()
-  await page.getByRole('tab', { name: 'Preview', exact: true }).click()
+  await page.getByRole('tab', { name: 'Customize', exact: true }).click()
   await expect(page.locator('.preview-viewport')).not.toHaveAttribute('data-resizing')
   await expect(page.locator('.code-panel code')).toHaveText(original || '')
   await page.getByRole('button', { name: 'Mobile', exact: true }).click()
@@ -292,7 +293,7 @@ test('touch dragging resizes without scrolling and pointer cancellation restores
       type: 'touchMove',
       touchPoints: [{ ...point, x: point.x - 80 }],
     })
-    await expect(resizer).toHaveAttribute('aria-valuenow', String(full - 80))
+    await expect(resizer).toHaveAttribute('aria-valuenow', String(Math.max(320, full - 80)))
     await client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
     await expect(touchPage.locator('.preview-viewport')).not.toHaveAttribute('data-resizing')
     expect(await touchPage.evaluate(() => scrollY)).toBe(scroll)

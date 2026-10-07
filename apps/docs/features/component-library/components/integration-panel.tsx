@@ -15,11 +15,13 @@ export function IntegrationPanel({
   navigate,
   state,
   studio = true,
+  details = true,
 }: {
   library: Library
   navigate: Navigate
   state: PlaygroundState
   studio?: boolean
+  details?: boolean
 }) {
   const { manager, setManager } = state
   return (
@@ -58,11 +60,11 @@ export function IntegrationPanel({
           alias in the import below.
         </p>
       </div>
-      <CodePanel state={state} installation />
+      <CodePanel state={state} installation copyLabel={details ? undefined : 'Copy snippet'} />
       {content[library.id].integration && (
         <p className="helper-text integration-guidance">{content[library.id].integration}</p>
       )}
-      <ConfigurationDetails library={library} state={state} transfer={studio} />
+      {details && <ConfigurationDetails library={library} state={state} transfer={studio} />}
     </section>
   )
 }

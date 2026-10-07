@@ -345,8 +345,11 @@ test('every mascot follows the pointer, hops on click and freezes when paused', 
     await expect
       .poll(async () => (await raster(canvas)).inkX ?? Number.NEGATIVE_INFINITY)
       .toBeGreaterThan((left.inkX ?? 0) + 2)
+    const beforeHop = await raster(canvas)
     await canvas.click()
-    await expect.poll(async () => (await raster(canvas)).top).toBeLessThan(initial.top - 5)
+    await expect
+      .poll(async () => (await raster(canvas)).top, { intervals: [16, 32, 50] })
+      .toBeLessThan(beforeHop.top - 5)
     await page
       .locator('.preview-stage')
       .screenshot({ path: testInfo.outputPath(`${type}-motion.png`) })

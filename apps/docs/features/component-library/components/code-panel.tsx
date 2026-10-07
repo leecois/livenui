@@ -5,10 +5,12 @@ export function CodePanel({
   state,
   installation = false,
   onInstall,
+  copyLabel,
 }: {
   state: PlaygroundState
   installation?: boolean
   onInstall?: () => void
+  copyLabel?: string
 }) {
   return (
     <section className="code-panel" aria-label="React integration code">
@@ -17,7 +19,9 @@ export function CodePanel({
           <h3>{installation ? '2. Add it to your app' : 'Your React code'}</h3>
           <p className="helper-text">Matches your current settings and playback.</p>
         </div>
-        <Copy emphasis text={state.liveCode} />
+        <Copy emphasis text={state.liveCode}>
+          {copyLabel}
+        </Copy>
       </div>
       <pre>
         <code>{state.liveCode}</code>

@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
+import { closeStudioBrowser, openStudioPresets } from './helpers/studio'
 
 declare global {
   interface Window {
@@ -44,7 +45,7 @@ test('malformed structured JSON and imports preserve the working Voice preview a
   const code = page.locator('.code-panel code')
   await expect(page.locator('.preview-stage [data-voice-beam]')).toBeVisible()
   const before = await code.textContent()
-  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page.locator('.studio-json-toggle').click()
   const editor = page.getByLabel('Edit component props')
   await editor.fill('{"colors":{"core":"red"}}')
   await page.getByRole('button', { name: /Apply configuration/ }).click()
@@ -76,7 +77,7 @@ for (const library of ['orbs', 'beam', 'voice']) {
     await expect(field).toBeChecked({ checked: initiallyChecked })
     await page.getByRole('button', { name: '▶ Play', exact: true }).click()
     await expect(field).toBeChecked({ checked: !initiallyChecked })
-    await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+    await page.locator('.studio-json-toggle').click()
     const editor = page.getByLabel('Edit component props')
     const configuration = JSON.parse(await editor.inputValue())
     expect(configuration[property]).toBe(!initiallyChecked)
@@ -86,7 +87,7 @@ for (const library of ['orbs', 'beam', 'voice']) {
     await editor.fill('{ invalid draft')
     await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
     await expect(editor).toHaveValue('{ invalid draft')
-    await page.getByRole('tab', { name: 'Controls', exact: true }).click()
+    await page.getByRole('tab', { name: 'Customize', exact: true }).click()
     await expect(field).toBeChecked({ checked: initiallyChecked })
   })
 }
@@ -94,7 +95,7 @@ for (const library of ['orbs', 'beam', 'voice']) {
 test('saved presets restore playback after a reduced-motion reload', async ({ page }) => {
   await page.goto('/studio?library=orbs')
   await page.getByRole('button', { name: '▶ Play', exact: true }).click()
-  await page.getByRole('tab', { name: 'Saved', exact: true }).click()
+  await openStudioPresets(page)
   await page.getByLabel('Preset name', { exact: true }).fill('Playing configuration')
   await page.getByRole('button', { name: /Save preset/ }).click()
   await expect(page.locator('.control-notice')).toContainText('Preset saved')
@@ -103,18 +104,19 @@ test('saved presets restore playback after a reduced-motion reload', async ({ pa
   ).toMatchObject({ paused: false })
   await page.reload()
   await expect(page.getByRole('button', { name: '▶ Play', exact: true })).toBeVisible()
-  await page.getByRole('tab', { name: 'Saved', exact: true }).click()
+  await openStudioPresets(page)
   await page.getByRole('button', { name: /^Playing configuration/ }).click()
+  await closeStudioBrowser(page)
   await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toBeVisible()
   await expect(page.locator('.code-panel code')).toContainText('paused={false}')
-  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page.locator('.studio-json-toggle').click()
   expect(JSON.parse(await page.getByLabel('Edit component props').inputValue()).paused).toBe(false)
 })
 
 test('Voice native freeze remains independent from toolbar activation', async ({ page }) => {
   await page.goto('/studio?library=voice')
   await page.getByRole('button', { name: '▶ Play', exact: true }).click()
-  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page.locator('.studio-json-toggle').click()
   await page.getByLabel('Edit component props').fill('{"active":true,"paused":true,"level":0.5}')
   await page.getByRole('button', { name: /Apply configuration/ }).click()
   await expect(page.locator('.control-notice')).toHaveText('Configuration applied.')
@@ -123,7 +125,7 @@ test('Voice native freeze remains independent from toolbar activation', async ({
   await expect(pause).toBeVisible()
   await expect(code).toContainText('active={true}')
   await expect(code).toContainText('paused={true}')
-  await page.getByRole('tab', { name: 'Controls', exact: true }).click()
+  await page.getByRole('tab', { name: 'Customize', exact: true }).click()
   await page.getByRole('button', { name: /Show advanced settings/ }).click()
   const freeze = page.locator('#prop-paused')
   const active = page.locator('#prop-active')
@@ -150,7 +152,7 @@ test('Metal variant changes replace the open JSON editor with valid variant prop
 }) => {
   await page.goto('/studio?library=metal')
   await expect(page.locator('.preview-stage .metal-fx-root')).toBeVisible()
-  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page.locator('.studio-json-toggle').click()
   const editor = page.getByLabel('Edit component props')
   await page.getByRole('button', { name: 'text', exact: true }).click()
   expect(JSON.parse(await editor.inputValue())).toMatchObject({
@@ -171,7 +173,7 @@ test('Metal variant changes replace the open JSON editor with valid variant prop
 
 test('import and reset update an already open JSON editor', async ({ page }) => {
   await page.goto('/studio?library=orbs')
-  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page.locator('.studio-json-toggle').click()
   const editor = page.getByLabel('Edit component props')
   await editor.fill('{ invalid draft')
   await page.locator('summary').filter({ hasText: 'Import & export' }).click()
@@ -267,7 +269,7 @@ test('image one-shot hide completes after pause and resume', async ({ page }) =>
   await page.goto('/studio?library=image')
   await expect(page.locator('.image-host')).toBeVisible()
   await expect(page.locator('.image-demo .demo-note')).toHaveText('Ready')
-  await page.getByRole('tab', { name: 'JSON', exact: true }).click()
+  await page.locator('.studio-json-toggle').click()
   await page
     .getByLabel('Edit component props')
     .fill(JSON.stringify({ autoReveal: false, revealFadeOutMs: 3000, paused: true }))

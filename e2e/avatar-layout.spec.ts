@@ -14,14 +14,17 @@ test('avatar workspace brings the character and configuration before code and ex
   for (const route of ['/agents/avatars', '/studio?library=avatars']) {
     await page.goto(route)
     if (route === '/agents/avatars') await openAvatarComponentPreview(page)
-    const workspace = page.locator('.avatar-workspace')
+    const studio = route.startsWith('/studio')
+    const workspace = page.locator(studio ? '.studio-layout' : '.avatar-workspace')
     const preview = workspace.locator('.playground-column')
     const controls = workspace.locator('.controls-panel')
     await expect(preview.locator('canvas[data-bot-avatar="clover"]')).toBeVisible()
     const boxes = await workspace.evaluate((element) => {
       const preview = element.querySelector('.playground-column')?.getBoundingClientRect()
       const controls = element.querySelector('.controls-panel')?.getBoundingClientRect()
-      const code = element.parentElement?.querySelector('.code-panel')?.getBoundingClientRect()
+      const code =
+        element.closest('.studio-layout')?.querySelector('.code-panel')?.getBoundingClientRect() ||
+        element.parentElement?.querySelector('.code-panel')?.getBoundingClientRect()
       if (!preview || !controls || !code) throw new Error('Missing avatar workspace panel')
       return {
         width: element.clientWidth,
@@ -30,19 +33,28 @@ test('avatar workspace brings the character and configuration before code and ex
         code: code.toJSON(),
       }
     })
-    if (boxes.width >= 900) {
-      expect(boxes.controls.left - boxes.preview.right).toBeCloseTo(24, 0)
-      expect(boxes.controls.top).toBeCloseTo(boxes.preview.top, 0)
-      expect(boxes.controls.width).toBe(384)
+    if (studio) {
+      const previewBox = await page.locator('.studio-preview').boundingBox()
+      const inspector = await page.locator('.studio-inspector').boundingBox()
+      if (!previewBox || !inspector) throw new Error('Missing Studio panels')
+      if (boxes.width >= 700) expect(inspector.x).toBeCloseTo(previewBox.x + previewBox.width, 0)
+      else expect(inspector.y).toBeCloseTo(previewBox.y + previewBox.height, 0)
+      await expect(page.getByRole('tab', { name: 'Code', exact: true })).toBeVisible()
     } else {
-      expect(boxes.controls.top - boxes.preview.bottom).toBeCloseTo(24, 0)
-      expect(boxes.controls.left).toBeCloseTo(boxes.preview.left, 0)
-      expect(boxes.controls.width).toBeCloseTo(boxes.preview.width, 0)
+      if (boxes.width >= 900) {
+        expect(boxes.controls.left - boxes.preview.right).toBeCloseTo(24, 0)
+        expect(boxes.controls.top).toBeCloseTo(boxes.preview.top, 0)
+        expect(boxes.controls.width).toBe(384)
+      } else {
+        expect(boxes.controls.top - boxes.preview.bottom).toBeCloseTo(24, 0)
+        expect(boxes.controls.left).toBeCloseTo(boxes.preview.left, 0)
+        expect(boxes.controls.width).toBeCloseTo(boxes.preview.width, 0)
+      }
+      expect(boxes.code.top - Math.max(boxes.preview.bottom, boxes.controls.bottom)).toBeCloseTo(
+        24,
+        0
+      )
     }
-    expect(boxes.code.top - Math.max(boxes.preview.bottom, boxes.controls.bottom)).toBeCloseTo(
-      24,
-      0
-    )
     await expect(preview.locator('.avatar-identity h3')).toHaveText('Clover bot')
     await expect(preview.locator('.avatar-activity')).toHaveText('Idle')
     await expect(

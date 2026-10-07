@@ -1,38 +1,51 @@
 'use client'
 
 import { SelectionTrack } from '@livenui/agent-ui'
-import { useEffect, useId, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from 'react'
 import { siteUrl } from '../../../lib/site'
 import { CodePanel } from '../components/code-panel'
 import { ComponentShowcase } from '../components/component-showcase'
 import { ControlsPanel } from '../components/controls-panel'
 import { Copy } from '../components/copy'
-import { ConfigurationDetails, IntegrationPanel } from '../components/integration-panel'
+import { IntegrationPanel } from '../components/integration-panel'
 import { Link } from '../components/link'
 import { PreviewPanel } from '../components/preview-panel'
-import { StudioContext } from '../components/studio-context'
 import { useLibrarySession } from '../hooks/use-library-session'
-import { usePlayground } from '../hooks/use-playground'
+import { type PlaygroundSnapshot, usePlayground } from '../hooks/use-playground'
 import { type Library, libraries, prompt, studioHref } from '../lib/config'
 import { type Example, findExample } from '../lib/examples'
 import { AvatarChat } from './avatar-chat'
+import { StudioLayout, StudioWorkspace } from './studio-workspace'
 
 function Workbench({
   library,
   studio,
   initialExample,
   configuration,
+  resume,
+  retain,
   ...session
 }: ReturnType<typeof useLibrarySession> & {
   library: Library
   studio: boolean
   initialExample?: Example
   configuration?: string
+  resume?: { configuration: PlaygroundSnapshot; width: number | null }
+  retain?: (configuration: PlaygroundSnapshot, width: number | null) => void
 }) {
-  const state = usePlayground({ library, initialExample, configuration, ...session })
+  const state = usePlayground({
+    library,
+    initialExample,
+    configuration,
+    resume: resume?.configuration,
+    ...session,
+  })
   const [view, setView] = useState('preview')
   const [chatOpen, setChatOpen] = useState(library.id === 'avatars' && !studio)
-  const [previewWidth, setPreviewWidth] = useState<number | null>(null)
+  const [previewWidth, setPreviewWidth] = useState<number | null>(resume?.width ?? null)
+  useEffect(() => {
+    retain?.(state.snapshot, previewWidth)
+  }, [retain, state.snapshot, previewWidth])
   const id = useId()
   const playground = useRef<HTMLHeadingElement>(null)
   const installPanel = useRef<HTMLDivElement>(null)
@@ -63,12 +76,18 @@ function Workbench({
       }}
     />
   )
+  if (studio)
+    return (
+      <StudioLayout
+        library={library}
+        state={state}
+        width={previewWidth}
+        onWidthChange={setPreviewWidth}
+        {...session}
+      />
+    )
   return (
-    <section
-      className={`workbench ${studio ? 'workbench-studio' : 'workbench-guide'}`}
-      aria-label={`${library.name} playground`}
-    >
-      {studio && <StudioContext library={library} navigate={session.navigate} state={state} />}
+    <section className="workbench workbench-guide" aria-label={`${library.name} playground`}>
       <div className="workbench-navigation">
         <SelectionTrack className="workbench-tabs" role="tablist" aria-label="Component workflow">
           {tabs.map((tab) => (
@@ -156,7 +175,6 @@ function Workbench({
               />
               <ControlsPanel
                 library={library}
-                presets={session.presets}
                 navigate={session.navigate}
                 state={state}
                 studio={studio}
@@ -166,7 +184,6 @@ function Workbench({
             </div>
             <CodePanel state={state} onInstall={install} />
             {library.id === 'avatars' && showcase}
-            {studio && <ConfigurationDetails library={library} state={state} />}
           </>
         )}
       </div>
@@ -214,6 +231,16 @@ export function AgentWorkbench({
   example?: string
 }) {
   const state = useLibrarySession()
+  const library = libraries.find((item) => item.id === id) || libraries[1]
+  const retained = useRef(
+    new Map<string, { configuration: PlaygroundSnapshot; width: number | null }>()
+  )
+  const retain = useCallback(
+    (configuration: PlaygroundSnapshot, width: number | null) => {
+      retained.current.set(library.id, { configuration, width })
+    },
+    [library.id]
+  )
   const [handoff, setHandoff] = useState<{
     library: string
     example?: string
@@ -241,23 +268,28 @@ export function AgentWorkbench({
       window.removeEventListener('popstate', read)
     }
   }, [studio, id, example])
-  const library = libraries.find((item) => item.id === id) || libraries[1]
   return (
     <div className="agent-libraries not-prose">
-      {ready ? (
-        <Workbench
-          key={`${id}:${example || 'default'}:${configuration || ''}`}
-          library={library}
-          studio={studio}
-          initialExample={configuration ? undefined : findExample(library.id, example)}
-          configuration={configuration}
-          {...state}
-        />
-      ) : (
-        <p className="helper-text" role="status">
-          Preparing your playground…
-        </p>
-      )}
+      <Workspace studio={studio}>
+        {ready ? (
+          <Workbench
+            key={`${id}:${example || 'default'}:${configuration || ''}`}
+            library={library}
+            studio={studio}
+            initialExample={configuration ? undefined : findExample(library.id, example)}
+            configuration={configuration}
+            resume={!configuration && !example ? retained.current.get(library.id) : undefined}
+            retain={studio ? retain : undefined}
+            {...state}
+          />
+        ) : (
+          <StudioLayout library={library} width={null} onWidthChange={() => {}} {...state} />
+        )}
+      </Workspace>
     </div>
   )
+}
+
+function Workspace({ studio, children }: { studio: boolean; children: ReactNode }) {
+  return studio ? <StudioWorkspace>{children}</StudioWorkspace> : children
 }
