@@ -1,13 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-labelledby="title desc">
   <title id="title">Liven UI</title>
   <desc id="desc">A rounded L with an unfolding leaf, expressing living interfaces.</desc>
-  <defs>
-    <linearGradient id="accent" gradientUnits="userSpaceOnUse" x1="-3.660254" y1="6.339746" x2="43.660254" y2="33.660254">
-      <stop stop-color="hsl(220 91% 54%)" />
-      <stop offset="1" stop-color="hsl(250 80% 54%)" />
-    </linearGradient>
-  </defs>
-  <g fill="url(#accent)">
+  <style>
+    .mark { fill: #0a0a0a; }
+    @media (prefers-color-scheme: dark) { .mark { fill: #ebebeb; } }
+  </style>
+  <g class="mark">
     <path d="M10 4a6 6 0 0 1 6 6v10a4 4 0 0 0 4 4h10a6 6 0 0 1 0 12H18A14 14 0 0 1 4 22V10a6 6 0 0 1 6-6Z" />
     <path d="M24 14c0-5.523 4.477-10 10-10h2v2c0 5.523-4.477 10-10 10h-2Z" />
   </g>

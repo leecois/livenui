@@ -82,7 +82,7 @@ Add targeted moving-scene tests for animation-engine changes: time-varying frame
 
 ## Evidence
 
-`e2e/branding.spec.ts` verifies the shared navigation title's accessible name and keyboard destination, the 24px decorative gradient mask, metadata icon declarations, decoded SVG/ICO/touch dimensions and visible accent pixels in the actual 1200×630 sharing image. Transparent favicon bounds must remain unclipped at 16/32/48px. Inspect its isolated marks, icons, sharing image and four full-page theme/viewport captures; see [brand ownership](brand.md).
+`e2e/branding.spec.ts` verifies the shared navigation title's accessible name and keyboard destination, its 24px decorative foreground mask, the chat Examples mark, retained gradient actions, metadata icon declarations, decoded SVG/ICO/touch dimensions and visible monochrome pixels in the actual 1200×630 sharing image's logo region. The L and leaf remain distinct and unclipped at 16/32/48px. Inspect its isolated marks, icons, sharing image and four full-page theme/viewport captures; see [brand ownership](brand.md).
 
 `e2e/demo-images.spec.ts` verifies that all five original demo assets decode from local WebP responses, retired photograph URLs return 404, Image renders each replacement through its native reveal pipeline, and Melt cards use the same image paths as exported code. Inspect the art, revealed-image and melt captures described in [demo media](demo-media.md).
 

@@ -3,7 +3,7 @@
   flex-shrink: 0;
   width: var(--livenui-space-6);
   height: var(--livenui-space-6);
-  background: var(--gradient-accent);
+  background: var(--color-fd-foreground);
   mask: url('/logo.svg') center / contain no-repeat;
 }
 

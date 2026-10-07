@@ -52,7 +52,7 @@ Every enum keeps its original typed value. Display names such as Idle are presen
 
 Keep bright accent actions and selected pills filled with `--gradient-accent` and white text in both themes. Accent contrast warnings are accepted design trade-offs. Secondary actions use neutral surfaces and borders; text actions use muted text with a full-height target. Badges that do not select anything remain neutral.
 
-The original rounded L and unfolding leaf use the canonical SVG. Keep the navigation mark 24px, wordmark 15px/600 with -0.025em tracking, and gradient fill in both themes. See [brand ownership](docs/brand.md). Preserve legal licenses and attribution. Public copy, metadata and UI must not expose founder, executive or internal team identities; team-profile recommendations are skipped requirements.
+The original rounded L and unfolding leaf use the canonical SVG. Keep the navigation mark 24px and wordmark 15px/600 with -0.025em tracking. The website mark uses the shell foreground: white in dark mode and dark ink in light mode. Standalone SVG follows the embedding color scheme; raster icons use a light mark on a neutral dark canvas. Reserve the accent gradient for primary actions and selected controls. See [brand ownership](docs/brand.md). Preserve legal licenses and attribution. Public copy, metadata and UI must not expose founder, executive or internal team identities; team-profile recommendations are skipped requirements.
 
 ## Page anatomy
 

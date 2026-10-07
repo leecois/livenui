@@ -330,7 +330,7 @@
 .agent-libraries .avatar-chat-brand {
   width: var(--livenui-space-6);
   height: var(--livenui-space-6);
-  background: var(--gradient-accent);
+  background: var(--foreground);
   mask: url("/logo.svg") center / contain no-repeat;
 }
 .agent-libraries .avatar-chat-examples h2 {

@@ -54,7 +54,7 @@ For device preview controls, read [the layout research and width contract](previ
 
 ## Change website identity
 
-For website identity, read [brand ownership](brand.md). Edit `public/logo.svg` geometry and the existing accent tokens, then run `bun run scripts/generate-brand-assets.ts` to refresh browser/touch icons. The navigation title and sharing template consume the same SVG. Run branding browser checks and inspect the small icons as well as the full-page matrix before the local commit.
+For website identity, read [brand ownership](brand.md). Edit `public/logo.svg` geometry or standalone fills, then run `bun run scripts/generate-brand-assets.ts` to refresh browser/touch icons. The navigation and chat marks use shell foreground masks; standalone fills must match that theme pair. The sharing template consumes the same SVG on its light canvas. Keep the accent tokens for actions and selected controls. Run branding browser checks and inspect the small icons as well as the full-page matrix before the local commit.
 
 If a cached build still renders earlier brand colors after a source revert, run `bun run build --force` before browser checks. Inspect the rendered navigation mark as well as the public SVG; correct source files alone do not establish that the production output uses the restored palette.
 
