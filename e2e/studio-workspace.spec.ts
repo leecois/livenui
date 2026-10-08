@@ -9,6 +9,93 @@ test.beforeEach(async ({ page }, testInfo) => {
   )
 })
 
+test('Studio scroll panels omit focus frames while controls retain focus cues', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: testInfo.project.use.viewport?.width || 1440, height: 800 })
+  await page.goto('/studio?library=beam')
+  await expect(page.locator('.preview-stage .beam-host')).toBeVisible()
+  const browser = await openStudioBrowser(page)
+  const panels = [
+    { name: 'browser', region: browser.locator('.studio-panel-scroll') },
+    { name: 'preview', region: page.locator('.studio-preview') },
+    { name: 'inspector', region: page.locator('.studio-inspector > .studio-panel-scroll') },
+  ]
+  for (const { name, region } of panels) {
+    if (name === 'preview') await closeStudioBrowser(page)
+    await page.keyboard.press('Tab')
+    const original = await region.getAttribute('tabindex')
+    const before = await region.boundingBox()
+    await region.evaluate((element) => {
+      element.tabIndex = -1
+      element.focus({ preventScroll: true })
+    })
+    await expect(region).toBeFocused()
+    const focus = await region.evaluate((element) => {
+      const style = getComputedStyle(element)
+      return {
+        visible: element.matches(':focus-visible'),
+        outline: style.outlineStyle,
+        width: Number.parseFloat(style.outlineWidth),
+        shadow: style.boxShadow,
+        overflow: element.scrollHeight > element.clientHeight,
+      }
+    })
+    expect(focus.visible).toBe(true)
+    expect(focus.outline).toBe('none')
+    expect(focus.width).toBe(0)
+    expect(focus.shadow).toBe('none')
+    await expect(region).toHaveCSS('outline-style', 'none')
+    await expect(region).toHaveCSS('outline-width', '0px')
+    expect(await region.boundingBox()).toEqual(before)
+    await page.screenshot({
+      path: testInfo.outputPath(`${name}-scroll-focus-full-page.png`),
+      fullPage: true,
+    })
+    if (focus.overflow) {
+      await region.press('End')
+      await expect.poll(() => region.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
+      await region.press('Home')
+      await expect.poll(() => region.evaluate((element) => element.scrollTop)).toBe(0)
+    }
+    await region.evaluate((element, value) => {
+      if (value === null) element.removeAttribute('tabindex')
+      else element.setAttribute('tabindex', value)
+    }, original)
+  }
+  await openStudioBrowser(page)
+  await page.keyboard.press('Tab')
+  const link = browser.getByRole('link', { name: 'Border beam', exact: true })
+  await link.focus()
+  expect(await link.evaluate((element) => element.matches(':focus-visible'))).toBe(true)
+  await expect(link).toHaveCSS('outline-width', '2px')
+  await expect(link).toHaveCSS('outline-offset', '4px')
+  const starting = browser.getByRole('group', { name: 'Starting point', exact: true })
+  const option = starting.getByRole('radio').first()
+  await option.focus()
+  expect(await option.evaluate((element) => element.matches(':focus-visible'))).toBe(true)
+  await expect(starting.locator('.field-option > span').first()).toHaveCSS('box-shadow', /inset/)
+  await page.screenshot({
+    path: testInfo.outputPath('choice-focus-full-page.png'),
+    fullPage: true,
+  })
+  const input = browser.getByRole('textbox', { name: 'Preset name', exact: true })
+  await input.focus()
+  expect(await input.evaluate((element) => element.matches(':focus-visible'))).toBe(true)
+  await expect(input).toHaveCSS('outline-width', '2px')
+  await expect(input).toHaveCSS('outline-offset', '4px')
+  await expect(browser.locator('.studio-panel-scroll')).toHaveCSS('outline-style', 'none')
+  await page.screenshot({
+    path: testInfo.outputPath('input-focus-full-page.png'),
+    fullPage: true,
+  })
+  await page.keyboard.press('Shift+Tab')
+  const save = browser.getByRole('button', { name: 'Save preset', exact: true })
+  await expect(save).toBeFocused()
+  await expect(save).toHaveCSS('outline-width', '2px')
+  await expect(save).toHaveCSS('outline-offset', '4px')
+})
+
 test('Studio keeps preview, independent scrolling and keyboard tabs in its viewport', async ({
   page,
 }, testInfo) => {

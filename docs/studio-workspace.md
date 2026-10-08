@@ -8,6 +8,8 @@ The header identifies the current component, links back to its guide, names a sa
 
 From 700px to 1099px, preview and inspector remain side by side; Components opens as a native modal drawer. Below 700px, preview and inspector share the available height in two rows. Settings scroll independently, allowing a drag to update the visible preview. Components and presets remain in the drawer. Escape closes the drawer and restores its opener. Changing a component or selecting an example closes it. The fullscreen outer dialog clips overflow, contains keyboard focus and keeps its header anchored.
 
+Scrolling panels have no focus outline around their perimeter. Links and form controls retain their existing focus cues; panel focus does not add a new tab stop or change scrolling and drawer behavior.
+
 The server-delivered shell opens its native dialog before hydration. Initial navigation and reload cover the document while the validated configuration fragment and SDK adapter load. Desktop component navigation is already available in the shell. Code copying and preset editing become available when configuration is ready.
 
 Customize reuses the existing field dispatch and draft gestures. Essential settings come first; expanded settings retain Appearance, Motion and Interaction groups. JSON is an explicit button disclosure with validation next to the editor. Import/export and the API reference remain contextual disclosures. Code contains installation, package-manager choices, the configured React snippet and the agent prompt. Bright actions and selected pills retain the shared accent gradient with white text in both themes; contrast flags remain accepted design trade-offs.

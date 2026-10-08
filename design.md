@@ -106,6 +106,8 @@ Reduced motion snaps control transitions and initially pauses effects. Play is e
 
 Use native radios, checkboxes, inputs and buttons. Radios retain native arrow-key selection. Tabs implement ArrowLeft/Right and Home/End with one tab stop. Selected state must be semantic, not only visual. Segmented cells and grid chips use one 2px inset `--ring` for keyboard focus. Other compound fields use one outer shell ring. Focus must remain visible without clipping, duplicate halos or layout shifts.
 
+Studio's structural scroll regions have no focus outline. Focus cues belong to their interactive children: links, buttons, radios and editors retain the shared ring or their compound field indicator. Do not add panel tab stops, redirect focus or change native scrolling to hide a container frame.
+
 Dialogs contain focus, support Escape and restore their opener. The mobile drawer keeps header/footer outside its scrolling destination list; focused rows must be fully visible. Decorative icons are `aria-hidden` and unfocusable. Sidebar icons are 18px with 44px rows; their finite detail motion settles within 840ms and disappears under reduced motion.
 
 Search has an accessible name and an actionable empty-state reset. Feedback stays adjacent with `role="status"`/`aria-live`; invalid configuration preserves working preview/code. Microphone access requires an explicit action and simulation stays separate.

@@ -150,6 +150,7 @@
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   padding: var(--livenui-space-5);
+  outline: 0;
 }
 .agent-libraries .studio-preview {
   min-width: 0;
@@ -157,6 +158,7 @@
   overflow: auto;
   overscroll-behavior: contain;
   padding: var(--livenui-space-6);
+  outline: 0;
 }
 .agent-libraries .studio-preview .playground-column {
   height: 100%;
