@@ -4,6 +4,7 @@ import {
   ArrowUp,
   Code2,
   Menu,
+  MessageSquare,
   Moon,
   Plus,
   SlidersHorizontal,
@@ -257,18 +258,22 @@ export function AvatarChat({
             expanded={panel === 'examples'}
             onClose={() => setPanel(undefined)}
             leading={back('avatar-chat-desktop')}
+            toolbar={
+              <button
+                type="button"
+                className="avatar-chat-new-conversation"
+                onClick={() => {
+                  chat.newChat()
+                  setPanel(undefined)
+                }}
+              >
+                <span className="avatar-chat-list-icon" aria-hidden="true">
+                  <Plus size={16} />
+                </span>
+                <span>New chat</span>
+              </button>
+            }
           >
-            <button
-              type="button"
-              className="avatar-chat-new-conversation"
-              onClick={() => {
-                chat.newChat()
-                setPanel(undefined)
-              }}
-            >
-              <Plus size={16} aria-hidden="true" />
-              New chat
-            </button>
             {chat.conversations.some((item) => item.messages.length > 0 && !item.example) && (
               <nav aria-label="Conversations" className="avatar-chat-list">
                 <h3>Chats</h3>
@@ -292,7 +297,10 @@ export function AvatarChat({
                         setPanel(undefined)
                       }}
                     >
-                      {item.title}
+                      <span className="avatar-chat-list-icon" aria-hidden="true">
+                        <MessageSquare size={16} />
+                      </span>
+                      <span>{item.title}</span>
                     </button>
                   ))}
               </nav>
@@ -339,12 +347,13 @@ export function AvatarChat({
                     composer.current?.focus({ preventScroll: true })
                   }}
                 >
-                  <span
-                    className="avatar-chat-outfit-dot"
-                    style={{ background: String(avatarHelperProps(example.outfit).color) }}
-                    aria-hidden="true"
-                  />
-                  {example.title}
+                  <span className="avatar-chat-list-icon" aria-hidden="true">
+                    <span
+                      className="avatar-chat-outfit-dot"
+                      style={{ background: String(avatarHelperProps(example.outfit).color) }}
+                    />
+                  </span>
+                  <span>{example.title}</span>
                 </button>
               ))}
             </nav>

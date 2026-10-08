@@ -103,6 +103,8 @@ Chat Shape, Outfit and Color belong to Character. Activity and playback belong t
 
 The avatar playground's Back arrow sits in the fixed top-left header: before the logo in the wide Examples panel, and first in the compact conversation header. Use an 18px decorative arrow in a 44px rounded-full native link to All components, with a tooltip and accessible name. Keep navigation outside scrolling lists. Compact conversation headers below 550px use 8px inline padding and 4px gaps around the 44px targets.
 
+Chat sidebar headers and content share a 16px inline inset. Keep New chat in the fixed toolbar, 16px below the header, while Chats and Examples scroll separately. Its 44px neutral row shares 13px text, a 20px decorative icon slot and an 8px gap with the list rows. The wide Back arrow aligns with these icon centers. The first scrolling group has no extra top margin; subsequent groups retain 20px separation.
+
 ## Motion and accessibility
 
 Motion explains a gesture or state change. A selection pill travels to the newly selected cell; a pressed action compresses to 0.98 and returns; grid options change local emphasis. Do not add bouncing labels, animated panel height, diagonal selection flights or perpetual control decoration. Feedback must settle and keep the layout stationary. Never apply control animations to SDK scene children.

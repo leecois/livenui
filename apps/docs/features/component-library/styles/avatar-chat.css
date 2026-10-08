@@ -334,7 +334,7 @@
   flex-shrink: 0;
   gap: var(--livenui-space-2);
   min-height: calc(var(--livenui-space-8) * 2);
-  padding: var(--livenui-space-2) var(--livenui-space-5);
+  padding: var(--livenui-space-2) var(--livenui-space-4);
   border-bottom: 1px solid var(--border);
 }
 .agent-libraries .avatar-chat-panel-heading h2 {
@@ -377,11 +377,15 @@
   border-radius: var(--livenui-radius-control);
   background: var(--track);
   text-align: start;
+  font-size: var(--livenui-font-label);
 }
 .agent-libraries .avatar-chat-list {
   display: grid;
   gap: var(--livenui-space-1);
   margin-top: var(--livenui-space-5);
+}
+.agent-libraries .avatar-chat-list:first-child {
+  margin-top: 0;
 }
 .agent-libraries .avatar-chat-list h3 {
   color: var(--muted);
@@ -391,7 +395,7 @@
 .agent-libraries .avatar-chat-list button {
   display: flex;
   align-items: center;
-  gap: var(--livenui-space-3);
+  gap: var(--livenui-space-2);
   min-width: 0;
   min-height: var(--livenui-control-height);
   padding: var(--livenui-space-2) var(--livenui-space-3);
@@ -401,6 +405,11 @@
   text-align: start;
   font-size: var(--livenui-font-label);
   overflow-wrap: anywhere;
+}
+.agent-libraries .avatar-chat-list-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--livenui-space-5);
 }
 .agent-libraries .avatar-chat-list button .avatar-chat-outfit-dot {
   width: var(--livenui-space-2);

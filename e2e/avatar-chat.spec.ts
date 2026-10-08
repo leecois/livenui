@@ -107,6 +107,112 @@ test('avatar guide opens a complete chat playground with independent sidebars an
   }
 })
 
+test('examples sidebar keeps its action and row alignment while the list scrolls', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/agents/avatars')
+  const actor = chat(page).locator('.avatar-chat-actor canvas')
+  await expect(actor).toBeVisible()
+  await actor.evaluate((element) => {
+    element.dataset.sidebarProbe = 'retained'
+  })
+  const examples = await openPanel(page, 'examples')
+  const action = examples.getByRole('button', { name: 'New chat', exact: true })
+  const content = examples.locator('.avatar-chat-panel-content')
+  const heading = examples.locator('.avatar-chat-panel-heading')
+  const before = await action.boundingBox()
+  await page.screenshot({
+    path: testInfo.outputPath('chat-sidebar-full-page.png'),
+    fullPage: true,
+  })
+  await content.evaluate((element) => {
+    element.scrollTop = 16
+  })
+  await expect.poll(() => content.evaluate((element) => element.scrollTop)).toBe(16)
+  await page.screenshot({
+    path: testInfo.outputPath('chat-sidebar-scrolled-full-page.png'),
+    fullPage: true,
+  })
+  expect(await action.boundingBox()).toEqual(before)
+  const header = await heading.boundingBox()
+  expect(before?.x).toBe((header?.x ?? 0) + 16)
+  expect(before?.y).toBe((header?.y ?? 0) + (header?.height ?? 0) + 16)
+  expect(before?.height).toBe(44)
+  await content.evaluate((element) => {
+    element.scrollTop = 0
+  })
+  const rows = await examples.evaluate((element) =>
+    [...element.querySelectorAll('.avatar-chat-new-conversation, .avatar-chat-list button')].map(
+      (row) => {
+        const icon = row.querySelector('.avatar-chat-list-icon')?.getBoundingClientRect()
+        const text = document.createRange()
+        text.selectNodeContents(row.lastChild as Node)
+        return {
+          x: row.getBoundingClientRect().x,
+          iconCenter: icon ? icon.x + icon.width / 2 : null,
+          textX: text.getBoundingClientRect().x,
+          font: getComputedStyle(row).fontSize,
+        }
+      }
+    )
+  )
+  expect(rows).toHaveLength(21)
+  expect(rows.every((row) => JSON.stringify(row) === JSON.stringify(rows[0]))).toBe(true)
+  expect(rows[0].font).toBe('13px')
+  if (testInfo.project.use.viewport?.width === 1440) {
+    const back = examples.getByRole('link', { name: 'Back to all components', exact: true })
+    const bounds = await back.boundingBox()
+    expect(rows[0].iconCenter).toBe((bounds?.x ?? 0) + (bounds?.width ?? 0) / 2)
+    const mainHeader = chat(page).locator('.avatar-chat-header')
+    expect((await mainHeader.boundingBox())?.height).toBe(header?.height)
+  }
+  await examples
+    .getByRole('navigation', { name: 'Chat examples' })
+    .getByRole('button')
+    .last()
+    .focus()
+  const scrolled = await content.evaluate((element) => element.scrollTop)
+  expect(scrolled).toBeGreaterThan(16)
+  await page.keyboard.press('Tab')
+  await action.focus()
+  await expect(action).toBeFocused()
+  expect(await content.evaluate((element) => element.scrollTop)).toBe(scrolled)
+  expect(await action.boundingBox()).toEqual(before)
+  await expect(action).toHaveCSS('outline-style', 'solid')
+  await page.screenshot({
+    path: testInfo.outputPath('chat-sidebar-focused-full-page.png'),
+    fullPage: true,
+  })
+  await action.press('Enter')
+  await expect(chat(page).getByRole('heading', { name: 'Who’s helping?' })).toBeVisible()
+  await expect(actor).toHaveAttribute('data-sidebar-probe', 'retained')
+  await closePanel(page, 'examples')
+  await chat(page).getByRole('textbox', { name: 'Message Clover', exact: true }).fill('Say hello')
+  await chat(page).getByRole('button', { name: 'Send message', exact: true }).click()
+  await expect(chat(page).getByRole('button', { name: 'Stop reply', exact: true })).toBeVisible()
+  await openPanel(page, 'examples')
+  const history = examples.getByRole('navigation', { name: 'Conversations' }).getByRole('button')
+  await expect(history).toHaveCount(1)
+  expect((await history.locator('span').last().boundingBox())?.x).toBe(rows[0].textX)
+  await action.click()
+  await expect(chat(page).getByRole('button', { name: 'Stop reply', exact: true })).toHaveCount(0)
+  await expect(chat(page).getByRole('heading', { name: 'Who’s helping?' })).toBeVisible()
+  await expect(actor).toHaveAttribute('data-sidebar-probe', 'retained')
+  await page.setViewportSize({ width: 320, height: 600 })
+  await expect(examples).toBeHidden()
+  await openPanel(page, 'examples')
+  await expect(action).toBeVisible()
+  const narrow = await action.boundingBox()
+  const panel = await examples.boundingBox()
+  expect(narrow?.x).toBe((panel?.x ?? 0) + 17)
+  expect((narrow?.x ?? 0) + (narrow?.width ?? 0)).toBeLessThanOrEqual(320)
+  expect(narrow?.height).toBe(44)
+  await page.screenshot({
+    path: testInfo.outputPath('chat-sidebar-320-full-page.png'),
+    fullPage: true,
+  })
+})
+
 test('header back stays visible across layouts and exits an active chat to all components', async ({
   page,
 }, testInfo) => {
