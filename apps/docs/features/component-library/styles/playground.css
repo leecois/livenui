@@ -719,6 +719,9 @@
   gap: var(--livenui-space-2);
   max-width: 100%;
 }
+.agent-libraries .field-liquid-behavior .choice-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 .agent-libraries .field-choice .choice-grid .field-option > span {
   width: 100%;
   border-color: var(--border);

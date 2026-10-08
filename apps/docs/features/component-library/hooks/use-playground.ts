@@ -162,7 +162,12 @@ export function usePlayground({
       field.name !== 'theme' &&
       controlVisible(activeLibrary, field, props) &&
       (all || query.trim() || content[library.id].controls.includes(field.name)) &&
-      matchesSearch(query, field.name, fieldLabel(field.name), field.description)
+      matchesSearch(
+        query,
+        field.name,
+        content[library.id].labels?.[field.name] ?? fieldLabel(field.name),
+        field.description
+      )
   )
   const update = (name: string, value: unknown) => {
     setStartingPoint('')

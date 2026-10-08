@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Library } from '../lib/config'
+import type { Library, Props } from '../lib/config'
 import { avatarColors, fieldLabel, optionLabel } from '../lib/content'
 import { booleanDefault, isColorField, numberSpec } from '../lib/controls'
 import { ChoiceField } from './choice-field'
@@ -25,6 +25,22 @@ export function FieldControl({
 }) {
   const id = `prop-${field.name}`
   const [customSize, setCustomSize] = useState(false)
+  if (library.id === 'gooey' && field.name === 'item' && quickChoices) {
+    const item = (value ?? {}) as Props
+    return (
+      <ChoiceField
+        className="field-liquid-behavior"
+        label={label}
+        description={field.description}
+        value={item.effect ?? 'morph'}
+        options={quickChoices.map((effect) => ({
+          value: effect,
+          label: optionLabel('effect', effect),
+        }))}
+        onChange={(effect) => set({ ...item, effect })}
+      />
+    )
+  }
   const sizeSpec =
     library.id === 'avatars' && field.name === 'size' ? numberSpec(library, 'size') : undefined
   const selected =

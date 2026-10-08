@@ -56,7 +56,9 @@ export const content: Record<string, ComponentContent> = {
     description:
       'Give menus, sliders and draggable items a liquid surface that stretches and merges.',
     hint: 'Click, drag or use the keyboard.',
-    controls: ['blur', 'contrast', 'fill', 'waviness'],
+    controls: ['item', 'blur', 'contrast', 'fill', 'waviness'],
+    labels: { item: 'Liquid behavior' },
+    choices: { item: ['morph', 'move', 'bend', 'melt'] },
     featured: ['gooey-morph', 'gooey-move', 'gooey-bend'],
     integration:
       'Keep the child background transparent so the liquid surface can stretch around crisp text and icons. Apply your background to the liquid surface instead.',

@@ -1,4 +1,4 @@
-import { Liquid, type LiquidEffect, type LiquidItemProps, type LiquidProps } from 'liquid-gooey'
+import { Liquid, type LiquidItemProps, type LiquidProps } from 'liquid-gooey'
 import { FilePlus2, FolderPlus, ImagePlus, Plus } from 'lucide-react'
 import {
   type CSSProperties,
@@ -10,7 +10,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { ChoiceField } from '../components/choice-field'
 import type { PreviewProps } from '../components/preview'
 import { meltDemoImages } from '../lib/media'
 
@@ -386,7 +385,7 @@ const hints = {
   melt: 'Drag the images together or use arrow keys. Home resets the position.',
 }
 
-export default function GooeyPreview({ props, paused, showcase, onPropsChange }: PreviewProps) {
+export default function GooeyPreview({ props, paused, showcase }: PreviewProps) {
   const { item: rawItem, ...groupProps } = props
   const item = (rawItem || {}) as LiquidItemProps
   const effect = item.effect || 'morph'
@@ -399,16 +398,6 @@ export default function GooeyPreview({ props, paused, showcase, onPropsChange }:
     <div className="gooey-demo" style={{ '--liquid-ink': 'var(--foreground)' } as CSSProperties}>
       <Scene key={effect} group={group} item={item} paused={paused} showcase={showcase} />
       <p className="demo-note">{hints[effect]}</p>
-      {onPropsChange && (
-        <div className="demo-actions">
-          <ChoiceField
-            label="Liquid behavior"
-            value={effect}
-            options={['morph', 'move', 'bend', 'melt'].map((value) => ({ value, label: value }))}
-            onChange={(value) => onPropsChange('item', { ...item, effect: value as LiquidEffect })}
-          />
-        </div>
-      )}
     </div>
   )
 }

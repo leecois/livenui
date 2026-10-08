@@ -100,6 +100,8 @@ At 320, 390, 768, 1024 and 1440px, controls, preset names, commands, API tables 
 
 ## Preview and avatar interaction
 
+Gooey previews contain the active liquid scene and its gesture hint. Liquid behavior belongs to Quick settings or Studio Customize, with four native chips in two equal columns and 8px gaps. Starting points load complete configurations; behavior changes preserve other group and item tuning. Do not repeat configuration selectors inside the scene.
+
 Desktop, Tablet (768px) and Mobile (375px) form a labeled icon group beside playback. A right-edge separator provides a 44px pointer/touch target, visible focus and an actual-width badge. Reserve the grip width plus 8px in the scene padding. Arrows change width by 10px, Shift uses 50px, Home/End choose limits, double-click restores full width and cancellation restores the previous request. Below 320px available width, hide the grip while retaining presets. Width stays capped to the container and survives task switches without changing exported props or remounting the renderer. These are container previews, not hardware/browser emulation. See [preview layout](docs/preview-layout.md).
 
 Chat Shape, Outfit and Color belong to Character. Activity and playback belong to Animation; connection/reply modes belong to Chat demo. Advanced appearance/motion uses contextual disclosure. Helper selection and New bot appear only in the empty conversation. The welcome avatar is 128px, composer avatar 64px, reply avatar 24px; these presentation sizes do not alter exported size. The existing helper popover is a named-profile picker, with grouped descriptions and keyboard/light-dismiss behavior, not a substitute for settings choices. Replies remain scripted and local.
