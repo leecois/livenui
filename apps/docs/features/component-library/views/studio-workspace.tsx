@@ -108,14 +108,14 @@ export function StudioLayout({
     navigate(path)
   }
   const save = () => {
-    setBrowse(true)
+    setView('presets')
     requestAnimationFrame(() => {
-      const input = browser.current?.querySelector<HTMLInputElement>('#preset-name')
+      const input = inspectorScroll.current?.querySelector<HTMLInputElement>('#preset-name')
       input?.scrollIntoView({ block: 'nearest' })
       input?.focus({ preventScroll: true })
     })
   }
-  const tabs = ['customize', 'code']
+  const tabs = ['customize', 'presets', 'code']
   return (
     <div className="studio-root" ref={root} data-wide={wide || undefined}>
       <header className="studio-header">
@@ -149,6 +149,7 @@ export function StudioLayout({
             type="button"
             className="pill"
             aria-label="Name a preset"
+            aria-controls={`${id}-panel-presets`}
             onClick={save}
             disabled={!state}
           >
@@ -193,7 +194,7 @@ export function StudioLayout({
           suppressHydrationWarning
           id={`${id}-browser`}
           className="studio-browser"
-          aria-label="Components and presets"
+          aria-label="Components"
           aria-modal={!wide && browse ? true : undefined}
           onKeyDown={(event) => {
             if (!wide) containDialogFocus(event)
@@ -222,10 +223,6 @@ export function StudioLayout({
               state={state}
               onExample={() => setBrowse(false)}
             />
-            {state && <SavedPresets library={library} presets={presets} state={state} />}
-            <p className="studio-save-notice helper-text" role="status">
-              {state?.notice}
-            </p>
           </div>
         </dialog>
         <section className="studio-preview" aria-label={`${library.name} live preview`}>
@@ -259,11 +256,16 @@ export function StudioLayout({
                   onKeyDown={(event) => {
                     const next =
                       event.key === 'ArrowRight' || event.key === 'ArrowLeft'
-                        ? tabs[(tabs.indexOf(tab) + 1) % tabs.length]
+                        ? tabs[
+                            (tabs.indexOf(tab) +
+                              (event.key === 'ArrowRight' ? 1 : -1) +
+                              tabs.length) %
+                              tabs.length
+                          ]
                         : event.key === 'Home'
                           ? tabs[0]
                           : event.key === 'End'
-                            ? tabs[1]
+                            ? tabs[tabs.length - 1]
                             : undefined
                     if (next) {
                       event.preventDefault()
@@ -272,7 +274,7 @@ export function StudioLayout({
                     }
                   }}
                 >
-                  {tab === 'customize' ? 'Customize' : 'Code'}
+                  {tab === 'customize' ? 'Customize' : tab === 'presets' ? 'Presets' : 'Code'}
                 </button>
               ))}
             </SelectionTrack>
@@ -298,6 +300,21 @@ export function StudioLayout({
                 <p className="helper-text" role="status">
                   Loading settings…
                 </p>
+              )}
+            </div>
+            <div
+              role="tabpanel"
+              id={`${id}-panel-presets`}
+              aria-labelledby={`${id}-tab-presets`}
+              hidden={view !== 'presets'}
+            >
+              {state && (
+                <>
+                  <SavedPresets library={library} presets={presets} state={state} />
+                  <p className="studio-save-notice helper-text" role="status">
+                    {state.notice}
+                  </p>
+                </>
               )}
             </div>
             <div

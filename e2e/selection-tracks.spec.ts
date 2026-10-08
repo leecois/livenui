@@ -150,6 +150,9 @@ test('Guide, Studio, workflow and device tracks share selection geometry', async
       const tabs = page.getByRole('tablist', { name: 'Studio view', exact: true })
       await tabs.getByRole('tab', { name: 'Code', exact: true }).click()
       await aligned(tabs)
+      await tabs.getByRole('tab', { name: 'Presets', exact: true }).click()
+      await aligned(tabs)
+      await expect(page.locator('.studio-presets')).toBeVisible()
       await tabs.getByRole('tab', { name: 'Customize', exact: true }).click()
       await aligned(tabs)
     }

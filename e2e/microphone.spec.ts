@@ -103,10 +103,14 @@ test('late microphone denial cannot replace a newer live request', async ({ page
   await expect.poll(() => page.evaluate(() => window.__captureRequests[1].stops)).toBe(1)
 })
 
-test('Studio Code preserves capture until an explicit pause', async ({ page }) => {
+test('Studio inspector tabs preserve capture until an explicit pause', async ({ page }) => {
   await controlledMicrophone(page)
   await page.getByRole('tab', { name: 'Code', exact: true }).click()
+  await page.getByRole('tab', { name: 'Presets', exact: true }).click()
   await page.evaluate(() => window.__captureRequests[0].resolve())
+  await expect(page.getByRole('button', { name: 'Stop microphone', exact: true })).toBeVisible()
+  expect(await page.evaluate(() => window.__captureRequests[0].stops)).toBe(0)
+  await page.getByRole('tab', { name: 'Code', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Stop microphone', exact: true })).toBeVisible()
   expect(await page.evaluate(() => window.__captureRequests[0].stops)).toBe(0)
   await page.getByRole('tab', { name: 'Customize', exact: true }).click()

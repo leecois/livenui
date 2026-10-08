@@ -98,7 +98,7 @@ test('saved presets restore playback after a reduced-motion reload', async ({ pa
   await openStudioPresets(page)
   await page.getByLabel('Preset name', { exact: true }).fill('Playing configuration')
   await page.getByRole('button', { name: /Save preset/ }).click()
-  await expect(page.locator('.control-notice')).toContainText('Preset saved')
+  await expect(page.locator('.studio-save-notice')).toContainText('Preset saved')
   expect(
     await page.evaluate(() => JSON.parse(localStorage.getItem('livenui-presets') || '[]')[0].props)
   ).toMatchObject({ paused: false })
@@ -109,6 +109,7 @@ test('saved presets restore playback after a reduced-motion reload', async ({ pa
   await closeStudioBrowser(page)
   await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toBeVisible()
   await expect(page.locator('.code-panel code')).toContainText('paused={false}')
+  await page.getByRole('tab', { name: 'Customize', exact: true }).click()
   await page.locator('.studio-json-toggle').click()
   expect(JSON.parse(await page.getByLabel('Edit component props').inputValue()).paused).toBe(false)
 })

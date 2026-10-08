@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { changeLibrary, chooseOption } from './helpers/choices'
-import { closeStudioBrowser, openStudioBrowser } from './helpers/studio'
+import { closeStudioBrowser, openStudioBrowser, openStudioPresets } from './helpers/studio'
 
 test.beforeEach(async ({ page }, testInfo) => {
   await page.addInitScript(
@@ -79,21 +79,100 @@ test('Studio scroll panels omit focus frames while controls retain focus cues', 
     path: testInfo.outputPath('choice-focus-full-page.png'),
     fullPage: true,
   })
-  const input = browser.getByRole('textbox', { name: 'Preset name', exact: true })
+  await openStudioPresets(page)
+  const inspector = page.locator('.studio-inspector')
+  const input = inspector.getByRole('textbox', { name: 'Preset name', exact: true })
   await input.focus()
   expect(await input.evaluate((element) => element.matches(':focus-visible'))).toBe(true)
   await expect(input).toHaveCSS('outline-width', '2px')
   await expect(input).toHaveCSS('outline-offset', '4px')
-  await expect(browser.locator('.studio-panel-scroll')).toHaveCSS('outline-style', 'none')
+  await expect(inspector.locator('.studio-panel-scroll')).toHaveCSS('outline-style', 'none')
   await page.screenshot({
     path: testInfo.outputPath('input-focus-full-page.png'),
     fullPage: true,
   })
   await page.keyboard.press('Shift+Tab')
-  const save = browser.getByRole('button', { name: 'Save preset', exact: true })
+  const save = inspector.getByRole('button', { name: 'Save preset', exact: true })
   await expect(save).toBeFocused()
   await expect(save).toHaveCSS('outline-width', '2px')
   await expect(save).toHaveCSS('outline-offset', '4px')
+})
+
+test('Studio Presets keeps configuration saving beside editing and code', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/studio?library=beam')
+  const scene = page.locator('.preview-stage .beam-host')
+  await expect(scene).toBeVisible()
+  await scene.evaluate((element) => element.setAttribute('data-preset-probe', 'retained'))
+  const tabs = page.getByRole('tablist', { name: 'Studio view', exact: true })
+  await expect(tabs.getByRole('tab')).toHaveText(['Customize', 'Presets', 'Code'])
+  await expect(page.locator('.studio-browser .studio-presets')).toHaveCount(0)
+  await tabs.getByRole('tab', { name: 'Customize', exact: true }).focus()
+  for (const [key, name] of [
+    ['ArrowRight', 'Presets'],
+    ['ArrowRight', 'Code'],
+    ['ArrowRight', 'Customize'],
+    ['ArrowLeft', 'Code'],
+    ['ArrowLeft', 'Presets'],
+    ['Home', 'Customize'],
+    ['End', 'Code'],
+  ]) {
+    await page.keyboard.press(key)
+    const tab = tabs.getByRole('tab', { name, exact: true })
+    await expect(tab).toBeFocused()
+    await expect(tab).toHaveAttribute('aria-selected', 'true')
+    await expect(page.getByRole('tabpanel', { name, exact: true })).toBeVisible()
+    await expect(tabs.locator('[tabindex="0"]')).toHaveCount(1)
+  }
+  await expect(scene).toHaveAttribute('data-preset-probe', 'retained')
+  await tabs.getByRole('tab', { name: 'Customize', exact: true }).click()
+  const duration = page.locator('#prop-duration')
+  await duration.fill('6')
+  await duration.press('Enter')
+  const code = page.locator('.code-panel code')
+  await expect(code).toContainText('duration={6}')
+  const configured = await code.textContent()
+  await page.getByRole('button', { name: 'Name a preset', exact: true }).click()
+  const presets = page.getByRole('tabpanel', { name: 'Presets', exact: true })
+  await expect(presets).toBeVisible()
+  await expect(tabs.getByRole('tab', { name: 'Presets', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
+  const input = presets.getByRole('textbox', { name: 'Preset name', exact: true })
+  await expect(input).toBeFocused()
+  await input.fill('Beam configuration')
+  await tabs.getByRole('tab', { name: 'Code', exact: true }).click()
+  await expect(code).toHaveText(configured || '')
+  await openStudioPresets(page)
+  await expect(input).toHaveValue('Beam configuration')
+  await expect(scene).toHaveAttribute('data-preset-probe', 'retained')
+  await page.screenshot({ path: testInfo.outputPath('presets-name-full-page.png'), fullPage: true })
+  await input.press('Enter')
+  const saved = presets.locator('.preset-row').getByRole('button', {
+    name: 'Beam configuration',
+    exact: true,
+  })
+  await expect(saved).toBeVisible()
+  await expect(presets.getByRole('status')).toContainText('Preset saved on this device.')
+  await tabs.getByRole('tab', { name: 'Customize', exact: true }).click()
+  await duration.fill('2')
+  await duration.press('Enter')
+  await expect(code).toContainText('duration={2}')
+  await openStudioPresets(page)
+  await saved.click()
+  await expect(code).toHaveText(configured || '')
+  await page.screenshot({
+    path: testInfo.outputPath('presets-saved-full-page.png'),
+    fullPage: true,
+  })
+  await page.reload()
+  await openStudioPresets(page)
+  await saved.click()
+  await expect(code).toHaveText(configured || '')
+  await presets.getByRole('button', { name: 'Delete Beam configuration', exact: true }).click()
+  await expect(saved).toHaveCount(0)
 })
 
 test('Studio keeps preview, independent scrolling and keyboard tabs in its viewport', async ({

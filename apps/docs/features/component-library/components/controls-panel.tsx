@@ -204,7 +204,7 @@ export function SavedPresets({
         }}
       >
         <div className="preset-heading">
-          <h3 className="saved-heading">Presets</h3>
+          <h3 className="saved-heading">New preset</h3>
           <Button
             type="submit"
             className="button-accent"

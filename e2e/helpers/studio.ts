@@ -7,7 +7,7 @@ export async function openStudioBrowser(page: Page) {
       root.evaluate((element) => element.clientWidth >= 1100 === element.hasAttribute('data-wide'))
     )
     .toBe(true)
-  const browser = page.getByRole('dialog', { name: 'Components and presets', includeHidden: true })
+  const browser = page.getByRole('dialog', { name: 'Components', exact: true, includeHidden: true })
   if (!(await browser.isVisible()))
     await page.getByRole('button', { name: 'Components', exact: true }).click()
   await expect(browser).toBeVisible()
@@ -21,6 +21,7 @@ export async function closeStudioBrowser(page: Page) {
 }
 
 export async function openStudioPresets(page: Page) {
-  const browser = await openStudioBrowser(page)
-  await browser.getByLabel('Preset name', { exact: true }).scrollIntoViewIfNeeded()
+  await closeStudioBrowser(page)
+  await page.getByRole('tab', { name: 'Presets', exact: true }).click()
+  await expect(page.getByRole('tabpanel', { name: 'Presets', exact: true })).toBeVisible()
 }
