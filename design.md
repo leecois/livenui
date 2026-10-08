@@ -82,6 +82,8 @@ Numeric, color and text rows place labels and values inside a 54px shell, with 4
 
 Color/text labels use an 80px column and flexible exact entries. Focus creates one shell ring without resizing or inserting content. Contextual controls can hide while preserving their values. The same state drives controls, preview, transfer and code.
 
+In the narrow Studio browser, Presets uses a 14px heading, 13px field/action text and a compact 44px Save target. The name field occupies the full row below; do not split its width with the action. Use 12px spacing and a native form so Enter saves. Keep local-storage context in the accessible field hint, native Save tooltip and confirmation instead of a separate visible paragraph. Empty lists add no padding; saved names wrap without squeezing their delete targets.
+
 ## Typography and responsive layout
 
 Application headings use weight 550, line-height 1.3 and -0.025em tracking. Catalog headings are 24px, panels 20–22px, subsections 15–16px. The shell owns page H1 and prose. Labels/controls use 13px and 1.5 line-height, help text 12px and 1.6, code 1.8. Help text has zero margin; parents own spacing. Do not reuse margin-bearing scene notes in a toolbar or form.

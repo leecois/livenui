@@ -190,39 +190,57 @@ export function SavedPresets({
   const saved = presets.filter((preset) => preset.library === library.id)
   return (
     <section className="studio-presets" aria-label="Saved presets">
-      <h3 className="saved-heading">Saved presets</h3>
-      <p className="helper-text">Saved in this browser.</p>
+      <p className="sr-only" id="preset-storage">
+        Saved in this browser.
+      </p>
       <label className="sr-only" htmlFor="preset-name">
         Preset name
       </label>
-      <div className="preset-save">
+      <form
+        className="preset-save"
+        onSubmit={(event) => {
+          event.preventDefault()
+          state.save()
+        }}
+      >
+        <div className="preset-heading">
+          <h3 className="saved-heading">Presets</h3>
+          <Button
+            type="submit"
+            className="button-accent"
+            aria-label="Save preset"
+            title="Save in this browser"
+          >
+            Save
+          </Button>
+        </div>
         <input
           id="preset-name"
-          placeholder="Name your preset"
+          placeholder="Preset name"
+          aria-describedby="preset-storage"
           maxLength={80}
           value={state.presetName}
           onChange={(event) => state.setPresetName(event.target.value)}
         />
-        <Button className="button-accent" aria-label="Save preset" onClick={state.save}>
-          Save <span aria-hidden="true">+</span>
-        </Button>
-      </div>
-      <div className="preset-list">
-        {saved.map((preset) => (
-          <div key={preset.id} className="preset-row">
-            <button type="button" onClick={() => state.load(preset)}>
-              {preset.name} <span aria-hidden="true">↗</span>
-            </button>
-            <button
-              type="button"
-              aria-label={`Delete ${preset.name}`}
-              onClick={() => state.deletePreset(preset.id)}
-            >
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
+      </form>
+      {saved.length > 0 && (
+        <div className="preset-list">
+          {saved.map((preset) => (
+            <div key={preset.id} className="preset-row">
+              <button type="button" title={preset.name} onClick={() => state.load(preset)}>
+                {preset.name}
+              </button>
+              <button
+                type="button"
+                aria-label={`Delete ${preset.name}`}
+                onClick={() => state.deletePreset(preset.id)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

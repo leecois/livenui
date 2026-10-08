@@ -349,9 +349,52 @@ test('advanced settings and configuration tabs fit narrow widths and long saved 
   await expect(customize).toBeFocused()
   await openStudioPresets(page)
   const saved = page.locator('.studio-presets')
+  const nameField = saved.getByRole('textbox', { name: 'Preset name', exact: true })
+  for (const width of [1440, 1024, 390, 320]) {
+    await page.setViewportSize({ width, height: 1000 })
+    await openStudioPresets(page)
+    await contained(saved)
+    await expect(nameField).toHaveAccessibleDescription('Saved in this browser.')
+    const geometry = await saved.evaluate((element) => {
+      const form = element.querySelector('form')
+      const input = element.querySelector('input')
+      const button = element.querySelector('button[type="submit"]')
+      if (!form || !input || !button) throw new Error('Missing preset form')
+      const field = input.getBoundingClientRect()
+      const action = button.getBoundingClientRect()
+      const style = getComputedStyle(input)
+      const canvas = document.createElement('canvas').getContext('2d')
+      if (!canvas) throw new Error('Missing text measurement context')
+      canvas.font = `${style.fontSize} ${style.fontFamily}`
+      return {
+        width: field.width,
+        formWidth: form.getBoundingClientRect().width,
+        gap: field.top - action.bottom,
+        height: field.height,
+        actionHeight: action.height,
+        font: style.fontSize,
+        textWidth: canvas.measureText(input.placeholder).width,
+        textSpace:
+          input.clientWidth -
+          Number.parseFloat(style.paddingLeft) -
+          Number.parseFloat(style.paddingRight),
+      }
+    })
+    expect(geometry.width).toBeCloseTo(geometry.formWidth, 0)
+    expect(geometry.gap).toBeCloseTo(12, 0)
+    expect(geometry.height).toBeGreaterThanOrEqual(44)
+    expect(geometry.actionHeight).toBeGreaterThanOrEqual(44)
+    expect(geometry.font).toBe('13px')
+    expect(geometry.textWidth).toBeLessThan(geometry.textSpace)
+    await saved.screenshot({ path: testInfo.outputPath(`presets-empty-${width}.png`) })
+    await page.screenshot({
+      path: testInfo.outputPath(`presets-full-page-${width}.png`),
+      fullPage: true,
+    })
+  }
   const name = 'A deliberately long preset name to check compact settings and wrapping'.slice(0, 80)
-  await saved.getByRole('textbox', { name: 'Preset name', exact: true }).fill(name)
-  await saved.getByRole('button', { name: 'Save preset' }).click()
+  await nameField.fill(name)
+  await nameField.press('Enter')
   await expect(
     saved.locator('.preset-row').getByRole('button', { name, exact: true })
   ).toBeVisible()
