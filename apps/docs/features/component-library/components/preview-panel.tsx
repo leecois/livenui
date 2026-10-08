@@ -110,7 +110,6 @@ export function PreviewPanel({
         </output>
       </div>
       <div className="preview-caption">
-        <span className="eyebrow">{paused ? 'PREVIEW PAUSED' : 'LIVE PREVIEW'}</span>
         <span className="preview-dimensions">
           {selected} · {actualWidth}px
           {width !== null && width > available ? ' · Fits available space' : ''}

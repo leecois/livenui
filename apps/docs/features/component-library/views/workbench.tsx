@@ -160,7 +160,6 @@ function Workbench({
                 <h2 ref={playground} tabIndex={-1}>
                   Make it yours
                 </h2>
-                <p className="helper-text">Adjust the quick settings and try the interaction.</p>
               </div>
             )}
             <div

@@ -10,10 +10,6 @@
   gap: var(--livenui-space-2);
   min-width: 0;
 }
-.agent-libraries .studio-choice > .field-heading {
-  font-size: var(--livenui-font-label);
-  color: var(--muted);
-}
 .agent-libraries .studio-library-options {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -35,12 +31,6 @@
 }
 .agent-libraries .studio-starting-point .choice-grid {
   grid-template-columns: minmax(0, 1fr);
-}
-.agent-libraries .context-description {
-  margin: 0;
-  font-size: var(--livenui-font-label);
-  color: var(--muted);
-  line-height: 1.5;
 }
 .agent-libraries .studio-context .text-button {
   justify-self: start;
@@ -215,9 +205,6 @@
 .agent-libraries .studio-inspector .control-content {
   padding: 0;
 }
-.agent-libraries .studio-inspector .controls-heading h2 {
-  font-size: var(--livenui-font-body);
-}
 .agent-libraries .studio-json {
   border-top: 1px solid var(--border);
   margin-top: var(--livenui-space-5);
@@ -234,12 +221,6 @@
   min-height: var(--livenui-control-height);
   font-size: var(--livenui-font-label);
   line-height: 1.6;
-}
-.agent-libraries .studio-json-toggle span {
-  display: block;
-  margin-inline-start: 0;
-  color: var(--muted);
-  font-size: var(--livenui-font-caption);
 }
 .agent-libraries .studio-json .json-editor {
   margin-top: var(--livenui-space-2);
@@ -291,7 +272,6 @@
     padding-inline: var(--livenui-space-2);
   }
   .agent-libraries .studio-brand,
-  .agent-libraries .studio-title .helper-text,
   .agent-libraries .studio-header-actions .pill > span {
     display: none;
   }

@@ -27,17 +27,13 @@ export function IntegrationPanel({
   return (
     <section className="integration-panel" aria-label="Use in your project">
       <div className="integration-heading">
-        <div>
-          <h2>Use in your project</h2>
-          <p className="helper-text">Install the source, then copy the code you just configured.</p>
-        </div>
+        <h2>Install</h2>
         <Link href="/agents/integration" navigate={navigate} className="text-button">
           Installation guide ↗
         </Link>
       </div>
       <div className="install-panel">
         <div className="code-heading">
-          <h3>1. Add Liven UI source</h3>
           <div className="manager-choice">
             <ChoiceField
               label="Package manager"
@@ -54,16 +50,18 @@ export function IntegrationPanel({
           <code>{installCommand(library, manager, siteUrl.origin)}</code>
           <Copy text={installCommand(library, manager, siteUrl.origin)}>Copy command</Copy>
         </div>
-        <p className="helper-text">
-          Copies editable component source into your project. React 18+
-          {library.id === 'image' ? ' · Three.js included' : ''}. Use your configured component
-          alias in the import below.
-        </p>
       </div>
-      <CodePanel state={state} installation copyLabel={details ? undefined : 'Copy snippet'} />
-      {content[library.id].integration && (
-        <p className="helper-text integration-guidance">{content[library.id].integration}</p>
-      )}
+      <CodePanel state={state} copyLabel={details ? undefined : 'Copy snippet'} />
+      <details className="integration-details">
+        <summary>Integration notes</summary>
+        <p className="helper-text">
+          React 18+{library.id === 'image' ? ' · Three.js included' : ''}. Adjust the import to your
+          component alias.
+        </p>
+        {content[library.id].integration && (
+          <p className="helper-text integration-guidance">{content[library.id].integration}</p>
+        )}
+      </details>
       {details && <ConfigurationDetails library={library} state={state} transfer={studio} />}
     </section>
   )
@@ -83,12 +81,7 @@ export function ConfigurationDetails({
     <div className="configuration-details">
       {transfer && (
         <details className="integration-details">
-          <summary>
-            Import & export <span>Portable JSON</span>
-          </summary>
-          <p className="helper-text">
-            Export a configuration to keep a portable copy, or import one from another device.
-          </p>
+          <summary>Import & export</summary>
           <div className="export-actions">
             <input
               className="sr-only"
@@ -109,9 +102,7 @@ export function ConfigurationDetails({
         </details>
       )}
       <details className="integration-details">
-        <summary>
-          API reference <span>All props and types</span>
-        </summary>
+        <summary>API reference</summary>
         <PropsTable library={activeLibrary} />
         {library.itemFields.length > 0 && (
           <>

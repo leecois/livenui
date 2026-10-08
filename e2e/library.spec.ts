@@ -165,11 +165,8 @@ test('Studio context remains aligned at desktop, tablet and compact widths', asy
     await noOverflow(page)
     await openStudioBrowser(page)
     const measure = await page.locator('.studio-context').evaluate((context) => {
-      const hint = context.querySelector('.context-description')
-      if (!hint) throw new Error('Missing Studio description')
       const root = context.getBoundingClientRect()
       return {
-        hintMargin: getComputedStyle(hint).marginTop,
         options: [...context.querySelectorAll('.studio-library-options a,input[type="radio"]')].map(
           (node) => {
             const box = node.getBoundingClientRect()
@@ -184,7 +181,6 @@ test('Studio context remains aligned at desktop, tablet and compact widths', asy
         active: context.querySelectorAll('[aria-current="page"]').length,
       }
     })
-    expect(measure.hintMargin).toBe('0px')
     expect(measure.selects).toBe(0)
     expect(measure.active).toBe(1)
     for (const option of measure.options) {
@@ -407,9 +403,15 @@ test('all examples remain reachable and preview variants retain interactions', a
     .check()
   await expect(page.locator('.code-panel code')).toContainText('working')
   await page.getByRole('button', { name: '▶ Play', exact: true }).click()
-  await expect(page.locator('.preview-caption .eyebrow')).toHaveText('LIVE PREVIEW')
+  await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'false'
+  )
   await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
-  await expect(page.locator('.preview-caption .eyebrow')).toHaveText('PREVIEW PAUSED')
+  await expect(page.getByRole('button', { name: '▶ Play', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  )
   expect(errors).toEqual([])
 })
 
@@ -484,9 +486,7 @@ test('installation commands and copied code use maintained Liven UI source', asy
 }) => {
   await page.goto('/studio?library=orbs')
   await page.getByRole('tab', { name: 'Code', exact: true }).click()
-  await expect(
-    page.getByRole('heading', { name: '1. Add Liven UI source', exact: true })
-  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Install', exact: true })).toBeVisible()
   await expect(page.locator('.code-panel code')).toContainText("from '@/components/livenui/orbs'")
   for (const [value, runner] of [
     ['npm', 'npx'],

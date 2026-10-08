@@ -40,7 +40,7 @@ export function ControlsPanel({
   return (
     <aside className="controls-panel">
       <div className="controls-heading">
-        <h2>{studio ? 'Customize' : 'Quick settings'}</h2>
+        {!studio && <h2>Quick settings</h2>}
         <Button className="controls-reset" onClick={reset}>
           <RotateCcw size={14} aria-hidden="true" />
           Reset
@@ -141,7 +141,7 @@ export function ControlsPanel({
               aria-controls="studio-json-editor"
               onClick={() => selectTab(tab === 'json' ? 'controls' : 'json')}
             >
-              Edit JSON <span>Advanced configuration</span>
+              Edit JSON
             </button>
             <div id="studio-json-editor" hidden={tab !== 'json'}>
               <JsonEditor state={state} />
@@ -173,7 +173,6 @@ function JsonEditor({ state }: { state: PlaygroundState }) {
         <Button className="button-accent" onClick={state.apply}>
           Apply configuration <span aria-hidden="true">↗</span>
         </Button>
-        <p className="helper-text">The preview updates only after validation.</p>
       </div>
     </>
   )
@@ -192,7 +191,7 @@ export function SavedPresets({
   return (
     <section className="studio-presets" aria-label="Saved presets">
       <h3 className="saved-heading">Saved presets</h3>
-      <p className="helper-text">Stored in this browser. Export JSON for a portable copy.</p>
+      <p className="helper-text">Saved in this browser.</p>
       <label className="sr-only" htmlFor="preset-name">
         Preset name
       </label>
@@ -224,9 +223,6 @@ export function SavedPresets({
           </div>
         ))}
       </div>
-      {saved.length === 0 && (
-        <p className="helper-text">No presets yet. Name this configuration to keep it.</p>
-      )}
     </section>
   )
 }

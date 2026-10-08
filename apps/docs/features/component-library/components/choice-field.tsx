@@ -78,11 +78,14 @@ export function ChoiceField({
           className="text-button choices-expand"
           aria-expanded={expanded}
           aria-controls={id}
+          aria-label={
+            expanded
+              ? `Show fewer ${label.toLowerCase()} options`
+              : `Browse all ${options.length} ${label.toLowerCase()} options`
+          }
           onClick={() => setExpanded(!expanded)}
         >
-          {expanded
-            ? `Show fewer ${label.toLowerCase()} options`
-            : `Browse all ${options.length} ${label.toLowerCase()} options`}
+          {expanded ? 'Show fewer' : `All ${options.length}`}
           <span aria-hidden="true">{expanded ? '−' : '+'}</span>
         </button>
       )}

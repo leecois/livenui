@@ -29,22 +29,20 @@
   gap: var(--livenui-space-3);
 }
 .agent-libraries .code-panel,
-.agent-libraries .configuration-details,
-.agent-libraries .integration-guidance {
+.agent-libraries .configuration-details {
   grid-column: 1 / -1;
   min-width: 0;
 }
 .agent-libraries .code-heading h3 {
   font-size: 15px;
 }
-.agent-libraries .code-heading .helper-text,
-.agent-libraries .integration-heading .helper-text {
-  margin-top: var(--livenui-space-2);
+.agent-libraries .integration-guidance {
+  margin-top: var(--livenui-space-3);
 }
 .agent-libraries .code-next-step {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: var(--livenui-space-3);
   margin-top: var(--livenui-space-4);
@@ -102,12 +100,6 @@
   font-size: var(--livenui-font-body);
   font-weight: 550;
   line-height: 1.6;
-}
-.agent-libraries .integration-details summary span {
-  margin-inline-start: var(--livenui-space-3);
-  font-size: var(--livenui-font-caption);
-  color: var(--muted);
-  font-weight: 400;
 }
 .agent-libraries .integration-details[open] summary {
   margin-bottom: var(--livenui-space-4);
@@ -168,9 +160,5 @@
   }
   .agent-libraries .install-command {
     flex-wrap: wrap;
-  }
-  .agent-libraries .integration-details summary span {
-    display: block;
-    margin-inline-start: var(--livenui-space-5);
   }
 }

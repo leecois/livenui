@@ -132,7 +132,6 @@ export function StudioLayout({
           <h1>
             Studio <span>/ {library.name}</span>
           </h1>
-          <p className="helper-text">Preview, configure, integrate.</p>
         </div>
         <div className="studio-header-actions">
           <button

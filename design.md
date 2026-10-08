@@ -8,6 +8,10 @@ This is the implemented interface contract. Read [architecture](docs/architectur
 
 Use quiet shell surfaces, restrained borders, small section labels and direct controls. Put choices where they can be compared before selection. A control should reveal its purpose, current state and available actions without opening a menu. Whitespace separates tasks; decorative containers should not create extra steps.
 
+Remove copy that repeats a tab, heading, action or visible state. Use one label per task and let the component demonstrate its behavior. Keep interaction hints, ambiguous defaults, validation and local-only notices; reveal integration requirements in contextual notes. Studio has no header tagline, component-description paragraph or second Customize heading. Do not replace removed prose with decorative badges or icon-only controls that hide an unfamiliar action.
+
+Inline expansion uses “All N” and “Show fewer” within its labeled group; accessible names retain the group context. Preview hints name the gesture rather than narrating the configuration workflow.
+
 The reference catalog's strongest patterns are the object-first demos, visible chip families, parameter dials, contextual side panels and motion tied to gestures. Adapt these patterns with Liven UI's tokens and native behavior. Keep original artwork, product identity, SDK effects and legal attribution.
 
 ## Choose the right control

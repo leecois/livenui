@@ -140,11 +140,13 @@ test('categorical rows and value grids align across Guide and Studio libraries',
       if (library === 'avatars' && view === 'guide') await openAvatarComponentPreview(page)
       const panel = page.locator('.controls-panel')
       await expect(
-        panel.getByRole('heading', {
-          name: view === 'guide' ? 'Quick settings' : 'Customize',
+        panel.getByRole('group', {
+          name: view === 'guide' ? 'Quick settings' : 'Customize settings',
           exact: true,
         })
       ).toBeVisible()
+      if (view === 'guide')
+        await expect(panel.getByRole('heading', { name: 'Quick settings' })).toBeVisible()
       await contained(panel)
       await alignedFields(panel)
       await expect(panel.locator('.control-group-heading')).toHaveCount(0)
@@ -153,9 +155,10 @@ test('categorical rows and value grids align across Guide and Studio libraries',
         const tabs = page.getByRole('tablist', { name: 'Studio view', exact: true })
         await expect(tabs.getByRole('tab')).toHaveCount(2)
         const bounds = await tabs.boundingBox()
-        const title = await panel.getByRole('heading', { name: 'Customize' }).boundingBox()
-        if (!bounds || !title) throw new Error('Missing settings navigation')
-        expect(bounds.y + bounds.height).toBeLessThanOrEqual(title.y)
+        const reset = await panel.getByRole('button', { name: 'Reset', exact: true }).boundingBox()
+        if (!bounds || !reset) throw new Error('Missing settings navigation')
+        expect(bounds.y + bounds.height).toBeLessThanOrEqual(reset.y)
+        await expect(panel.getByRole('heading', { name: 'Customize' })).toHaveCount(0)
       }
       await panel.screenshot({ path: testInfo.outputPath(`settings-${library}-${view}.png`) })
       if (library === 'beam' || library === 'metal' || library === 'image') {

@@ -1,6 +1,5 @@
 import type { PlaygroundState } from '../hooks/use-playground'
 import { type Library, libraries } from '../lib/config'
-import { content } from '../lib/content'
 import { examples } from '../lib/examples'
 import type { Navigate } from '../lib/types'
 import { ChoiceField } from './choice-field'
@@ -20,7 +19,6 @@ export function StudioContext({
   return (
     <div className="studio-context">
       <nav className="studio-choice" aria-label="Component">
-        <span className="field-heading">Component</span>
         <div className="studio-library-options">
           {libraries.map((item) => (
             <Link
@@ -35,10 +33,6 @@ export function StudioContext({
           ))}
         </div>
       </nav>
-      <span className="context-description">{content[library.id].purpose}</span>
-      <Link href={`/agents/${library.id}`} navigate={navigate} className="text-button">
-        Read the guide ↗
-      </Link>
       {state && (
         <div className="studio-starting-point">
           <ChoiceField
@@ -53,14 +47,14 @@ export function StudioContext({
               .map((example) => ({ value: example.id, label: example.name }))}
             limit={6}
           >
-            {!state.startingPoint && <p className="helper-text">Your configuration</p>}
+            {!state.startingPoint && <p className="helper-text">Custom</p>}
           </ChoiceField>
           <Link
             href={`/agents/gallery?library=${library.id}`}
             navigate={navigate}
             className="text-button"
           >
-            Compare examples ↗
+            Gallery ↗
           </Link>
         </div>
       )}

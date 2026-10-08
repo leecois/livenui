@@ -88,7 +88,6 @@ function CreateBot({
             <X size={18} aria-hidden="true" />
           </button>
         </div>
-        <p className="helper-text">Give your current character a name and a role.</p>
         <label>
           Name
           <input

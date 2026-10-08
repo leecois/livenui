@@ -17,7 +17,6 @@ export default function Renderer({ props, paused, theme, showcase }: PreviewProp
     <div className="avatar-demo">
       {avatar}
       <div className="avatar-identity">
-        <span className="eyebrow">YOUR BOT</span>
         <h3>{optionLabel('type', type)} bot</h3>
         <span className="avatar-activity">
           {optionLabel('state', String(props.state ?? 'default'))}

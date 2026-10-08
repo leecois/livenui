@@ -79,9 +79,10 @@ export function AvatarShapeControl({
         className="text-button avatar-shapes-expand"
         aria-expanded={expanded}
         aria-controls={id}
+        aria-label={expanded ? 'Show fewer shapes' : `Browse all ${field.options.length} shapes`}
         onClick={() => setExpanded(!expanded)}
       >
-        {expanded ? 'Show fewer shapes' : `Browse all ${field.options.length} shapes`}
+        {expanded ? 'Show fewer' : `All ${field.options.length}`}
         <span aria-hidden="true">{expanded ? '−' : '+'}</span>
       </button>
     </fieldset>

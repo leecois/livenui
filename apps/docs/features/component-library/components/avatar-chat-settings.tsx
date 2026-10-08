@@ -146,9 +146,7 @@ export function AvatarChatSettings({
           value={replies}
           onChange={setReplies}
         />
-        <p className="helper-text">
-          Scripted replies. Connection controls simulate availability. Messages stay in this tab.
-        </p>
+        <p className="helper-text">Connection is simulated.</p>
       </section>
       <details className="avatar-chat-appearance">
         <summary>Appearance & motion</summary>

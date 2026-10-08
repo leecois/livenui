@@ -12,6 +12,8 @@ The server-delivered shell opens its native dialog before hydration. Initial nav
 
 Customize reuses the existing field dispatch and draft gestures. Essential settings come first; expanded settings retain Appearance, Motion and Interaction groups. JSON is an explicit button disclosure with validation next to the editor. Import/export and the API reference remain contextual disclosures. Code contains installation, package-manager choices, the configured React snippet and the agent prompt. Bright actions and selected pills retain the shared accent gradient with white text in both themes; contrast flags remain accepted design trade-offs.
 
+Each task has one label. The header omits a tagline, component navigation omits explanatory prose, and Customize omits a repeated heading above Reset. Preview captions retain width and the interaction hint; playback state is shown by the action. JSON and transfer disclosures omit explanatory subtitles. Presets keep a short browser-local notice. Code shows the command and snippet first, with alias, compatibility and component-specific requirements inside Integration notes.
+
 ## State and lifecycle
 
 There is one active `usePlayground` owner and one central preview. Customize / Code changes inspector presentation without remounting the renderer or stopping microphone capture. Pause, Replay, component navigation and leaving Studio retain their explicit resource boundaries. Guides still unmount their preview on Install & Usage, stopping capture before returning.

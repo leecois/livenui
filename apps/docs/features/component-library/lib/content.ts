@@ -29,7 +29,7 @@ export const content: Record<string, ComponentContent> = {
     purpose: 'Draw attention',
     description:
       'Highlight a primary action, focused input or important card with a moving border.',
-    hint: 'Change Style and Color variant, then press Play to compare the border.',
+    hint: 'Press Play to animate the border.',
     controls: ['size', 'colorVariant', 'duration', 'glowSize'],
     labels: { size: 'Style' },
     featured: ['beam-size-md', 'beam-size-line', 'beam-size-pulse-outside'],
@@ -38,14 +38,14 @@ export const content: Record<string, ComponentContent> = {
     purpose: 'Show progress',
     description:
       'Make searching, listening and composing states visible with an animated particle orb.',
-    hint: 'Change State to compare breathing, working and listening animations.',
+    hint: 'Switch State to compare animations.',
     controls: ['state', 'size', 'speed', 'color'],
     featured: ['orbs-state-searching', 'orbs-state-listening', 'orbs-state-composing'],
   },
   metal: {
     purpose: 'Emphasize actions',
     description: 'Add reflective rings, text or badges to an action, plan label or announcement.',
-    hint: 'Choose Ring, Text or Badge. Move over the ring to bend its edge.',
+    hint: 'Move over the ring to bend its edge.',
     controls: ['preset', 'variant', 'strength', 'innerShadow', 'font', 'color', 'scale'],
     featured: ['metal-preset-chromatic', 'metal-text', 'metal-badge'],
     integration:
@@ -55,7 +55,7 @@ export const content: Record<string, ComponentContent> = {
     purpose: 'Add playful motion',
     description:
       'Give menus, sliders and draggable items a liquid surface that stretches and merges.',
-    hint: 'Switch behavior below the preview, then click or drag the scene. Keyboard controls also work.',
+    hint: 'Click, drag or use the keyboard.',
     controls: ['blur', 'contrast', 'fill', 'waviness'],
     featured: ['gooey-morph', 'gooey-move', 'gooey-bend'],
     integration:
@@ -65,7 +65,7 @@ export const content: Record<string, ComponentContent> = {
     purpose: 'Visualize audio',
     description:
       'Show speaking and listening activity with a glow, dots or wireframe driven by audio level.',
-    hint: 'Press Play, then try simulation. Choose Use microphone for live input.',
+    hint: 'Press Play, then use simulation or microphone input.',
     controls: ['type', 'look', 'colorVariant', 'level', 'strength'],
     featured: ['voice-look-glow', 'voice-look-dots', 'voice-look-lines'],
   },
@@ -73,7 +73,7 @@ export const content: Record<string, ComponentContent> = {
     purpose: 'Reveal images',
     description:
       'Transition an image from a pixel mosaic to a finished result with an animated reveal.',
-    hint: 'Replay the reveal or change the preset to compare transitions.',
+    hint: 'Replay to restart the reveal.',
     controls: ['preset', 'strength', 'speed', 'autoReveal', 'pixelScale'],
     featured: [
       'image-preset-pixels-organic',
@@ -85,7 +85,7 @@ export const content: Record<string, ComponentContent> = {
     purpose: 'Express agent states',
     description:
       'Give an assistant a character that follows the pointer and responds to working or sleeping states.',
-    hint: 'Try an agent mascot or choose another shape. Move the pointer to change its gaze; click to hop.',
+    hint: 'Move to look around; click to hop.',
     controls: ['type', 'state', 'shading', 'size', 'color', 'hat', 'glasses'],
     labels: { type: 'Shape', state: 'Activity', shading: 'Material' },
     choices: {
