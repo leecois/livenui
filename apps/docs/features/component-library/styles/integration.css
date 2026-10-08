@@ -58,34 +58,49 @@
   line-height: 1.8;
   color: var(--muted);
   tab-size: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.agent-libraries .install-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--livenui-space-3);
 }
 .agent-libraries .manager-choice {
-  display: flex;
-  align-items: center;
+  flex: 1;
   min-width: 0;
-  max-width: 100%;
-  gap: var(--livenui-space-2);
-  font-size: var(--livenui-font-caption);
-  color: var(--muted);
+  max-width: calc(var(--livenui-space-8) * 8);
+}
+.agent-libraries .manager-choice .choice-heading {
+  display: none;
+}
+.agent-libraries .manager-choice .choice-row {
+  min-height: var(--livenui-control-height);
+}
+.agent-libraries .manager-choice .choice-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--livenui-space-1);
+}
+.agent-libraries .manager-choice .field-option > span {
+  padding-inline: var(--livenui-space-2);
+}
+.agent-libraries .button.copy-icon {
+  flex-shrink: 0;
+  width: var(--livenui-control-height);
+  height: var(--livenui-control-height);
+  padding: 0;
 }
 .agent-libraries .install-command {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--livenui-space-4);
-  margin: var(--livenui-space-4) 0 var(--livenui-space-3);
-  border-radius: 16px;
-  background: var(--track);
-  padding: var(--livenui-space-3);
+  margin: var(--livenui-space-4) 0 0;
+  padding: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .agent-libraries .install-command code {
+  display: block;
   min-width: 0;
-  overflow-x: auto;
-  white-space: nowrap;
   font-size: var(--livenui-font-label);
-}
-.agent-libraries .install-command .button {
-  flex-shrink: 0;
+  line-height: 1.8;
 }
 .agent-libraries .integration-details {
   border: 1px solid var(--border);
@@ -157,8 +172,5 @@
     flex-direction: column;
     align-items: start;
     gap: var(--livenui-space-2);
-  }
-  .agent-libraries .install-command {
-    flex-wrap: wrap;
   }
 }

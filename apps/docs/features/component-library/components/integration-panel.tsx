@@ -24,6 +24,7 @@ export function IntegrationPanel({
   details?: boolean
 }) {
   const { manager, setManager } = state
+  const command = installCommand(library, manager, siteUrl.origin)
   return (
     <section className="integration-panel" aria-label="Use in your project">
       <div className="integration-heading">
@@ -33,23 +34,25 @@ export function IntegrationPanel({
         </Link>
       </div>
       <div className="install-panel">
-        <div className="code-heading">
-          <div className="manager-choice">
-            <ChoiceField
-              label="Package manager"
-              value={manager}
-              options={['npm', 'pnpm', 'bun'].map((value) => ({
-                value,
-                label: value === 'bun' ? 'Bun' : value,
-              }))}
-              onChange={(value) => setManager(value as typeof manager)}
-            />
-          </div>
+        <div className="install-toolbar">
+          <ChoiceField
+            className="manager-choice"
+            label="Package manager"
+            layout="grid"
+            value={manager}
+            options={['npm', 'pnpm', 'bun'].map((value) => ({
+              value,
+              label: value === 'bun' ? 'Bun' : value,
+            }))}
+            onChange={(value) => setManager(value as typeof manager)}
+          />
+          <Copy iconOnly text={command}>
+            Copy command
+          </Copy>
         </div>
-        <div className="install-command">
-          <code>{installCommand(library, manager, siteUrl.origin)}</code>
-          <Copy text={installCommand(library, manager, siteUrl.origin)}>Copy command</Copy>
-        </div>
+        <pre className="install-command">
+          <code>{command}</code>
+        </pre>
       </div>
       <CodePanel state={state} copyLabel={details ? undefined : 'Copy snippet'} />
       <details className="integration-details">
