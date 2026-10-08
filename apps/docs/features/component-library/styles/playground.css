@@ -368,6 +368,48 @@
   );
   pointer-events: none;
 }
+.agent-libraries .number-ruler {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--livenui-motion-feedback);
+}
+.agent-libraries .number-ruler::before {
+  content: "";
+  position: absolute;
+  inset: var(--livenui-space-1) 0 auto;
+  height: var(--livenui-space-2);
+  background-image:
+    linear-gradient(to right, var(--muted) 1px, transparent 1px),
+    linear-gradient(to right, var(--muted) 1px, transparent 1px);
+  background-size:
+    10% var(--livenui-space-1),
+    20% var(--livenui-space-2);
+  background-repeat: repeat-x;
+  opacity: 0.45;
+}
+.agent-libraries .number-marker {
+  position: absolute;
+  top: var(--livenui-space-1);
+  left: var(--number-fill);
+  width: 2px;
+  height: var(--livenui-space-2);
+  border-radius: var(--livenui-radius-control);
+  background: var(--foreground);
+  transform: translateX(-50%);
+}
+.agent-libraries .number-row[data-dragging] .number-ruler,
+.agent-libraries .number-row:has(.number-track:focus-visible) .number-ruler {
+  opacity: 1;
+}
+@media (hover: hover) {
+  .agent-libraries .number-row:has(.number-track:hover) .number-ruler {
+    opacity: 1;
+  }
+}
 .agent-libraries .field .number-heading {
   position: relative;
   flex: 1;

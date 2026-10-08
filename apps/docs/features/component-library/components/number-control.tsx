@@ -105,6 +105,9 @@ export function NumberControl({
         style={{ '--number-fill': `${value === undefined ? 0 : position * 100}%` } as CSSProperties}
       >
         <span className="number-meter" aria-hidden="true" />
+        <span className="number-ruler" aria-hidden="true">
+          {typeof value === 'number' && !custom && <span className="number-marker" />}
+        </span>
         <input
           className="number-track"
           type="range"
