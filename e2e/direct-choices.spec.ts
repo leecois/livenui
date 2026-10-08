@@ -9,6 +9,78 @@ test.beforeEach(async ({ page }, testInfo) => {
   )
 })
 
+test('Image starting points keep text in separate full-width rows', async ({ page }, testInfo) => {
+  await page.goto('/studio?library=image')
+  await expect(page.locator('.preview-stage .image-gen-shader')).toBeVisible()
+  for (const width of [1440, 1024, 768, 390, 320]) {
+    await page.setViewportSize({ width, height: 1000 })
+    await openStudioBrowser(page)
+    const starting = page.getByRole('group', { name: 'Starting point', exact: true })
+    await expect(starting.getByRole('radio')).toHaveCount(3)
+    await starting.scrollIntoViewIfNeeded()
+    const geometry = await starting.evaluate((element) => {
+      const group = element.getBoundingClientRect()
+      const heading = element.querySelector('.choice-heading')?.getBoundingClientRect()
+      if (!heading) throw new Error('Missing starting point heading')
+      return [...element.querySelectorAll('.field-option')].map((option) => {
+        const label = option.querySelector('span')
+        if (!label) throw new Error('Missing starting point label')
+        const row = option.getBoundingClientRect()
+        const text = document.createRange()
+        text.selectNodeContents(label)
+        const bounds = text.getBoundingClientRect()
+        return {
+          top: row.top,
+          bottom: row.bottom,
+          height: row.height,
+          width: row.width,
+          groupWidth: group.width,
+          headingBottom: heading.bottom,
+          textContained:
+            bounds.left >= row.left &&
+            bounds.right <= row.right &&
+            bounds.top >= row.top &&
+            bounds.bottom <= row.bottom,
+        }
+      })
+    })
+    for (const [index, row] of geometry.entries()) {
+      expect(row.height).toBeGreaterThanOrEqual(44)
+      expect(row.width).toBeCloseTo(row.groupWidth, 0)
+      expect(row.textContained).toBe(true)
+      expect(row.top - (index ? geometry[index - 1].bottom : row.headingBottom)).toBeCloseTo(8, 0)
+    }
+    await page.screenshot({
+      path: testInfo.outputPath(`starting-${width}-full-page.png`),
+      fullPage: true,
+    })
+  }
+  await chooseOption(page, 'Starting point', 'image-preset-pixels-mechanic')
+  await openStudioBrowser(page)
+  const starting = page.getByRole('group', { name: 'Starting point', exact: true })
+  const selected = starting.locator('input:checked')
+  await expect(selected).toBeVisible()
+  await selected.focus()
+  await selected.press('ArrowDown')
+  await openStudioBrowser(page)
+  await expect(starting.getByRole('radio').nth(2)).toBeChecked()
+  await expect(page.locator('.code-panel code')).toContainText('preset={"sweep-gradient"}')
+  await page.setViewportSize({ width: 640, height: 1000 })
+  await page.evaluate(() => {
+    document.documentElement.style.zoom = '2'
+  })
+  await openStudioBrowser(page)
+  await expect(starting.getByRole('radio').nth(2)).toBeVisible()
+  await starting.scrollIntoViewIfNeeded()
+  expect(await starting.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(
+    true
+  )
+  await page.screenshot({
+    path: testInfo.outputPath('starting-zoom-full-page.png'),
+    fullPage: true,
+  })
+})
+
 test('long preset choices expand inline and keep the selected native configuration visible', async ({
   page,
 }, testInfo) => {

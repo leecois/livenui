@@ -12,6 +12,7 @@ export function ChoiceField({
   className = '',
   children,
   limit = 8,
+  layout = 'auto',
 }: {
   label: string
   options: { value: string | number; label: string; icon?: ReactNode; description?: string }[]
@@ -22,10 +23,11 @@ export function ChoiceField({
   className?: string
   children?: ReactNode
   limit?: number
+  layout?: 'auto' | 'grid'
 }) {
   const id = useId()
   const [expanded, setExpanded] = useState(false)
-  const grid = options.length > 3
+  const grid = layout === 'grid' || options.length > 3
   const visible = expanded
     ? options
     : options.filter((option, index) => index < limit || option.value === value)

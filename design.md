@@ -22,7 +22,7 @@ The reference catalog's strongest patterns are the object-first demos, visible c
 | Compare four or more finite variants | Visible chip grid | Separate rounded-full targets; no wrapping capsule or floating menu |
 | Browse a long enum or preset family | Chip grid with inline expansion | Show the first eight options; retain a selected option outside that subset; reveal the complete list in place |
 | Choose a component in Studio | Visible navigation links | All seven destinations remain discoverable; one current route |
-| Choose a starting example | Inline preset choices | Show six initially; selection loads the existing example; current custom configuration remains explicit |
+| Choose a starting example | Inline preset choices | Full-width stacked chips even for two or three examples; show six initially; selection loads the existing example; current custom configuration remains explicit |
 | Choose a bot shape | Native thumbnail radios | Eight featured shapes, expandable to the complete catalog; selected shape stays visible after collapse |
 | Choose a chat outfit | Inline outfit chips | Six initially, all eighteen through expansion; descriptions in tooltips; custom accessory combinations remain explicit |
 | Tune a number | Full-field drag dial plus exact entry | Pointer position reaches both limits inside the field; exact editing and cancellation remain available |

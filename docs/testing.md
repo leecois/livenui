@@ -80,7 +80,7 @@ Add targeted moving-scene tests for animation-engine changes: time-varying frame
 
 `e2e/selection-tracks.spec.ts` verifies inset target geometry, actual intermediate indicator motion and final alignment, native radio keys, reduced-motion snapping, renderer retention, exported props, all owned tab/device contexts, 320px containment and 200% zoom. Closed compact panels must not advertise modal state; opening one must set `aria-modal` and match the browser's native `:modal` state. Inspect chat settings and Guide/Studio full-page captures in all four projects. Gradient assertions inspect the actual shared indicator and white selected labels; they also retain direct-fill checks for controls without an indicator.
 
-`e2e/direct-choices.spec.ts` verifies inline preset and outfit expansion, selected options outside the compact subset remaining visible after collapse, native focus, retained main rendering, configured code, 44px targets, wrapped names, 200% zoom and the absence of owned configuration dropdowns. Inspect its full-page Studio/chat captures across all four projects.
+`e2e/direct-choices.spec.ts` verifies inline preset and outfit expansion, selected options outside the compact subset remaining visible after collapse, native focus, retained main rendering, configured code, 44px targets, wrapped names, 200% zoom and the absence of owned configuration dropdowns. Image's three starting examples must have separate full-width rows, contained text and 8px gaps at 1440/1024/768/390/320px; radio keys must still load matching integration code. Inspect its full-page Studio/chat captures across all four projects.
 
 ## Evidence
 
