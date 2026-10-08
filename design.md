@@ -101,6 +101,8 @@ Desktop, Tablet (768px) and Mobile (375px) form a labeled icon group beside play
 
 Chat Shape, Outfit and Color belong to Character. Activity and playback belong to Animation; connection/reply modes belong to Chat demo. Advanced appearance/motion uses contextual disclosure. Helper selection and New bot appear only in the empty conversation. The welcome avatar is 128px, composer avatar 64px, reply avatar 24px; these presentation sizes do not alter exported size. The existing helper popover is a named-profile picker, with grouped descriptions and keyboard/light-dismiss behavior, not a substitute for settings choices. Replies remain scripted and local.
 
+The avatar playground's Back arrow sits in the fixed top-left header: before the logo in the wide Examples panel, and first in the compact conversation header. Use an 18px decorative arrow in a 44px rounded-full native link to All components, with a tooltip and accessible name. Keep navigation outside scrolling lists. Compact conversation headers below 550px use 8px inline padding and 4px gaps around the 44px targets.
+
 ## Motion and accessibility
 
 Motion explains a gesture or state change. A selection pill travels to the newly selected cell; a pressed action compresses to 0.98 and returns; grid options change local emphasis. Do not add bouncing labels, animated panel height, diagonal selection flights or perpetual control decoration. Feedback must settle and keep the layout stationary. Never apply control animations to SDK scene children.

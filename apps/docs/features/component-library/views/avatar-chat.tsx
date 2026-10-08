@@ -220,6 +220,20 @@ export function AvatarChat({
     setPanel(undefined)
     onClose()
   }
+  const back = (className = '') => (
+    <Link
+      href="/agents"
+      navigate={(path) => {
+        leave()
+        navigate(path)
+      }}
+      className={`pill avatar-chat-back ${className}`}
+      aria-label="Back to all components"
+      title="All components"
+    >
+      <ArrowLeft size={18} aria-hidden="true" />
+    </Link>
+  )
   if (!open) return null
   return (
     <dialog
@@ -242,6 +256,7 @@ export function AvatarChat({
             wide={wide}
             expanded={panel === 'examples'}
             onClose={() => setPanel(undefined)}
+            leading={back('avatar-chat-desktop')}
           >
             <button
               type="button"
@@ -333,20 +348,10 @@ export function AvatarChat({
                 </button>
               ))}
             </nav>
-            <button
-              type="button"
-              className="text-button avatar-chat-back"
-              onClick={() => {
-                leave()
-                navigate('/agents')
-              }}
-            >
-              <ArrowLeft size={16} aria-hidden="true" />
-              All components
-            </button>
           </AvatarChatPanel>
           <main className="avatar-chat-main" data-conversation={conversation || undefined}>
             <header className="avatar-chat-header">
+              {back('avatar-chat-mobile')}
               <button
                 type="button"
                 className="pill avatar-chat-icon avatar-chat-mobile"

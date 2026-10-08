@@ -107,6 +107,83 @@ test('avatar guide opens a complete chat playground with independent sidebars an
   }
 })
 
+test('header back stays visible across layouts and exits an active chat to all components', async ({
+  page,
+}, testInfo) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  await page.goto('/agents/avatars')
+  await expect(chat(page).locator('.avatar-chat-actor canvas')).toBeVisible()
+  const back = chat(page).getByRole('link', { name: 'Back to all components', exact: true })
+  await expect(back).toHaveCount(1)
+  await expect(back).toHaveAttribute('href', '/agents')
+  await expect(chat(page).getByRole('button', { name: 'All components', exact: true })).toHaveCount(
+    0
+  )
+  await back.focus()
+  await expect(back).toHaveCSS('outline-style', 'solid')
+  await page.screenshot({ path: testInfo.outputPath('chat-back-full-page.png'), fullPage: true })
+  const before = await back.boundingBox()
+  const examples = await openPanel(page, 'examples')
+  await examples.locator('.avatar-chat-panel-content').evaluate((element) => {
+    element.scrollTop = element.scrollHeight
+  })
+  await closePanel(page, 'examples')
+  expect(await back.boundingBox()).toEqual(before)
+  for (const width of [320, 768, 1099, 1100, 1440]) {
+    await page.setViewportSize({ width, height: 1000 })
+    if (width >= 1100) await expect(examples).toBeVisible()
+    else await expect(examples).toBeHidden()
+    await expect(back).toHaveCount(1)
+    await expect(back).toBeVisible()
+    const bounds = await back.boundingBox()
+    expect(bounds).toMatchObject({ width: 44, height: 44 })
+    expect(bounds?.y).toBeGreaterThanOrEqual(8)
+    expect(bounds?.y).toBeLessThanOrEqual(12)
+    expect(bounds?.x).toBeLessThanOrEqual(20)
+    await expect
+      .poll(() =>
+        back.evaluate((element) => {
+          const bounds = element.getBoundingClientRect()
+          return (
+            document
+              .elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
+              ?.closest('a') === element
+          )
+        })
+      )
+      .toBe(true)
+    expect(
+      await chat(page)
+        .locator('.avatar-chat-header')
+        .evaluate((element) => {
+          const header = element.getBoundingClientRect()
+          return [...element.children].every((child) => {
+            const bounds = child.getBoundingClientRect()
+            return !bounds.width || (bounds.left >= header.left && bounds.right <= header.right)
+          })
+        })
+    ).toBe(true)
+    if (width === 320) {
+      await back.focus()
+      await page.screenshot({
+        path: testInfo.outputPath('chat-back-320-full-page.png'),
+        fullPage: true,
+      })
+    }
+  }
+  await page.setViewportSize(testInfo.project.use.viewport || { width: 390, height: 1000 })
+  await chat(page).getByRole('textbox', { name: 'Message Clover', exact: true }).fill('Say hello')
+  await chat(page).getByRole('button', { name: 'Send message', exact: true }).click()
+  await expect(chat(page).getByRole('button', { name: 'Stop reply', exact: true })).toBeVisible()
+  await back.focus()
+  await back.press('Enter')
+  await expect(page).toHaveURL(/\/agents$/)
+  await expect(chat(page)).toHaveCount(0)
+  await expect(page.locator('.avatar-chat-actor canvas')).toHaveCount(0)
+  expect(errors).toEqual([])
+})
+
 test('scripted chat streams, stops, preserves conversations and performs no chat requests', async ({
   page,
 }, testInfo) => {

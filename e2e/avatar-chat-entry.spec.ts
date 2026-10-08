@@ -32,6 +32,24 @@ test('avatar chat covers the guide before hydration on entry and reload', async 
       await expect(chat).toBeVisible()
       await expect.poll(() => chat.evaluate((element) => element.matches(':modal'))).toBe(true)
       await expect(input).toBeVisible()
+      const back = chat.getByRole('link', { name: 'Back to all components', exact: true })
+      await expect(back).toHaveCount(1)
+      await expect(back).toHaveAttribute('href', '/agents')
+      const backBefore = await back.boundingBox()
+      expect(backBefore?.width).toBe(44)
+      expect(backBefore?.height).toBe(44)
+      expect(backBefore?.y).toBeGreaterThanOrEqual(8)
+      expect(backBefore?.y).toBeLessThanOrEqual(12)
+      expect(
+        await back.evaluate((element) => {
+          const bounds = element.getBoundingClientRect()
+          return (
+            document
+              .elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
+              ?.closest('a') === element
+          )
+        })
+      ).toBe(true)
       await expect(chat.locator('.avatar-chat-actor canvas')).toHaveCount(0)
       const before = await chat.locator('.avatar-chat-main').boundingBox()
       const character = await chat.locator('.avatar-chat-actor').boundingBox()
@@ -78,6 +96,7 @@ test('avatar chat covers the guide before hydration on entry and reload', async 
       release()
       await expect(chat.locator('.avatar-chat-actor canvas')).toBeVisible()
       await expect(input).toBeFocused()
+      expect(await back.boundingBox()).toEqual(backBefore)
       expect(await chat.locator('.avatar-chat-main').boundingBox()).toEqual(before)
       expect(await chat.locator('.avatar-chat-actor').boundingBox()).toEqual(character)
       expect(await chat.locator('.avatar-chat-who').boundingBox()).toEqual(heading)
