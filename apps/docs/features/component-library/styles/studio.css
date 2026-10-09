@@ -285,7 +285,7 @@
     width: var(--livenui-control-height);
     padding: 0;
   }
-  .agent-libraries .studio-copy [aria-live] {
+  .agent-libraries .studio-copy .copy-label {
     position: absolute;
     width: 1px;
     height: 1px;

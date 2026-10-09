@@ -135,7 +135,7 @@ test('Guide, Studio, workflow and device tracks share selection geometry', async
     await style.getByRole('radio', { name: 'Inner pulse', exact: true }).check()
     await expect(style.locator('.choice-grid')).toBeVisible()
     await expect(page.locator('.code-panel code')).toContainText('size={"pulse-inner"}')
-    await chooseOption(panel, 'Color Variant', 'sunset')
+    await chooseOption(panel, 'Palette', 'sunset')
     await expect(page.locator('.code-panel code')).toContainText('colorVariant={"sunset"}')
     await aligned(
       page.getByRole('tablist', {

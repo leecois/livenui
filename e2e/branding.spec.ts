@@ -102,7 +102,7 @@ test('brand remains readable, accessible and consistent across site icons and sh
   const foreground = theme === 'dark' ? 'rgb(235, 235, 235)' : 'rgb(10, 10, 10)'
   expect(style.color).toBe(foreground)
   const actionFill = await page
-    .getByRole('button', { name: 'Copy agent prompt', exact: true })
+    .getByRole('button', { name: 'Copy prompt for agents', exact: true })
     .evaluate((node) => getComputedStyle(node).backgroundImage)
   expect(actionFill).toContain('linear-gradient(120deg')
   expect(style.mask).toContain('/logo.svg')

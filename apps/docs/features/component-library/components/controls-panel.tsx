@@ -1,5 +1,5 @@
 import { Button } from '@livenui/agent-ui'
-import { RotateCcw } from 'lucide-react'
+import { ArrowUpRight, Check, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library, Preset } from '../lib/config'
 import { content } from '../lib/content'
@@ -115,18 +115,28 @@ export function ControlsPanel({
             <button
               type="button"
               className="text-button all-controls"
+              aria-label={all ? 'Show essential controls' : 'Show advanced settings'}
               aria-expanded={all}
               onClick={() => {
                 setAll(!all)
                 setQuery('')
               }}
             >
-              {all ? 'Show essential controls' : 'Show advanced settings'}{' '}
-              <span aria-hidden="true">↗</span>
+              {all ? 'Essential' : 'Advanced'}
+              {all ? (
+                <ChevronUp size={18} aria-hidden="true" />
+              ) : (
+                <ChevronDown size={18} aria-hidden="true" />
+              )}
             </button>
           ) : studioLink ? (
-            <Link href={studioLink} navigate={navigate} className="text-button all-controls">
-              More settings in Studio <span aria-hidden="true">↗</span>
+            <Link
+              href={studioLink}
+              navigate={navigate}
+              className="text-button all-controls"
+              aria-label="Open Studio for more settings"
+            >
+              Open Studio <ArrowUpRight size={18} aria-hidden="true" />
             </Link>
           ) : (
             <p className="helper-text">Use the code below to keep this configuration.</p>
@@ -160,18 +170,20 @@ function JsonEditor({ state }: { state: PlaygroundState }) {
   return (
     <>
       <label className="muted" htmlFor="json-config">
-        Edit component props
+        Component props
       </label>
       <textarea
         className="json-editor"
         id="json-config"
+        aria-label="Edit component props"
         spellCheck={false}
         value={state.draft}
         onChange={(event) => state.setDraft(event.target.value)}
       />
       <div className="config-actions">
-        <Button className="button-accent" onClick={state.apply}>
-          Apply configuration <span aria-hidden="true">↗</span>
+        <Button className="button-accent" aria-label="Apply configuration" onClick={state.apply}>
+          <Check size={18} aria-hidden="true" />
+          Apply
         </Button>
       </div>
     </>

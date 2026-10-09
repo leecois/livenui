@@ -139,8 +139,12 @@ function Workbench({
               Open in Studio <span aria-hidden="true">↗</span>
             </Link>
           )}
-          <Copy emphasis text={prompt(state.activeLibrary, state.exportedProps, siteUrl.origin)}>
-            Copy agent prompt
+          <Copy
+            emphasis
+            text={prompt(state.activeLibrary, state.exportedProps, siteUrl.origin)}
+            label="Copy prompt for agents"
+          >
+            Copy prompt
           </Copy>
         </div>
       </div>

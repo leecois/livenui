@@ -237,7 +237,7 @@ test('Guide and Studio expose categorical grids with native keys and default act
     await line.press('ArrowRight')
     await expect(styles.getByRole('radio', { name: 'Outer pulse', exact: true })).toBeChecked()
     await expect(page.locator('.code-panel code')).toContainText('size={"pulse-outside"}')
-    const colors = panel.getByRole('group', { name: 'Color Variant', exact: true })
+    const colors = panel.getByRole('group', { name: 'Palette', exact: true })
     const sunset = colors.getByRole('radio', { name: 'Sunset', exact: true })
     await sunset.check()
     await expect(page.locator('.code-panel code')).toContainText('colorVariant={"sunset"}')
@@ -259,9 +259,11 @@ test('Guide and Studio expose categorical grids with native keys and default act
         background: expect.stringContaining('linear-gradient'),
         color: 'rgb(255, 255, 255)',
       })
-    await colors.getByRole('button', { name: 'Use default for Color Variant', exact: true }).click()
+    await colors.getByRole('button', { name: 'Use default for Palette', exact: true }).click()
     await expect(page.locator('.code-panel code')).not.toContainText('colorVariant={')
-    await expect(colors.getByText('Using component default', { exact: true })).toBeVisible()
+    await expect(colors.locator('.status-label')).toHaveText('Default')
+    await expect(colors.locator('.status-label')).toBeVisible()
+    await expect(colors).toHaveAccessibleDescription('Using component default')
     await expect(panel.locator('select')).toHaveCount(0)
     await contained(panel)
   }

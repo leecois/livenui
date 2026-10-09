@@ -541,8 +541,6 @@
 }
 .agent-libraries .switch-status {
   order: 1;
-  color: var(--muted);
-  font-size: var(--livenui-font-label);
 }
 .agent-libraries .field-toggle {
   position: relative;
@@ -801,6 +799,13 @@
 }
 .agent-libraries .field-choice > .helper-text {
   margin-top: var(--livenui-space-2);
+}
+.agent-libraries .field-value-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--livenui-space-2);
+  overflow-wrap: anywhere;
 }
 .agent-libraries .field-avatar-shapes {
   grid-column: 1 / -1;

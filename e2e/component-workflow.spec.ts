@@ -30,7 +30,7 @@ test('quick settings, installation and Studio preserve one avatar configuration'
   await expect(activity.getByRole('radio', { name: 'Working', exact: true })).toBeChecked()
   await page.getByRole('group', { name: 'Size', exact: true }).getByLabel('64px').check()
   await page.getByRole('group', { name: 'Material', exact: true }).getByLabel('Plastic').check()
-  await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
   const code = page.locator('.code-panel code')
   for (const prop of [
     'type={"chat"}',
@@ -70,7 +70,7 @@ test('quick settings, installation and Studio preserve one avatar configuration'
   await page.getByRole('link', { name: /Open in Studio/ }).click()
   await expect(page).toHaveURL(/studio\?library=avatars#config=/)
   await expect(code).toHaveText(original || '')
-  await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible()
   await expect(page.locator('.studio-json-toggle')).toBeVisible()
   await openStudioBrowser(page)
   const starting = page.getByRole('group', { name: 'Starting point', exact: true })
@@ -116,9 +116,9 @@ for (const library of ['beam', 'voice']) {
     page,
   }, testInfo) => {
     await page.goto(`/agents/${library}`)
-    await expect(page.getByRole('button', { name: '▶ Play', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible()
     await page.emulateMedia({ reducedMotion: 'no-preference' })
-    await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+    await page.getByRole('button', { name: 'Play', exact: true }).click()
     for (const id of content[library].featured) {
       const example = findExample(library, id)
       if (!example) throw new Error(`Missing starting example: ${id}`)

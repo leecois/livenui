@@ -1,6 +1,7 @@
 import { SelectionTrack } from '@livenui/agent-ui'
 import { RotateCcw } from 'lucide-react'
 import { type ReactNode, useId, useState } from 'react'
+import { StatusLabel } from './status-label'
 
 export function ChoiceField({
   label,
@@ -15,7 +16,13 @@ export function ChoiceField({
   layout = 'auto',
 }: {
   label: string
-  options: { value: string | number; label: string; icon?: ReactNode; description?: string }[]
+  options: {
+    value: string | number
+    label: string
+    accessibleLabel?: string
+    icon?: ReactNode
+    description?: string
+  }[]
   value: unknown
   onChange: (value: string | number) => void
   onDefault?: () => void
@@ -36,6 +43,7 @@ export function ChoiceField({
     <fieldset
       className={`field field-choice ${className}`}
       aria-label={label}
+      aria-describedby={value === undefined && onDefault ? `${id}-default` : undefined}
       data-choice-grid={grid || undefined}
     >
       <legend className="sr-only">{label}</legend>
@@ -63,6 +71,7 @@ export function ChoiceField({
                 type="radio"
                 name={id}
                 value={String(option.value)}
+                aria-label={option.accessibleLabel}
                 checked={value === option.value}
                 onChange={() => onChange(option.value)}
               />
@@ -91,7 +100,16 @@ export function ChoiceField({
           <span aria-hidden="true">{expanded ? '−' : '+'}</span>
         </button>
       )}
-      {value === undefined && onDefault && <p className="helper-text">Using component default</p>}
+      {value === undefined && onDefault && (
+        <p className="helper-text field-status">
+          <StatusLabel icon={RotateCcw} title="Using component default" aria-hidden="true">
+            Default
+          </StatusLabel>
+          <span className="sr-only" id={`${id}-default`}>
+            Using component default
+          </span>
+        </p>
+      )}
       {children}
     </fieldset>
   )

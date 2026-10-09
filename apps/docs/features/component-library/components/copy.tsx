@@ -5,13 +5,17 @@ import { type ReactNode, useEffect, useRef, useState } from 'react'
 export function Copy({
   text,
   children = 'Copy code',
+  label,
   emphasis = false,
   iconOnly = false,
+  disabled = false,
 }: {
   text: string
   children?: ReactNode
+  label?: string
   emphasis?: boolean
   iconOnly?: boolean
+  disabled?: boolean
 }) {
   const [status, setStatus] = useState('')
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -38,13 +42,14 @@ export function Copy({
     setStatus(result)
     timer.current = setTimeout(() => setStatus(''), 1800)
   }
-  const label = typeof children === 'string' ? children : 'Copy code'
+  const name = label || (typeof children === 'string' ? children : 'Copy code')
   const Icon = status === 'Copied' ? Check : status === 'Copy failed' ? X : CopyIcon
   return (
     <Button
       className={`${emphasis ? 'button-accent' : ''} ${iconOnly ? 'copy-icon' : ''}`}
-      aria-label={iconOnly ? label : undefined}
-      title={iconOnly ? status || label : undefined}
+      aria-label={name}
+      title={status || name}
+      disabled={disabled}
       onClick={() => void copy()}
     >
       {iconOnly ? (
@@ -56,8 +61,16 @@ export function Copy({
         </>
       ) : (
         <>
-          <span aria-live="polite">{status || children}</span>
-          <span aria-hidden="true">{status === 'Copied' ? '✓' : '⧉'}</span>
+          <span className="copy-label">
+            <span className="copy-label-width" aria-hidden="true">
+              {children}
+            </span>
+            <span className="copy-label-width" aria-hidden="true">
+              Copy failed
+            </span>
+            <span aria-live="polite">{status || children}</span>
+          </span>
+          <Icon size={18} aria-hidden="true" />
         </>
       )}
     </Button>

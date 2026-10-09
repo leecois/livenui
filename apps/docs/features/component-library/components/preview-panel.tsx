@@ -1,5 +1,5 @@
 import { SelectionTrack } from '@livenui/agent-ui'
-import { Monitor, Smartphone, Tablet } from 'lucide-react'
+import { Monitor, Pause, Play, RotateCcw, Smartphone, Tablet } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library } from '../lib/config'
@@ -67,10 +67,16 @@ export function PreviewPanel({
             onClick={() => setPaused(!paused)}
             aria-pressed={paused}
           >
-            {paused ? '▶ Play' : 'Ⅱ Pause'}
+            {paused ? (
+              <Play size={18} aria-hidden="true" />
+            ) : (
+              <Pause size={18} aria-hidden="true" />
+            )}
+            {paused ? 'Play' : 'Pause'}
           </button>
           <button type="button" className="pill" onClick={() => replay()}>
-            ↻ Replay
+            <RotateCcw size={18} aria-hidden="true" />
+            Replay
           </button>
         </div>
       </div>

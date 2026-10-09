@@ -31,7 +31,7 @@ async function controlledMicrophone(page: Page, path = '/studio?library=voice') 
   })
   await page.goto(path)
   await expect(page.locator('.preview-stage .voice-host')).toBeVisible()
-  await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
   await page
     .locator('.preview-stage')
     .getByRole('button', { name: 'Use microphone', exact: true })
@@ -44,9 +44,9 @@ for (const action of ['pause', 'replay', 'navigate', 'install']) {
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
     await controlledMicrophone(page, action === 'install' ? '/agents/voice' : undefined)
-    if (action === 'pause') await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
+    if (action === 'pause') await page.getByRole('button', { name: 'Pause', exact: true }).click()
     else if (action === 'replay')
-      await page.getByRole('button', { name: '↻ Replay', exact: true }).click()
+      await page.getByRole('button', { name: 'Replay', exact: true }).click()
     else if (action === 'install') {
       await page.getByRole('tab', { name: 'Install & Usage', exact: true }).click()
       await expect(page.locator('.preview-stage .voice-host')).toHaveCount(0)
@@ -87,8 +87,8 @@ test('leaving Preview stops live capture and returning requires a new explicit r
 
 test('late microphone denial cannot replace a newer live request', async ({ page }) => {
   await controlledMicrophone(page)
-  await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
-  await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+  await page.getByRole('button', { name: 'Pause', exact: true }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
   await page
     .locator('.preview-stage')
     .getByRole('button', { name: 'Use microphone', exact: true })
@@ -115,6 +115,6 @@ test('Studio inspector tabs preserve capture until an explicit pause', async ({ 
   expect(await page.evaluate(() => window.__captureRequests[0].stops)).toBe(0)
   await page.getByRole('tab', { name: 'Customize', exact: true }).click()
   expect(await page.evaluate(() => window.__captureRequests.length)).toBe(1)
-  await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
+  await page.getByRole('button', { name: 'Pause', exact: true }).click()
   await expect.poll(() => page.evaluate(() => window.__captureRequests[0].stops)).toBe(1)
 })

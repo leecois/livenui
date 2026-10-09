@@ -53,7 +53,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--livenui-space-3);
+  gap: var(--livenui-space-2);
   min-height: var(--livenui-control-height);
   padding: 10px 18px;
   border: 1px solid var(--border);
@@ -85,6 +85,16 @@
 }
 .agent-libraries .button span[aria-hidden] {
   font-size: 16px;
+}
+.agent-libraries .copy-label {
+  display: grid;
+}
+.agent-libraries .copy-label > span {
+  grid-area: 1 / 1;
+}
+.agent-libraries .button .copy-label-width {
+  visibility: hidden;
+  font-size: inherit;
 }
 .agent-libraries .pill {
   display: inline-flex;
@@ -141,6 +151,25 @@
   color: var(--muted);
   font-size: var(--livenui-font-label);
   line-height: 1.6;
+}
+.agent-libraries .status-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--livenui-space-2);
+  max-width: 100%;
+  padding: var(--livenui-space-1) var(--livenui-space-2);
+  border-radius: var(--livenui-radius-control);
+  background: var(--track);
+  color: var(--muted);
+  font-size: var(--livenui-font-caption);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.agent-libraries .status-label > svg {
+  flex: none;
+}
+.agent-libraries :is(.button, .pill, .text-button) > svg {
+  flex: none;
 }
 .agent-libraries .eyebrow {
   display: inline-flex;

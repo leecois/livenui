@@ -1,4 +1,5 @@
 import { Button } from '@livenui/agent-ui'
+import { ArrowUpRight } from 'lucide-react'
 import { siteUrl } from '../../../lib/site'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library } from '../lib/config'
@@ -29,8 +30,13 @@ export function IntegrationPanel({
     <section className="integration-panel" aria-label="Use in your project">
       <div className="integration-heading">
         <h2>Install</h2>
-        <Link href="/agents/integration" navigate={navigate} className="text-button">
-          Installation guide ↗
+        <Link
+          href="/agents/integration"
+          navigate={navigate}
+          className="text-button"
+          aria-label="Installation guide"
+        >
+          Guide <ArrowUpRight size={18} aria-hidden="true" />
         </Link>
       </div>
       <div className="install-panel">

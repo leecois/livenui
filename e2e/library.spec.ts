@@ -260,7 +260,7 @@ test('JSON, local presets, installation and portable transfer', async ({ page })
   await expect(page.locator('.install-command code')).toHaveText(
     'pnpm dlx shadcn@latest add http://localhost:3000/r/orbs.json'
   )
-  await expect(page.getByRole('button', { name: /Copy agent prompt/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Copy prompt for agents/ })).toBeVisible()
   await accent(page.locator('.studio-header').getByRole('button', { name: /Copy code/ }))
   await page.getByRole('tab', { name: 'Customize', exact: true }).click()
   await page.locator('summary').filter({ hasText: 'Import & export' }).click()
@@ -373,7 +373,7 @@ test('all examples remain reachable and preview variants retain interactions', a
       .screenshot({ path: testInfo.outputPath(`metal-${variant}.png`) })
   }
   await page.goto('/studio?library=gooey')
-  await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
   for (const variant of ['morph', 'move', 'bend', 'melt']) {
     await chooseOption(page, 'Liquid behavior', variant)
     await expect(page.locator('.code-panel code')).toContainText(`"effect":"${variant}"`)
@@ -402,13 +402,13 @@ test('all examples remain reachable and preview variants retain interactions', a
     .getByRole('radio', { name: 'Working', exact: true })
     .check()
   await expect(page.locator('.code-panel code')).toContainText('working')
-  await page.getByRole('button', { name: '▶ Play', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toHaveAttribute(
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Pause', exact: true })).toHaveAttribute(
     'aria-pressed',
     'false'
   )
-  await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
-  await expect(page.getByRole('button', { name: '▶ Play', exact: true })).toHaveAttribute(
+  await page.getByRole('button', { name: 'Pause', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Play', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true'
   )

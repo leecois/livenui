@@ -58,7 +58,7 @@ test('Gooey behavior belongs to settings while the preview retains direct intera
         await input.press('Enter')
       }
       await chooseOption(settings, 'Liquid behavior', 'melt')
-      await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+      await page.getByRole('button', { name: 'Play', exact: true }).click()
     }
     await expect(behavior.locator('input:checked')).toHaveValue('melt')
     const code = page.locator('.code-panel code')
@@ -82,7 +82,7 @@ test('Gooey behavior belongs to settings while the preview retains direct intera
     await expect(stage.locator('.liquid-bend')).toBeVisible()
     await page.keyboard.press('ArrowRight')
     await expect(melt).toBeChecked()
-    await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible()
     const warm = stage.getByRole('button', { name: /Drag warm image/ })
     const initial = await warm.getAttribute('style')
     await warm.focus()

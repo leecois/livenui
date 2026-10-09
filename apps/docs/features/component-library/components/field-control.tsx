@@ -1,3 +1,4 @@
+import { Check, Minus, Pencil } from 'lucide-react'
 import { useState } from 'react'
 import type { Library, Props } from '../lib/config'
 import { avatarColors, fieldLabel, optionLabel } from '../lib/content'
@@ -5,6 +6,7 @@ import { booleanDefault, isColorField, numberSpec } from '../lib/controls'
 import { ChoiceField } from './choice-field'
 import { ColorControl } from './color-control'
 import { NumberControl } from './number-control'
+import { StatusLabel } from './status-label'
 
 export function FieldControl({
   field,
@@ -96,7 +98,10 @@ export function FieldControl({
             />
           )}
         {!sizeSpec && value !== undefined && !choices.includes(value as string | number) && (
-          <p className="helper-text">Custom value: {String(value).slice(0, 80)}</p>
+          <p className="helper-text field-value-note">
+            <StatusLabel icon={Pencil}>Custom</StatusLabel>
+            <span>{String(value)}</span>
+          </p>
         )}
       </ChoiceField>
     )
@@ -107,12 +112,20 @@ export function FieldControl({
           {label}
         </label>
         <div className="switch-row">
-          <span className="switch-status" aria-hidden="true">
+          <StatusLabel
+            className="switch-status"
+            icon={
+              (value === undefined ? booleanDefault(library, field.name) : value === true)
+                ? Check
+                : Minus
+            }
+            aria-hidden="true"
+          >
             {value === undefined ? 'Auto · ' : ''}
             {(value === undefined ? booleanDefault(library, field.name) : value === true)
               ? 'On'
               : 'Off'}
-          </span>
+          </StatusLabel>
           <span className="field-toggle">
             <input
               id={id}

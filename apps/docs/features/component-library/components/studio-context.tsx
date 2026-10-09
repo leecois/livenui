@@ -1,9 +1,12 @@
+import { Pencil } from 'lucide-react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import { type Library, libraries } from '../lib/config'
+import { startingPointLabel } from '../lib/content'
 import { examples } from '../lib/examples'
 import type { Navigate } from '../lib/types'
 import { ChoiceField } from './choice-field'
 import { Link } from './link'
+import { StatusLabel } from './status-label'
 
 export function StudioContext({
   library,
@@ -45,10 +48,20 @@ export function StudioContext({
             }}
             options={examples
               .filter((example) => example.library === library.id)
-              .map((example) => ({ value: example.id, label: example.name }))}
+              .map((example) => ({
+                value: example.id,
+                label: startingPointLabel(example),
+                accessibleLabel: example.name,
+              }))}
             limit={6}
           >
-            {!state.startingPoint && <p className="helper-text">Custom</p>}
+            {!state.startingPoint && (
+              <p className="helper-text field-status">
+                <StatusLabel icon={Pencil} title="Custom configuration">
+                  Custom
+                </StatusLabel>
+              </p>
+            )}
           </ChoiceField>
           <Link
             href={`/agents/gallery?library=${library.id}`}

@@ -46,10 +46,10 @@ test('Image reveals each original artwork through the native renderer', async ({
       .fill(JSON.stringify({ images: [src], autoReveal: false, paused: true }))
     await page.getByRole('button', { name: /Apply configuration/ }).click()
     await expect(page.locator('.code-panel code')).toContainText(src)
-    await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+    await page.getByRole('button', { name: 'Play', exact: true }).click()
     await page.getByRole('button', { name: 'Reveal', exact: true }).click()
     await expect(page.locator('.image-demo .demo-note')).toHaveText('visible')
-    await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
+    await page.getByRole('button', { name: 'Pause', exact: true }).click()
     const canvas = page.locator('.preview-stage .image-gen-overlay')
     expect(
       await canvas.evaluate((node: HTMLCanvasElement) => {
@@ -86,7 +86,7 @@ test('Image reveals each original artwork through the native renderer', async ({
           })
         )
         .toBeGreaterThan(0.8)
-      await expect(page.getByRole('button', { name: '▶ Play', exact: true })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible()
       await page
         .locator('.preview-stage')
         .screenshot({ path: testInfo.outputPath('image-paused-resize.png') })
@@ -113,7 +113,7 @@ test('Melt renders original ribbon art and exports matching image paths', async 
       .toBeGreaterThan(0)
     await expect(page.locator('.code-panel code')).toContainText(image.src)
   }
-  await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
   await page.screenshot({ path: testInfo.outputPath('melt-full-page.png'), fullPage: true })
   const warm = page.getByRole('button', { name: /Drag warm image/ })
   const initial = await warm.getAttribute('style')

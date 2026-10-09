@@ -249,7 +249,7 @@ test('component navigation restores unsaved props, playback, JSON drafts and pre
   await expect(page.locator('.preview-stage canvas')).toBeVisible()
   const canvas = await page.locator('.preview-stage canvas').elementHandle()
   await chooseOption(page, 'State', 'listening')
-  await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+  await page.getByRole('button', { name: 'Play', exact: true }).click()
   await page.getByRole('button', { name: 'Mobile', exact: true }).click()
   await page.locator('.studio-json-toggle').click()
   await page.getByLabel('Edit component props').fill('{ keep this unfinished draft')
@@ -261,7 +261,7 @@ test('component navigation restores unsaved props, playback, JSON drafts and pre
   await expect(
     page.getByRole('group', { name: 'State', exact: true }).getByLabel('Listening', { exact: true })
   ).toBeChecked()
-  await expect(page.getByRole('button', { name: 'Ⅱ Pause', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Mobile', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true'

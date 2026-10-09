@@ -318,7 +318,7 @@ test('every mascot follows the pointer, hops on click and freezes when paused', 
 }, testInfo) => {
   test.setTimeout(90000)
   await page.goto('/studio?library=avatars')
-  await expect(page.getByRole('button', { name: '▶ Play', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible()
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   const canvas = page.locator('.preview-stage canvas[data-bot-avatar]')
   for (const type of mascots) {
@@ -328,7 +328,7 @@ test('every mascot follows the pointer, hops on click and freezes when paused', 
       .getByRole('radio', { name: 'Flat', exact: true })
       .check()
     await settled(canvas)
-    await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+    await page.getByRole('button', { name: 'Play', exact: true }).click()
     const initial = await raster(canvas)
     const bounds = await canvas.boundingBox()
     if (!bounds) throw new Error('Missing avatar bounds')
@@ -337,11 +337,11 @@ test('every mascot follows the pointer, hops on click and freezes when paused', 
     await expect
       .poll(async () => (await raster(canvas)).inkX ?? Number.POSITIVE_INFINITY)
       .toBeLessThan((initial.inkX ?? 0) - 2)
-    await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
+    await page.getByRole('button', { name: 'Pause', exact: true }).click()
     const left = await settled(canvas)
     await page.mouse.move(bounds.x + bounds.width / 2 + 70, bounds.y + bounds.height / 2)
     expect((await raster(canvas)).hash).toBe(left.hash)
-    await page.getByRole('button', { name: '▶ Play', exact: true }).click()
+    await page.getByRole('button', { name: 'Play', exact: true }).click()
     await expect
       .poll(async () => (await raster(canvas)).inkX ?? Number.NEGATIVE_INFINITY)
       .toBeGreaterThan((left.inkX ?? 0) + 2)
@@ -353,7 +353,7 @@ test('every mascot follows the pointer, hops on click and freezes when paused', 
     await page
       .locator('.preview-stage')
       .screenshot({ path: testInfo.outputPath(`${type}-motion.png`) })
-    await page.getByRole('button', { name: 'Ⅱ Pause', exact: true }).click()
+    await page.getByRole('button', { name: 'Pause', exact: true }).click()
     await settled(canvas)
   }
 })

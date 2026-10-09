@@ -31,7 +31,7 @@ export const content: Record<string, ComponentContent> = {
       'Highlight a primary action, focused input or important card with a moving border.',
     hint: 'Press Play to animate the border.',
     controls: ['size', 'colorVariant', 'duration', 'glowSize'],
-    labels: { size: 'Style' },
+    labels: { size: 'Style', colorVariant: 'Palette', glowSize: 'Glow' },
     featured: ['beam-size-md', 'beam-size-line', 'beam-size-pulse-outside'],
   },
   orbs: {
@@ -69,6 +69,7 @@ export const content: Record<string, ComponentContent> = {
       'Show speaking and listening activity with a glow, dots or wireframe driven by audio level.',
     hint: 'Press Play, then use simulation or microphone input.',
     controls: ['type', 'look', 'colorVariant', 'level', 'strength'],
+    labels: { colorVariant: 'Palette' },
     featured: ['voice-look-glow', 'voice-look-dots', 'voice-look-lines'],
   },
   image: {
@@ -155,6 +156,17 @@ export function installCommand(library: Library, manager: 'npm' | 'pnpm' | 'bun'
 export function fieldLabel(name: string) {
   const words = name.replace(/([a-z])([A-Z])/g, '$1 $2')
   return words.charAt(0).toUpperCase() + words.slice(1)
+}
+
+const startingPointSuffixes: Partial<Record<Example['library'], RegExp>> = {
+  beam: / beam$/,
+  image: / reveal$/,
+  gooey: / shapes$/,
+}
+
+export function startingPointLabel(example: Example) {
+  const suffix = startingPointSuffixes[example.library]
+  return suffix ? example.name.replace(suffix, '') : example.name
 }
 
 export function optionLabel(field: string, value: string | number) {

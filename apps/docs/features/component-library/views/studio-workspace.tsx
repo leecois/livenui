@@ -175,16 +175,9 @@ export function StudioLayout({
             )}
           </button>
           <div className="studio-copy">
-            {state ? (
-              <Copy emphasis text={state.liveCode}>
-                Copy code
-              </Copy>
-            ) : (
-              <button type="button" className="button button-accent" disabled>
-                <span aria-live="polite">Copy code</span>
-                <span aria-hidden="true">⧉</span>
-              </button>
-            )}
+            <Copy emphasis text={state?.liveCode ?? ''} label="Copy code" disabled={!state}>
+              Copy
+            </Copy>
           </div>
         </div>
       </header>
@@ -331,8 +324,11 @@ export function StudioLayout({
                     state={state}
                     details={false}
                   />
-                  <Copy text={prompt(state.activeLibrary, state.exportedProps, siteUrl.origin)}>
-                    Copy agent prompt
+                  <Copy
+                    text={prompt(state.activeLibrary, state.exportedProps, siteUrl.origin)}
+                    label="Copy prompt for agents"
+                  >
+                    Copy prompt
                   </Copy>
                 </>
               )}

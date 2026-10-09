@@ -1,4 +1,5 @@
 import { SelectionTrack } from '@livenui/agent-ui'
+import { Pause, Pencil, Play, RotateCcw } from 'lucide-react'
 import { useId } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import { avatarHelpers, avatarOutfits, selectedOutfit } from '../lib/avatar-chat'
@@ -8,6 +9,7 @@ import type { Theme } from '../lib/types'
 import { AvatarShapeControl } from './avatar-shape-control'
 import { ChoiceField } from './choice-field'
 import { FieldControl } from './field-control'
+import { StatusLabel } from './status-label'
 
 export function ChatChoice({
   label,
@@ -112,7 +114,13 @@ export function AvatarChatSettings({
               state.update(name, item[name])
           }}
         >
-          {!outfit && <p className="helper-text">Custom outfit</p>}
+          {!outfit && (
+            <p className="helper-text field-status">
+              <StatusLabel icon={Pencil} title="Custom outfit">
+                Custom
+              </StatusLabel>
+            </p>
+          )}
         </ChoiceField>
         {field('color')}
       </section>
@@ -122,12 +130,19 @@ export function AvatarChatSettings({
           <button
             type="button"
             className="pill"
+            aria-label={state.paused ? 'Play avatar' : 'Pause avatar'}
             aria-pressed={!state.paused}
             onClick={() => state.setPaused(!state.paused)}
           >
-            {state.paused ? 'Play avatar' : 'Pause avatar'}
+            {state.paused ? (
+              <Play size={18} aria-hidden="true" />
+            ) : (
+              <Pause size={18} aria-hidden="true" />
+            )}
+            {state.paused ? 'Play' : 'Pause'}
           </button>
           <button type="button" className="pill" onClick={state.replay}>
+            <RotateCcw size={18} aria-hidden="true" />
             Replay
           </button>
         </div>
