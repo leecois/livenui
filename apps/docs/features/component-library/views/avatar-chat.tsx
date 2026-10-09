@@ -4,7 +4,6 @@ import {
   ArrowUp,
   Code2,
   Menu,
-  MessageSquare,
   Moon,
   Plus,
   SlidersHorizontal,
@@ -17,6 +16,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { AvatarChatBotPicker } from '../components/avatar-chat-bot-picker'
 import { AvatarChatPanel, containDialogFocus } from '../components/avatar-chat-panel'
 import { AvatarChatSettings } from '../components/avatar-chat-settings'
+import { AvatarChatThumbnail } from '../components/avatar-chat-thumbnail'
 import { CodePanel } from '../components/code-panel'
 import { Link } from '../components/link'
 import { Preview, PreviewBoundary } from '../components/preview'
@@ -314,65 +314,71 @@ export function AvatarChat({
                         setPanel(undefined)
                       }}
                     >
-                      <span className="avatar-chat-list-icon" aria-hidden="true">
-                        <MessageSquare size={16} />
-                      </span>
-                      <span>{item.title}</span>
+                      <AvatarChatThumbnail
+                        props={item.bot?.props ?? state.exportedProps}
+                        theme={theme}
+                      />
+                      <span className="avatar-chat-list-label">{item.title}</span>
                     </button>
                   ))}
               </nav>
             )}
             <nav aria-label="Chat examples" className="avatar-chat-list">
               <h3>Examples</h3>
-              {avatarChatExamples.map((example) => (
-                <button
-                  type="button"
-                  key={example.title}
-                  aria-current={chat.current.example === example.title ? 'true' : undefined}
-                  disabled={!!chat.pending || !chat.online}
-                  onClick={() => {
-                    const previous = chat.conversations.find(
-                      (item) => item.example === example.title
-                    )
-                    if (previous?.bot) {
-                      chat.select(previous.id)
-                      setBot(previous.bot.profile)
-                      state.load({
-                        name: previous.bot.name,
-                        props: previous.bot.props,
-                        variant: state.variant,
-                      })
+              {avatarChatExamples.map((example) => {
+                const previous = chat.conversations.find((item) => item.example === example.title)
+                return (
+                  <button
+                    type="button"
+                    key={example.title}
+                    aria-current={chat.current.example === example.title ? 'true' : undefined}
+                    disabled={!!chat.pending || !chat.online}
+                    onClick={() => {
+                      if (previous?.bot) {
+                        chat.select(previous.id)
+                        setBot(previous.bot.profile)
+                        state.load({
+                          name: previous.bot.name,
+                          props: previous.bot.props,
+                          variant: state.variant,
+                        })
+                        follow.current = true
+                        setPanel(undefined)
+                        composer.current?.focus({ preventScroll: true })
+                        return
+                      }
+                      const props = avatarHelperProps(example.outfit)
+                      for (const [key, value] of Object.entries(props)) state.update(key, value)
+                      setBot(undefined)
                       follow.current = true
+                      chat.send(
+                        example.prompt,
+                        {
+                          name:
+                            example.outfit === 'Resting'
+                              ? optionLabel('type', type)
+                              : example.outfit,
+                          props: { ...state.exportedProps, ...props },
+                        },
+                        example.title
+                      )
                       setPanel(undefined)
                       composer.current?.focus({ preventScroll: true })
-                      return
-                    }
-                    const props = avatarHelperProps(example.outfit)
-                    for (const [key, value] of Object.entries(props)) state.update(key, value)
-                    setBot(undefined)
-                    follow.current = true
-                    chat.send(
-                      example.prompt,
-                      {
-                        name:
-                          example.outfit === 'Resting' ? optionLabel('type', type) : example.outfit,
-                        props: { ...state.exportedProps, ...props },
-                      },
-                      example.title
-                    )
-                    setPanel(undefined)
-                    composer.current?.focus({ preventScroll: true })
-                  }}
-                >
-                  <span className="avatar-chat-list-icon" aria-hidden="true">
-                    <span
-                      className="avatar-chat-outfit-dot"
-                      style={{ background: String(avatarHelperProps(example.outfit).color) }}
+                    }}
+                  >
+                    <AvatarChatThumbnail
+                      props={
+                        previous?.bot?.props ?? {
+                          ...state.exportedProps,
+                          ...avatarHelperProps(example.outfit),
+                        }
+                      }
+                      theme={theme}
                     />
-                  </span>
-                  <span>{example.title}</span>
-                </button>
-              ))}
+                    <span className="avatar-chat-list-label">{example.title}</span>
+                  </button>
+                )
+              })}
             </nav>
           </AvatarChatPanel>
           <main className="avatar-chat-main" data-conversation={conversation || undefined}>

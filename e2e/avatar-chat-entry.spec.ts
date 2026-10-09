@@ -88,6 +88,12 @@ test('avatar chat covers the guide before hydration on entry and reload', async 
         for (const thumbnail of thumbnails) {
           expect(thumbnail).toMatchObject({ font: '0px', width: 24, height: 24 })
         }
+        const sidebarThumbnails = chat.locator('.avatar-chat-thumbnail')
+        await expect(sidebarThumbnails).toHaveCount(20)
+        for (const bounds of await sidebarThumbnails.evaluateAll((elements) =>
+          elements.map((element) => element.getBoundingClientRect().toJSON())
+        ))
+          expect(bounds).toMatchObject({ width: 32, height: 32 })
       } else {
         await expect(chat.locator('.avatar-chat-settings')).toBeHidden()
         await expect(chat.locator('.avatar-chat-examples')).toBeHidden()

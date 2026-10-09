@@ -150,6 +150,7 @@ test('examples sidebar keeps its action and row alignment while the list scrolls
         return {
           x: row.getBoundingClientRect().x,
           iconCenter: icon ? icon.x + icon.width / 2 : null,
+          iconWidth: icon?.width,
           textX: text.getBoundingClientRect().x,
           font: getComputedStyle(row).fontSize,
         }
@@ -159,12 +160,14 @@ test('examples sidebar keeps its action and row alignment while the list scrolls
   expect(rows).toHaveLength(21)
   expect(rows.every((row) => JSON.stringify(row) === JSON.stringify(rows[0]))).toBe(true)
   expect(rows[0].font).toBe('13px')
+  expect(rows[0].iconWidth).toBe(32)
   if (testInfo.project.use.viewport?.width === 1440) {
     const brand = examples.locator('.avatar-chat-brand')
     const bounds = await brand.boundingBox()
     if (!bounds || rows[0].iconCenter === null) throw new Error('Missing sidebar brand geometry')
     expect(bounds).toMatchObject({ width: 24, height: 24 })
-    expect(Math.abs(rows[0].iconCenter - (bounds.x + bounds.width / 2))).toBeLessThanOrEqual(2)
+    expect(bounds.x).toBeGreaterThanOrEqual(header?.x ?? 0)
+    expect(bounds.x + bounds.width).toBeLessThan(rows[0].textX)
     const mainHeader = chat(page).locator('.avatar-chat-header')
     expect((await mainHeader.boundingBox())?.height).toBe(header?.height)
   }
@@ -213,6 +216,124 @@ test('examples sidebar keeps its action and row alignment while the list scrolls
     path: testInfo.outputPath('chat-sidebar-320-full-page.png'),
     fullPage: true,
   })
+})
+
+test('sidebar avatars stay still and retain each conversation identity after configuration changes', async ({
+  page,
+}, testInfo) => {
+  test.setTimeout(60_000)
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/agents/avatars')
+  const actor = chat(page).locator('.avatar-chat-actor canvas')
+  await expect(actor).toBeVisible()
+  await actor.evaluate((element) => {
+    element.dataset.sidebarProbe = 'retained'
+  })
+  const examples = await openPanel(page, 'examples')
+  const choices = examples.getByRole('navigation', { name: 'Chat examples', exact: true })
+  const thumbnails = choices.locator('.avatar-chat-thumbnail')
+  await expect(thumbnails.locator('canvas')).toHaveCount(20)
+  await expect(choices.getByRole('img')).toHaveCount(0)
+  await expect
+    .poll(() =>
+      thumbnails.locator('canvas').evaluateAll((elements) =>
+        elements.every((element) => {
+          const canvas = element as HTMLCanvasElement
+          const pixels = canvas
+            .getContext('2d')
+            ?.getImageData(0, 0, canvas.width, canvas.height).data
+          return pixels?.some((value, index) => index % 4 === 3 && value > 0)
+        })
+      )
+    )
+    .toBe(true)
+  for (const thumbnail of await thumbnails.evaluateAll((elements) =>
+    elements.map((element) => ({
+      hidden: element.getAttribute('aria-hidden'),
+      inert: (element as HTMLElement).inert,
+      ...element.getBoundingClientRect().toJSON(),
+    }))
+  ))
+    expect(thumbnail).toMatchObject({ hidden: 'true', inert: true, width: 32, height: 32 })
+  const planner = choices.getByRole('button', { name: 'Plan a feature', exact: true })
+  const plannerCanvas = planner.locator('canvas')
+  const appearance = () =>
+    plannerCanvas.evaluate((element) => (element as HTMLCanvasElement).toDataURL())
+  const original = await appearance()
+  await planner.hover()
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+  )
+  expect(await appearance()).toBe(original)
+  await planner.click()
+  await chat(page).getByRole('button', { name: 'Stop reply', exact: true }).click()
+  await openPanel(page, 'examples')
+  await page.screenshot({
+    path: testInfo.outputPath('chat-sidebar-avatars-full-page.png'),
+    fullPage: true,
+  })
+  await examples.getByRole('button', { name: 'New chat', exact: true }).click()
+  const settings = await openPanel(page, 'settings')
+  await chooseOption(settings, 'Shape', 'connector')
+  await settings.getByRole('button', { name: 'Use Mint color', exact: true }).click()
+  await closePanel(page, 'settings')
+  const title = 'Review the interface and keep component navigation clear'
+  await chat(page)
+    .getByRole('textbox', { name: /^Message / })
+    .fill(title)
+  await chat(page).getByRole('button', { name: 'Send message', exact: true }).click()
+  await chat(page).getByRole('button', { name: 'Stop reply', exact: true }).click()
+  await openPanel(page, 'examples')
+  const history = examples.getByRole('navigation', { name: 'Conversations', exact: true })
+  const conversation = history.getByRole('button', { name: title, exact: true })
+  await expect(conversation.locator('canvas')).toHaveAttribute('data-bot-avatar', 'connector')
+  const saved = await conversation
+    .locator('canvas')
+    .evaluate((element) => (element as HTMLCanvasElement).toDataURL())
+  await examples.getByRole('button', { name: 'New chat', exact: true }).click()
+  await openPanel(page, 'settings')
+  await chooseOption(settings, 'Shape', 'chat')
+  await settings.getByRole('button', { name: 'Use Peach color', exact: true }).click()
+  await closePanel(page, 'settings')
+  await openPanel(page, 'examples')
+  await expect(actor).toHaveAttribute('data-bot-avatar', 'chat')
+  await expect(conversation.locator('canvas')).toHaveAttribute('data-bot-avatar', 'connector')
+  expect(
+    await conversation
+      .locator('canvas')
+      .evaluate((element) => (element as HTMLCanvasElement).toDataURL())
+  ).toBe(saved)
+  await expect(plannerCanvas).toHaveAttribute('data-bot-avatar', 'clover')
+  expect(await appearance()).toBe(original)
+  await expect(
+    choices.getByRole('button', { name: 'Explain a concept', exact: true }).locator('canvas')
+  ).toHaveAttribute('data-bot-avatar', 'chat')
+  await expect(actor).toHaveAttribute('data-sidebar-probe', 'retained')
+  await conversation.click()
+  await expect(actor).toHaveAttribute('data-bot-avatar', 'connector')
+  await openPanel(page, 'examples')
+  await expect(conversation).toHaveAttribute('aria-current', 'true')
+  await expect(conversation).toHaveCSS('color', 'rgb(255, 255, 255)')
+  await expect(conversation).toHaveCSS('background-image', /linear-gradient/)
+  await page.screenshot({
+    path: testInfo.outputPath('chat-sidebar-history-full-page.png'),
+    fullPage: true,
+  })
+  await planner.click()
+  await expect(actor).toHaveAttribute('data-bot-avatar', 'clover')
+  await expect(
+    chat(page).getByRole('textbox', { name: 'Message Planner', exact: true })
+  ).toBeVisible()
+  await page.setViewportSize({ width: 320, height: 600 })
+  await expect(examples).toBeHidden()
+  await openPanel(page, 'examples')
+  const row = await conversation.boundingBox()
+  const label = await conversation.locator('.avatar-chat-list-label').boundingBox()
+  expect(row?.height).toBeGreaterThanOrEqual(44)
+  expect((label?.x ?? 0) + (label?.width ?? 0)).toBeLessThanOrEqual(
+    (row?.x ?? 0) + (row?.width ?? 0) - 12
+  )
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
 
 test('brand navigation replaces the sidebar arrow and exits an active chat to all components', async ({
