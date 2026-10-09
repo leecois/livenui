@@ -23,6 +23,24 @@ const metal = libraryFor('metal')
 const gooey = libraryFor('gooey')
 
 describe('configuration import and export', () => {
+  test('raw SVG filters stay code-only across shared configs, JSON and saved presets', () => {
+    const props = { filter: '<foreignObject><img onerror="alert(1)" /></foreignObject>' }
+    expect(() => parseProps(JSON.stringify(props), gooey)).toThrow(
+      'filter requires application code'
+    )
+    expect(() => parseConfiguration(JSON.stringify({ library: 'gooey', props }), gooey)).toThrow(
+      'filter requires application code'
+    )
+    expect(() => studioHref(gooey, props, 'ring')).toThrow('filter requires application code')
+    expect(
+      readPresets({
+        getItem: () =>
+          JSON.stringify([
+            { id: 'unsafe', name: 'Unsafe', library: 'gooey', variant: 'ring', props },
+          ]),
+      })
+    ).toEqual([])
+  })
   test('structured props reject incompatible shapes before rendering', () => {
     const invalid: [string, string, object][] = [
       ['voice', 'ring', { colors: { core: 'red' } }],

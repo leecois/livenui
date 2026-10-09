@@ -62,6 +62,13 @@ export function variantDefaults(library: Library, variant: string): Props {
   return { ...defaults[library.id] }
 }
 
+export function isCodeOnlyProp(library: Library, key: string): boolean {
+  return (
+    ['stream', 'audio', 'frame', 'excludeSrcs', 'reflectionTargets', 'mask'].includes(key) ||
+    (library.id === 'gooey' && key === 'filter')
+  )
+}
+
 export function parseProps(text: string, library: Library): Props {
   const props: unknown = JSON.parse(text)
   if (!props || typeof props !== 'object' || Array.isArray(props)) {
@@ -100,7 +107,11 @@ export function parseProps(text: string, library: Library): Props {
     if (typeof value === 'number' && Math.abs(value) > 10000) {
       throw new Error(`${key} exceeds the playground limit of 10000.`)
     }
-    if (['stream', 'audio', 'frame', 'excludeSrcs', 'reflectionTargets', 'mask'].includes(key)) {
+    if (isCodeOnlyProp(library, key)) {
+      if (library.id === 'gooey' && key === 'filter')
+        throw new Error(
+          'filter requires application code and cannot be imported into the playground.'
+        )
       throw new Error(`${key} requires an application reference; use it in your code instead.`)
     }
     if (

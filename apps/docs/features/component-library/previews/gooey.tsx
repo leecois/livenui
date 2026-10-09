@@ -393,6 +393,7 @@ export default function GooeyPreview({ props, paused, showcase }: PreviewProps) 
   const group = {
     shadow: '0 2px 6px color-mix(in srgb, var(--foreground) 8%, transparent)',
     ...groupProps,
+    filter: undefined,
   } as LiquidProps
   return (
     <div className="gooey-demo" style={{ '--liquid-ink': 'var(--foreground)' } as CSSProperties}>

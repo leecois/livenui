@@ -55,15 +55,17 @@ test('compound editors keep one contained cue while applying exported values', a
   await page.screenshot({ path: testInfo.outputPath('color-focus-full-page.png'), fullPage: true })
   await color.screenshot({ path: testInfo.outputPath('color-focus.png') })
 
-  await page.goto('/studio?library=gooey')
+  await page.goto(
+    `/studio?library=metal#${new URLSearchParams({
+      config: JSON.stringify({ library: 'metal', variant: 'text', props: {} }),
+    })}`
+  )
   await page.getByRole('button', { name: 'Show advanced settings', exact: true }).click()
-  const text = page
-    .locator('.controls-panel .text-row')
-    .filter({ has: page.locator('#prop-filter') })
-  const filter = text.locator('input')
-  await containedFocus(text, filter)
-  await filter.fill('blur(0px)')
-  await expect(page.locator('.code-panel code')).toContainText('filter={"blur(0px)"}')
+  const text = page.locator('.controls-panel .text-row').filter({ has: page.locator('#prop-font') })
+  const font = text.locator('input')
+  await containedFocus(text, font)
+  await font.fill('600 24px/1.2 system-ui')
+  await expect(page.locator('.code-panel code')).toContainText('font={"600 24px/1.2 system-ui"}')
   await text.screenshot({ path: testInfo.outputPath('text-focus.png') })
   await page.setViewportSize({ width: 320, height: 1000 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

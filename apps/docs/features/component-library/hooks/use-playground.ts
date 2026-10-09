@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   configuredLibrary,
   defaults,
+  isCodeOnlyProp,
   type Library,
   type Preset,
   type Props,
@@ -161,6 +162,7 @@ export function usePlayground({
     (field) =>
       (field.kind !== 'json' || content[library.id].choices?.[field.name]) &&
       field.name !== 'theme' &&
+      !isCodeOnlyProp(activeLibrary, field.name) &&
       controlVisible(activeLibrary, field, props) &&
       (all || query.trim() || content[library.id].controls.includes(field.name)) &&
       matchesSearch(

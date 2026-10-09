@@ -979,7 +979,7 @@
       {
         "name": "filter",
         "type": "string",
-        "description": "Escape hatch: raw SVG filter primitives that REPLACE the goo chain (`blur`, `contrast`, `waviness` and the SVG half of `shadow` are then yours to reproduce). The input is `SourceGraphic`; the last primitive's output is what paints. Inset and spread shadows normally read a binarised `shape` result \u2014 keep that name if you keep them.",
+        "description": "Application code only; unavailable in playground JSON, presets or shared links. Escape hatch: raw SVG filter primitives that REPLACE the goo chain (`blur`, `contrast`, `waviness` and the SVG half of `shadow` are then yours to reproduce). The input is `SourceGraphic`; the last primitive's output is what paints. Inset and spread shadows normally read a binarised `shape` result \u2014 keep that name if you keep them.",
         "kind": "string",
         "options": [],
         "optional": true
@@ -1057,7 +1057,7 @@
           {
             "name": "filter",
             "type": "string",
-            "description": "Escape hatch: raw SVG filter primitives that REPLACE the goo chain (`blur`, `contrast`, `waviness` and the SVG half of `shadow` are then yours to reproduce). The input is `SourceGraphic`; the last primitive's output is what paints. Inset and spread shadows normally read a binarised `shape` result \u2014 keep that name if you keep them.",
+            "description": "Application code only; unavailable in playground JSON, presets or shared links. Escape hatch: raw SVG filter primitives that REPLACE the goo chain (`blur`, `contrast`, `waviness` and the SVG half of `shadow` are then yours to reproduce). The input is `SourceGraphic`; the last primitive's output is what paints. Inset and spread shadows normally read a binarised `shape` result \u2014 keep that name if you keep them.",
             "kind": "string",
             "options": [],
             "optional": true
