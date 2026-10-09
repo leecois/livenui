@@ -258,7 +258,7 @@ test('JSON, local presets, installation and portable transfer', async ({ page })
   await page.getByRole('tab', { name: 'Code', exact: true }).click()
   await chooseOption(page, 'Package manager', 'pnpm')
   await expect(page.locator('.install-command code')).toHaveText(
-    'pnpm dlx shadcn@latest add http://localhost:3000/r/orbs.json'
+    'pnpm dlx shadcn@latest add https://livenui.dev/r/orbs.json'
   )
   await expect(page.getByRole('button', { name: /Copy prompt for agents/ })).toBeVisible()
   await accent(page.locator('.studio-header').getByRole('button', { name: /Copy code/ }))
@@ -495,7 +495,7 @@ test('installation commands and copied code use maintained Liven UI source', asy
   ] as const) {
     await chooseOption(page, 'Package manager', value)
     await expect(page.locator('.install-command code')).toHaveText(
-      `${runner} shadcn@latest add http://localhost:3000/r/orbs.json`
+      `${runner} shadcn@latest add https://livenui.dev/r/orbs.json`
     )
   }
   for (const id of ['beam', 'orbs', 'metal', 'gooey', 'voice', 'image', 'avatars']) {
@@ -508,6 +508,12 @@ test('installation commands and copied code use maintained Liven UI source', asy
     expect(payload.files.some((file: { target: string }) => file.target.endsWith('/LICENSE'))).toBe(
       true
     )
+    if (id === 'metal') {
+      const apache = payload.files.find((file: { target: string }) =>
+        file.target.endsWith('/LICENSE-APACHE-2.0')
+      )
+      expect(apache.content).toContain('END OF TERMS AND CONDITIONS')
+    }
     for (const dependency of payload.dependencies) {
       expect(dependency).not.toMatch(
         /^(border-beam|thinking-orbs|metal-fx|liquid-gooey|voice-glow|img-fx|bot-avatars)(@|$)/
@@ -518,4 +524,14 @@ test('installation commands and copied code use maintained Liven UI source', asy
   expect(reference).toContain('Install source: npx shadcn@latest add')
   expect(reference).toContain("from '@/components/livenui/orbs'")
   expect(reference).not.toContain('Install: npm install thinking-orbs')
+  const robots = await request.get('/robots.txt')
+  expect(robots.status()).toBe(200)
+  expect(await robots.text()).toContain('Sitemap: https://livenui.dev/sitemap.xml')
+  const sitemap = await request.get('/sitemap.xml')
+  expect(sitemap.status()).toBe(200)
+  const xml = await sitemap.text()
+  for (const path of ['agents', 'agents/gallery', 'agents/integration', 'studio']) {
+    expect(xml).toContain(`<loc>https://livenui.dev/${path}</loc>`)
+  }
+  expect(xml).not.toContain('/agents/studio')
 })

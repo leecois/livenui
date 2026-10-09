@@ -54,7 +54,7 @@ test('installation shows complete commands with compact choices and icon copying
     ['bun', 'bunx'],
   ]) {
     await chooseOption(page, 'Package manager', value)
-    const expected = `${runner} shadcn@latest add http://localhost:3000/r/orbs.json`
+    const expected = `${runner} shadcn@latest add https://livenui.dev/r/orbs.json`
     await expect(command).toHaveText(expected)
     await copy.click()
     await expect.poll(() => page.evaluate(() => Reflect.get(window, 'copiedText'))).toBe(expected)

@@ -7,7 +7,7 @@ Animated border beam effect for React. A lightweight component that adds a trave
 ## Install
 
 ```bash
-npx shadcn@latest add http://localhost:3000/r/beam.json
+npx shadcn@latest add https://livenui.dev/r/beam.json
 ```
 
 ## Quick start

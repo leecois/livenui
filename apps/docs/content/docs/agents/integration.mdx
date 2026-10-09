@@ -21,11 +21,7 @@ Use [Components](/agents) to choose by purpose, or browse [Examples](/agents/gal
 
 Each playground has a **Use in your project** section with an installation command for npm, pnpm or Bun. The command copies the component's complete editable source from the Liven UI registry into your project. It does not install the reference project's effect packages.
 
-For example, to add a progress indicator to a project configured for the component installer:
-
-```sh
-npx shadcn@latest add http://localhost:3000/r/orbs.json
-```
+For example, open [Thinking orbs](/agents/orbs), choose **Install & Usage** and copy the command for your package manager. The command uses this website's configured registry origin.
 
 The installed entry is `components/livenui/orbs.tsx`, with the rendering engine and types alongside it. Imports in the examples use `@/components/livenui`; adjust that prefix to your project's configured component alias. Components require React 18 or newer. Image also installs Three.js. Metal uses a shader dependency listed in its registry payload. Licenses and notices are included with the downloaded source.
 

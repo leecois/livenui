@@ -26,7 +26,7 @@ liquid-gooey splits it in two — a silhouette layer carries the goo and the sha
 - **Two effects, not fifty knobs.** Morph and Move take 3–4 normalized knobs each, plus a `dissolve` modifier — with the full physics underneath when you want it.
 
 ```bash
-npx shadcn@latest add http://localhost:3000/r/gooey.json
+npx shadcn@latest add https://livenui.dev/r/gooey.json
 ```
 
 ```tsx
@@ -258,15 +258,18 @@ Caveats: the dissolve warps a snapshot of each image's `src` (rebuilt on resize)
 - **Reduced motion**: component-driven transitions collapse to instant snaps under `prefers-reduced-motion`.
 - **Theming**: pass `fill="var(--surface)"` and let CSS variables switch light/dark.
 - **Item backgrounds** should be transparent — the blob is the surface. An opaque child (a full-bleed image in a circle) covers its own blob, which is exactly right for image chips.
+- **Custom filters** are trusted application code. Never pass user-controlled SVG to `filter`; playground JSON, shared links and presets do not accept this prop.
 
-## Publishing
+## Local build and distribution
+
+This workspace is private. Public installation copies the maintained source from the Liven UI registry; see [source distribution](../../docs/decisions/002-source-registry-distribution.md).
 
 ```bash
-npm run typecheck && npm run build
-npm publish        # from a logged-in npm account
+bun run typecheck
+bun run build
 ```
 
-`dist/` ships ESM + CJS + types; `sideEffects: false`; React ≥18 peer dependency.
+Local `dist/` contains ESM, CJS and declarations. The source registry targets React ≥18.
 
 ## Credits
 

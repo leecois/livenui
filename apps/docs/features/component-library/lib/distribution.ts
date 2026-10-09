@@ -1,4 +1,4 @@
-export const registryOrigin = 'http://localhost:3000'
+export const registryOrigin = 'https://livenui.dev'
 
 export function sourceImport(library: { id: string }) {
   return `@/components/livenui/${library.id}`

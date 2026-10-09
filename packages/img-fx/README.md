@@ -4,12 +4,12 @@ Liven UI maintains and distributes this component as editable source. The instal
 
 Animated WebGL "image generation / loader" effect for React. Wrap any card and it gets a real-time shader-driven loading mosaic that periodically reveals an image from a pool you provide. Ports the canonical `image.html` effect into a small, performant React library.
 
-Live playground: [Liven UI Image](http://localhost:3000/agents/image)
+Live playground: [Liven UI Image](https://livenui.dev/agents/image)
 
 ## Install
 
 ```bash
-npx shadcn@latest add http://localhost:3000/r/image.json
+npx shadcn@latest add https://livenui.dev/r/image.json
 ```
 
 `react`, `react-dom`, and `three` are peer dependencies.

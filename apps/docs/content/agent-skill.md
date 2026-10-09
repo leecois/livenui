@@ -5,7 +5,7 @@ Install editable source from the Liven UI registry. These components are maintai
 React 18+. Preserve semantic markup, synchronize theme, use existing design tokens and respect reduced motion.
 
 ## Border beam
-Install source: npx shadcn@latest add http://localhost:3000/r/beam.json
+Install source: npx shadcn@latest add https://livenui.dev/r/beam.json
 A travelling glow for cards, inputs and buttons. Five beam shapes, eight palettes, endless ways to draw attention.
 
 Import: BorderBeam from '@/components/livenui/beam'
@@ -24,7 +24,7 @@ Import: BorderBeam from '@/components/livenui/beam'
 - css: string. Extra CSS appended after the beam's own generated stylesheet, so it can override or add layers and keyframes. Write `{id}` wherever the instance id belongs — the root is `[data-beam="{id}"]`, its layers are the `::before` / `::after` pseudo-elements and `[data-beam-bloom]`, and keyframes are named `*-{id}` — and it is substituted per instance.
 
 ## Thinking orbs
-Install source: npx shadcn@latest add http://localhost:3000/r/orbs.json
+Install source: npx shadcn@latest add https://livenui.dev/r/orbs.json
 Nine particle states give searching, listening and composing a distinct visual language.
 
 Import: ThinkingOrb from '@/components/livenui/orbs'
@@ -41,7 +41,7 @@ Import: ThinkingOrb from '@/components/livenui/orbs'
 - gravity: boolean | GravityOptions. Gravity: the orb pulls at the pointer. As the pointer nears, a raster of the platform's cursor is drawn in its place with its body warped toward the orb — the tip stays put, nothing rotates or scales. Needs the platform's real pointer raster (`gravity.sprite`, or `setGravitySprite`) or it stays off; off automatically under reduced motion, forced colours, coarse pointers, zoom, and over anything but the plain arrow. `true` takes the defaults. See gravity.ts.
 
 ## Metal
-Install source: npx shadcn@latest add http://localhost:3000/r/metal.json
+Install source: npx shadcn@latest add https://livenui.dev/r/metal.json
 Liquid metal rings, text and badges with live reflections, cursor light and responsive deformation.
 
 Import: MetalFx from '@/components/livenui/metal'
@@ -87,7 +87,7 @@ Import: MetalBadge from '@/components/livenui/metal'
 - textColor: string.
 
 ## Gooey
-Install source: npx shadcn@latest add http://localhost:3000/r/gooey.json
+Install source: npx shadcn@latest add https://livenui.dev/r/gooey.json
 Merge, morph, move, melt and bend. Liquid silhouettes carry crisp, readable content.
 
 Import: Liquid from '@/components/livenui/gooey'
@@ -98,7 +98,7 @@ Import: Liquid from '@/components/livenui/gooey'
 - filterPadding: number. Extra filter-region slack in px for blobs travelling outside the group box. Default 24.
 - waviness: number. Max px the liquid boundary undulates — the silhouette (and its shadows) run through a gentle noise displacement, so edges read as fluid instead of geometric. 0 (default) keeps the calm edge.
 - wavinessFreq: number. Noise frequency of the undulation; lower = longer, lazier waves.
-- filter: string. Escape hatch: raw SVG filter primitives that REPLACE the goo chain (`blur`, `contrast`, `waviness` and the SVG half of `shadow` are then yours to reproduce). The input is `SourceGraphic`; the last primitive's output is what paints. Inset and spread shadows normally read a binarised `shape` result — keep that name if you keep them.
+- filter: string. Application code only; unavailable in playground JSON, presets or shared links. Escape hatch: raw SVG filter primitives that REPLACE the goo chain (`blur`, `contrast`, `waviness` and the SVG half of `shadow` are then yours to reproduce). The input is `SourceGraphic`; the last primitive's output is what paints. Inset and spread shadows normally read a binarised `shape` result — keep that name if you keep them.
 - item: LiquidItemProps. Playground recipe field: props applied to each Liquid.Item child, not to the Liquid group. The generated code places these on the child.
 
 Liquid.Item props:
@@ -117,7 +117,7 @@ Liquid.Item props:
 - radius: number | CornerRadii. Override the measured border-radius for the liquid (px).
 
 ## Voice
-Install source: npx shadcn@latest add http://localhost:3000/r/voice.json
+Install source: npx shadcn@latest add https://livenui.dev/r/voice.json
 A glow, dotted landscape or wireframe that rises with your voice. Real microphone input or a controlled level.
 
 Import: VoiceBeam from '@/components/livenui/voice'
@@ -208,7 +208,7 @@ Import: VoiceBeam from '@/components/livenui/voice'
 - css: string. Extra CSS appended after the beam's own generated stylesheet. Write `{id}` wherever the instance id belongs — the root is `[data-voice-beam="{id}"]`, its layers the `::before` / `::after` pseudo-elements and `[data-voice-beam-bloom]`, and keyframes are named `*-{id}` — and it is substituted per instance.
 
 ## Image
-Install source: npx shadcn@latest add http://localhost:3000/r/image.json
+Install source: npx shadcn@latest add https://livenui.dev/r/image.json
 An animated pixel mosaic settles into a photograph, with three reveal presets and a complete cycle API.
 
 Import: ImageGeneration from '@/components/livenui/image'
@@ -231,7 +231,7 @@ Import: ImageGeneration from '@/components/livenui/image'
 - excludeSrcs: () => string[] | Set<string> | null | undefined. Optional callback invoked just before each image pick that returns a list of src strings the cycle MUST avoid this round. Use this to coordinate multiple `<ImageGeneration>` instances that share an image pool so they never display the same image at the same time. The callback runs on every pick (including manual `triggerReveal()`) so it can read live state. If every candidate is excluded, the cycle falls back to a normal random pick so it never gets stuck.
 
 ## Bot avatars
-Install source: npx shadcn@latest add http://localhost:3000/r/avatars.json
+Install source: npx shadcn@latest add https://livenui.dev/r/avatars.json
 Eighteen living shapes, five materials, expressive states and a wardrobe of playful accessories.
 
 Import: BotAvatar from '@/components/livenui/avatars'

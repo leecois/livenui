@@ -4,12 +4,12 @@ Liven UI maintains and distributes this component as editable source. The instal
 
 Dotted thought-orb loading indicators for AI & agent UIs. Nine hand-tuned animated states, each shipped at two purpose-tuned sizes, rendered on a plain 2D canvas — no WebGL, no filters, works identically in Chrome, Safari and Firefox.
 
-[Live demo](https://libraries.dev/orbs) · [Repository](https://github.com/Jakubantalik/Libraries.dev) · [Report an issue](https://github.com/Jakubantalik/Libraries.dev/issues)
+Liven UI guide: [playground](https://livenui.dev/agents/orbs). Install from the maintained Liven UI source registry. [Report an issue](https://github.com/leecois/livenui/issues).
 
 ## Install
 
 ```bash
-npx shadcn@latest add http://localhost:3000/r/orbs.json
+npx shadcn@latest add https://livenui.dev/r/orbs.json
 ```
 
 ## Quick start

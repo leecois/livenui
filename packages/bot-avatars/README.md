@@ -4,12 +4,12 @@ Liven UI maintains and distributes this component as editable source. The instal
 
 Animated bot avatars for React. Twenty-two simple 3D shapes with living faces — round eyes that blink and glance, an optional mouth — and three states an agent can be in: idle, working and sleeping. Each one turns its head, looks around, hops and flips, and every state change is a cross-animation. Vector shapes drawn on a 2D canvas as a lit, inflated body in plush faux fur (or glossy plastic): no WebGL, no runtime dependencies.
 
-[Live demo](https://libraries.dev/bots) · [Repository](https://github.com/Jakubantalik/Libraries.dev) · [Report an issue](https://github.com/Jakubantalik/Libraries.dev/issues)
+Liven UI guide: [playground](https://livenui.dev/agents/avatars). Install from the maintained Liven UI source registry. [Report an issue](https://github.com/leecois/livenui/issues).
 
 ## Install
 
 ```bash
-npx shadcn@latest add http://localhost:3000/r/avatars.json
+npx shadcn@latest add https://livenui.dev/r/avatars.json
 ```
 
 ## Quick start

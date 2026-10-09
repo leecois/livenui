@@ -12,6 +12,9 @@ type AnySource = typeof source
 
 async function checkLinks() {
   const scanned = await scanURLs({
+    pages: (await readdir('app', { recursive: true })).filter((file) =>
+      /(^|\/)route\.[jt]s$/.test(file)
+    ),
     populate: {
       '[...slug]': source.getPages().map((page) => {
         return {

@@ -4,7 +4,7 @@ Liven UI maintains and distributes this component as editable source. The instal
 
 Animated WebGL "liquid metal" effect for React. Wrap a button, chip, or icon and it gets a real-time metal ring with optional proximity reflection on neighbouring elements.
 
-[Live demo](https://metal.jakubantalik.com) · [Repository](https://github.com/Jakubantalik/metal-fx) · [Report an issue](https://github.com/Jakubantalik/metal-fx/issues)
+Liven UI guide: [playground](https://livenui.dev/agents/metal). Install from the maintained Liven UI source registry. [Report an issue](https://github.com/leecois/livenui/issues).
 
 ## v2
 
@@ -24,7 +24,7 @@ Requires WebGL2 (`isMetalFxSupported()`); unsupported browsers render the plain 
 ## Install
 
 ```bash
-npx shadcn@latest add http://localhost:3000/r/metal.json
+npx shadcn@latest add https://livenui.dev/r/metal.json
 ```
 
 ## Quick start

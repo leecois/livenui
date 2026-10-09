@@ -11,7 +11,7 @@ It is the voice-shaped sibling of [`border-beam`](../border-beam)'s `line` type:
 ## Install
 
 ```bash
-npx shadcn@latest add http://localhost:3000/r/voice.json
+npx shadcn@latest add https://livenui.dev/r/voice.json
 ```
 
 ## Quick start

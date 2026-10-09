@@ -183,7 +183,7 @@ try {
       .getByRole('button', { name: 'Copy command', exact: true })
       .click()
     const command: string = await page.evaluate(() => Reflect.get(window, 'copiedText'))
-    assert.equal(command, `npx shadcn@latest add http://localhost:3000/r/${item.id}.json`)
+    assert.equal(command, `npx shadcn@latest add https://livenui.dev/r/${item.id}.json`)
     const url = `${preview.origin}/r/${item.id}.json`
     const response = await fetch(url)
     assert.equal(response.status, 200)

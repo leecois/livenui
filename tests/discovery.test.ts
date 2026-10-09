@@ -41,17 +41,15 @@ test('installation commands consume Liven UI source for every supported package 
   const orbs = libraries.find((library) => library.id === 'orbs')
   if (!image || !orbs) throw new Error('Missing component library')
   expect(installCommand(image, 'npm')).toBe(
-    'npx shadcn@latest add http://localhost:3000/r/image.json'
+    'npx shadcn@latest add https://livenui.dev/r/image.json'
   )
   expect(installCommand(image, 'pnpm')).toBe(
-    'pnpm dlx shadcn@latest add http://localhost:3000/r/image.json'
+    'pnpm dlx shadcn@latest add https://livenui.dev/r/image.json'
   )
   expect(installCommand(image, 'bun')).toBe(
-    'bunx shadcn@latest add http://localhost:3000/r/image.json'
+    'bunx shadcn@latest add https://livenui.dev/r/image.json'
   )
-  expect(installCommand(orbs, 'npm')).toBe(
-    'npx shadcn@latest add http://localhost:3000/r/orbs.json'
-  )
+  expect(installCommand(orbs, 'npm')).toBe('npx shadcn@latest add https://livenui.dev/r/orbs.json')
 })
 
 test('the initial gallery batch represents all seven libraries without losing examples', () => {
