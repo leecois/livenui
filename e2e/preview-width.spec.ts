@@ -212,9 +212,10 @@ test('edge dragging captures the pointer, clamps widths and supports reset and c
     if (!box) throw new Error('Missing resize handle')
     const x = box.x + box.width / 2
     const y = box.y + box.height / 2
+    const target = Math.max(0, Math.min(x + delta, (page.viewportSize()?.width ?? 1440) - 1))
     await page.mouse.move(x, y)
     await page.mouse.down()
-    await page.mouse.move(x + delta, outside ? 5 : y, { steps: 8 })
+    await page.mouse.move(target, outside ? 5 : y, { steps: 8 })
   }
   const full = Number(await resizer.getAttribute('aria-valuemax'))
   await drag(-200, true)

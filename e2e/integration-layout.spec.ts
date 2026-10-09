@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { chooseOption } from './helpers/choices'
+import { tabKey } from './helpers/keyboard'
 
 test.beforeEach(async ({ page }, testInfo) => {
   await page.addInitScript(
@@ -20,6 +21,7 @@ test.beforeEach(async ({ page }, testInfo) => {
 
 test('installation shows complete commands with compact choices and icon copying', async ({
   page,
+  browserName,
 }, testInfo) => {
   await page.goto('/studio?library=orbs')
   const canvas = page.locator('.preview-stage canvas')
@@ -65,6 +67,9 @@ test('installation shows complete commands with compact choices and icon copying
   await chooseOption(page, 'Package manager', 'pnpm')
   await expect(copy).toHaveAttribute('title', 'Copy command')
   await copy.focus()
+  await page.keyboard.press(tabKey(browserName))
+  await page.keyboard.press(tabKey(browserName, true))
+  await expect(copy).toBeFocused()
   await copy.press('Enter')
   await expect(copy).toHaveCSS('outline-style', 'solid')
   await expect(copy).toHaveAttribute('title', 'Copied')

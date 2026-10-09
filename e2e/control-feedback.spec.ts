@@ -1,4 +1,5 @@
 import { expect, type Locator, test } from '@playwright/test'
+import { tabKey } from './helpers/keyboard'
 
 async function containedFocus(shell: Locator, input: Locator) {
   await shell.scrollIntoViewIfNeeded()
@@ -70,6 +71,7 @@ test('compound editors keep one contained cue while applying exported values', a
 
 test('native focus and press feedback preserve emphasis and stationary segmented targets', async ({
   page,
+  browserName,
 }, testInfo) => {
   await page.goto('/studio?library=orbs')
   await page.getByRole('tab', { name: 'Code', exact: true }).click()
@@ -82,8 +84,9 @@ test('native focus and press feedback preserve emphasis and stationary segmented
   await expect
     .poll(() => page.evaluate(() => Reflect.get(window, 'copiedText')))
     .toContain('shadcn@latest')
-  await page.keyboard.press('Tab')
-  await page.keyboard.press('Shift+Tab')
+  await copy.focus()
+  await page.keyboard.press(tabKey(browserName))
+  await page.keyboard.press(tabKey(browserName, true))
   await expect(copy).toBeFocused()
   await expect(copy).toHaveCSS('outline-offset', '-2px')
   await expect(copy).toHaveCSS('outline-width', '2px')
@@ -120,6 +123,7 @@ test('native focus and press feedback preserve emphasis and stationary segmented
 
 test('composer and send action have independent contained focus without replacing the avatar', async ({
   page,
+  browserName,
 }, testInfo) => {
   await page.goto('/agents/avatars')
   const chat = page.getByRole('dialog', { name: 'Bot avatar chat playground', exact: true })
@@ -137,7 +141,7 @@ test('composer and send action have independent contained focus without replacin
     fullPage: true,
   })
   await composer.screenshot({ path: testInfo.outputPath('composer-focus.png') })
-  await page.keyboard.press('Tab')
+  await page.keyboard.press(tabKey(browserName))
   const send = chat.getByRole('button', { name: 'Send message', exact: true })
   await expect(send).toBeFocused()
   await expect(composer).toHaveCSS('outline-style', 'none')
