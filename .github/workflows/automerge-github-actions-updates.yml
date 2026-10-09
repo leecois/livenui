@@ -8,7 +8,7 @@ on:
 
 jobs:
   auto-merge:
-    if: github.actor == 'dependabot[bot]'
+    if: github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'github-actions')
     runs-on: ubuntu-latest
 
     permissions:
@@ -21,6 +21,6 @@ jobs:
 
       - name: Auto-merge Dependabot PRs
         run: |
-          gh pr merge ${{ github.event.pull_request.number }} --squash --admin
+          gh pr merge ${{ github.event.pull_request.number }} --squash --auto
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
