@@ -72,6 +72,7 @@ Every enum keeps its original typed value. Display names such as Idle are presen
 | `--livenui-radius-control` | 9999px | Buttons, chips and tracks |
 | `--livenui-radius-panel` | 24px | Panels, cards and preview corners |
 | `--livenui-font-body/label/caption` | 14/13/12px | Application text |
+| `--livenui-font-input` | 13px; 16px with a coarse primary pointer | Editable values; body-size editors use the larger body/input token |
 | `--livenui-motion-feedback` | 160ms | Hover, border and pressed feedback |
 | `--livenui-focus-width/offset` | 2px / -2px | Focus indicators inside the target boundary |
 | `--livenui-motion-selection` | 240ms | Selected indicator movement |
@@ -114,6 +115,8 @@ In Studio’s Presets tab, the New preset form uses a 14px heading, 13px field/a
 ## Typography and responsive layout
 
 Application headings use weight 550, line-height 1.3 and -0.025em tracking. Catalog headings are 24px, panels 20–22px, subsections 15–16px. The shell owns page H1 and prose. Labels/controls use 13px and 1.5 line-height, help text 12px and 1.6, code 1.8. Help text has zero margin; parents own spacing. Do not reuse margin-bearing scene notes in a toolbar or form.
+
+Editable text uses the input token, which increases to 16px on touch devices without enlarging labels or changing control geometry. Preserve native pinch zoom. Fullscreen chat follows the visual viewport height and vertical offset while the keyboard is open; its composer and Send target remain above the keyboard. Side panels and bot creation use the same visible bounds, while their contents scroll locally. Pinch zoom keeps native viewport behavior rather than resizing the application to cancel magnification.
 
 Use the owning container width. The Glass sidebar changes available space, and settings panels establish their own inline-size containers. Numeric/color/text fields use three columns at 900px or wider, two below 900px and one below 550px. Categorical fields use two columns on wide settings and one below 900px. Each enum grid fits its field; shape grids span the complete row. Gallery becomes two columns below 900px and one below 550px. Heading/search and task actions wrap on compact layouts.
 

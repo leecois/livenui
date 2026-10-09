@@ -21,6 +21,7 @@ import { CodePanel } from '../components/code-panel'
 import { Link } from '../components/link'
 import { Preview, PreviewBoundary } from '../components/preview'
 import { useAvatarChat } from '../hooks/use-avatar-chat'
+import { useChatViewport } from '../hooks/use-chat-viewport'
 import type { PlaygroundState } from '../hooks/use-playground'
 import {
   avatarChatExamples,
@@ -30,6 +31,7 @@ import {
 } from '../lib/avatar-chat'
 import type { Library, Props } from '../lib/config'
 import { avatarColors, optionLabel } from '../lib/content'
+import { createId } from '../lib/id'
 import type { Navigate, Theme } from '../lib/types'
 
 type BotProfile = { id: string; name: string; purpose: string; props: Props }
@@ -150,6 +152,7 @@ export function AvatarChat({
   const [bots, setBots] = useState<BotProfile[]>([])
   const [bot, setBot] = useState<string>()
   const chat = useAvatarChat()
+  useChatViewport(dialog, open)
   const { setTheme } = useTheme()
   const type = String(state.props.type ?? 'clover')
   const profile = bots.find((item) => item.id === bot)
@@ -630,7 +633,7 @@ export function AvatarChat({
             onClose={() => setCreating(false)}
             onCreate={(name, purpose) => {
               const profile = {
-                id: crypto.randomUUID(),
+                id: createId(),
                 name,
                 purpose,
                 props: { ...state.exportedProps },

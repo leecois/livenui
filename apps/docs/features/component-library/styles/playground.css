@@ -670,7 +670,7 @@
 }
 .agent-libraries .preset-save > input {
   width: 100%;
-  font-size: var(--livenui-font-label);
+  font-size: var(--livenui-font-input);
 }
 .agent-libraries .saved-heading {
   font-size: var(--livenui-font-body);

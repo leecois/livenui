@@ -55,6 +55,7 @@ test('fullscreen chat stays anchored while scrolling, focusing and resizing', as
   await page.mouse.wheel(0, 2000)
   await page.waitForTimeout(150)
   await expect.poll(() => chat.evaluate((element) => element.scrollTop)).toBe(0)
+  await expect.poll(() => settings.evaluate((element) => element.scrollTop)).toBe(0)
   const heading = await settings.locator('.avatar-chat-panel-heading').boundingBox()
   expect(heading?.y).toBe(testInfo.project.use.viewport?.width === 1440 ? 0 : 73)
   await page.screenshot({

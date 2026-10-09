@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { avatarDemoReply } from '../lib/avatar-chat'
 import type { Props } from '../lib/config'
+import { createId } from '../lib/id'
 
 export type ChatBot = { name: string; props: Props; profile?: string }
 
@@ -97,10 +98,10 @@ export function useAvatarChat() {
     if (!value || !online || pending) return
     const token = ++generation.current
     progress.current = 0
-    const message = crypto.randomUUID()
-    const conversation = title ? crypto.randomUUID() : active
+    const message = createId()
+    const conversation = title ? createId() : active
     const turn: ChatMessage[] = [
-      { id: crypto.randomUUID(), role: 'user', text: value },
+      { id: createId(), role: 'user', text: value },
       { id: message, role: 'assistant', text: '', name: bot.name, avatar: { ...bot.props } },
     ]
     setConversations((items) => {
@@ -126,7 +127,7 @@ export function useAvatarChat() {
   }
   const newChat = () => {
     stop()
-    const id = crypto.randomUUID()
+    const id = createId()
     setConversations((items) => [...items.slice(-19), { id, title: 'New chat', messages: [] }])
     setActive(id)
     setDraft('')

@@ -13,6 +13,7 @@ import {
 import { content, fieldLabel, matchesSearch } from '../lib/content'
 import { controlVisible } from '../lib/controls'
 import { type Example, findExample } from '../lib/examples'
+import { createId } from '../lib/id'
 import type { Theme } from '../lib/types'
 
 export type PlaygroundSnapshot = {
@@ -208,7 +209,7 @@ export function usePlayground({
       (preset) => !(preset.library === library.id && preset.name === name)
     )
     next.push({
-      id: crypto.randomUUID(),
+      id: createId(),
       library: library.id,
       name: name.slice(0, 80),
       props: effectiveProps,

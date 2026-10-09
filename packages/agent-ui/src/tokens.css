@@ -18,12 +18,18 @@
   --livenui-control-height: 44px;
   --livenui-font-body: 14px;
   --livenui-font-label: 13px;
+  --livenui-font-input: 13px;
   --livenui-font-caption: 12px;
   --livenui-motion-selection: 240ms;
   --livenui-ease-selection: cubic-bezier(0.22, 1, 0.36, 1);
   --livenui-motion-feedback: 160ms;
   --livenui-focus-width: 2px;
   --livenui-focus-offset: -2px;
+}
+@media (pointer: coarse) {
+  :root {
+    --livenui-font-input: 16px;
+  }
 }
 .agent-libraries {
   --foreground: var(--color-fd-foreground);

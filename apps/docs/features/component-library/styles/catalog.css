@@ -34,7 +34,7 @@
   border: 0;
   background: none;
   color: var(--foreground);
-  font-size: var(--livenui-font-label);
+  font-size: var(--livenui-font-input);
   outline: none;
 }
 .agent-libraries .catalog-search:has(input:focus-visible) {

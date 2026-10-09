@@ -1,8 +1,8 @@
 .agent-libraries .avatar-chat-dialog {
   position: fixed;
-  inset: 0;
+  inset: var(--chat-viewport-top, 0px) 0 auto;
   width: 100vw;
-  height: 100dvh;
+  height: var(--chat-viewport-height, 100dvh);
   max-width: none;
   max-height: none;
   margin: 0;
@@ -87,14 +87,19 @@
 .agent-libraries .avatar-chat-character {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: safe center;
   flex-direction: column;
   gap: var(--livenui-space-4);
   padding: var(--livenui-space-6);
   min-width: 0;
   min-height: 0;
 }
+.agent-libraries .avatar-chat-character:not([data-conversation]) {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
 .agent-libraries .avatar-chat-actor {
+  flex-shrink: 0;
   display: grid;
   place-items: center;
   width: calc(var(--livenui-space-8) * 4);
@@ -272,7 +277,7 @@
   color: var(--foreground);
   outline: none;
   border: 0;
-  font-size: var(--livenui-font-body);
+  font-size: max(var(--livenui-font-body), var(--livenui-font-input));
   line-height: 1.5;
 }
 .agent-libraries .avatar-chat-send {
@@ -288,11 +293,12 @@
 }
 .agent-libraries .avatar-chat-panel {
   container-type: inline-size;
+  overflow: clip;
   position: fixed;
-  top: calc(var(--livenui-space-8) * 2 + var(--livenui-space-2));
-  bottom: var(--livenui-space-3);
+  top: calc(var(--chat-viewport-top, 0px) + var(--livenui-space-8) * 2 + var(--livenui-space-2));
+  bottom: auto;
   height: calc(
-    100dvh -
+    var(--chat-viewport-height, 100dvh) -
     var(--livenui-space-8) *
     2 -
     var(--livenui-space-2) -
@@ -485,9 +491,12 @@
   flex: 1;
 }
 .agent-libraries .avatar-chat-create {
+  position: fixed;
+  inset: calc(var(--chat-viewport-top, 0px) + var(--chat-viewport-height, 100dvh) / 2) 0 auto;
+  transform: translateY(-50%);
   width: min(420px, calc(100% - var(--livenui-space-8)));
-  max-height: calc(100dvh - var(--livenui-space-8));
-  margin: auto;
+  max-height: calc(var(--chat-viewport-height, 100dvh) - var(--livenui-space-8));
+  margin: 0 auto;
   padding: var(--livenui-space-5);
   border: 1px solid var(--border);
   border-radius: var(--livenui-radius-panel);
@@ -506,6 +515,7 @@
   padding: 0;
 }
 .agent-libraries .avatar-chat-create input {
+  font-size: max(var(--livenui-font-body), var(--livenui-font-input));
   min-width: 0;
   min-height: var(--livenui-control-height);
   border: 1px solid var(--border);
