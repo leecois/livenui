@@ -30,6 +30,14 @@ The browser runner owns a production server at `127.0.0.1:43187`, one worker, no
 
 Root lint is intentionally scoped. Passing it does not mean every vendored engine line was audited. The architecture gate checks declared static imports and workspace edges; it is not a general-purpose proof of all dynamic dependency behavior.
 
+## Fresh consumer integration
+
+After `bun run check`, run `bun run scripts/check-consumer.ts` from the checkout root. It owns a new production server, creates an independent React application in ignored `tmp/consumer-*`, installs dependencies with npm and executes the standard installation command copied from each of the seven Studio integrations. Only the default localhost registry origin is replaced with the test server's address; no application environment file is changed.
+
+The runner applies explicit props through the real JSON editor and copies the displayed React code. It verifies those props in the clipboard payload, every installed SDK/legal file, required runtime/type dependencies and the absence of workspace links. With `rsc: false`, the standard installer removes the generated entry's client directive; that single entry transformation is accepted. SDK source and legal content still match the registry. Copied JSX receives only a consumer component wrapper, then typechecks and bundles with independently installed dependencies. Bundle metadata rejects any source resolved outside the consumer. Chromium renders all seven integrations and records full-page/component captures and structured evidence beside install logs.
+
+This is an npm consumer check. The UI suite verifies the command strings for npm, pnpm and Bun, but does not establish fresh installation with all three managers. Copy uses a clipboard test double and does not prove physical clipboard access. Temporary application files and artifacts remain ignored for inspection; the runner shuts down its own servers and browser.
+
 ## Browser matrix
 
 `e2e/control-feedback.spec.ts` checks contained focus for compound numeric/color/text fields, native pointer-versus-keyboard button focus, preserved gradient emphasis, stationary segmented targets, pressed/reduced-motion feedback and a single composer indicator. Bounds and native renderer identity must survive focus changes. Inspect its focused full-page and isolated-control captures in all four projects.
