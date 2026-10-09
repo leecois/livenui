@@ -256,9 +256,9 @@
   background: var(--surface);
   box-shadow: var(--shadow);
 }
-.agent-libraries .avatar-chat-composer:focus-within {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
+.agent-libraries .avatar-chat-composer:has(textarea:focus-visible) {
+  outline: var(--livenui-focus-width) solid var(--ring);
+  outline-offset: var(--livenui-focus-offset);
 }
 .agent-libraries .avatar-chat-composer textarea {
   flex: 1;

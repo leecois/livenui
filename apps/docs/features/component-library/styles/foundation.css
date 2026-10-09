@@ -20,8 +20,8 @@
   text-decoration: none;
 }
 .agent-libraries :focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
+  outline: var(--livenui-focus-width) solid var(--ring);
+  outline-offset: var(--livenui-focus-offset);
 }
 .agent-libraries ::selection {
   color: white;
@@ -67,6 +67,7 @@
   transition:
     background-color var(--livenui-motion-feedback),
     border-color var(--livenui-motion-feedback),
+    color var(--livenui-motion-feedback),
     transform var(--livenui-motion-feedback) var(--livenui-ease-selection);
 }
 .agent-libraries .button:hover {
@@ -80,7 +81,8 @@
 .agent-libraries .button-accent:hover {
   border-color: transparent;
 }
-.agent-libraries .button:active:not(:disabled) {
+.agent-libraries
+  :is(.button, .pill, .field-default):active:not(:disabled):not(.selection-track > *) {
   transform: scale(0.98);
 }
 .agent-libraries .button span[aria-hidden] {
@@ -110,9 +112,15 @@
   font-size: var(--livenui-font-caption);
   line-height: 1.5;
   white-space: nowrap;
+  transition:
+    background-color var(--livenui-motion-feedback),
+    border-color var(--livenui-motion-feedback),
+    color var(--livenui-motion-feedback),
+    transform var(--livenui-motion-feedback) var(--livenui-ease-selection);
 }
 .agent-libraries .pill:hover {
   color: var(--foreground);
+  border-color: var(--muted);
 }
 .agent-libraries .pill[aria-pressed="true"],
 .agent-libraries .control-tabs button[aria-selected="true"],
@@ -231,7 +239,7 @@
 }
 .agent-libraries .selection-track > button:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px var(--ring);
+  box-shadow: inset 0 0 0 var(--livenui-focus-width) var(--ring);
 }
 .agent-libraries .select-control {
   display: inline-flex;
@@ -280,7 +288,8 @@
   color: var(--muted);
 }
 @media (prefers-reduced-motion: reduce) {
-  .agent-libraries .button:active {
+  .agent-libraries
+    :is(.button, .pill, .field-default):active:not(:disabled):not(.selection-track > *) {
     transform: none;
   }
   .agent-libraries *,

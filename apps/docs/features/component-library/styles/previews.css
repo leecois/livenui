@@ -291,8 +291,8 @@
   height: 84px;
   margin: -42px 0 0 -42px;
   border-radius: var(--radius);
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
+  outline: var(--livenui-focus-width) solid var(--ring);
+  outline-offset: var(--livenui-focus-offset);
   pointer-events: none;
   z-index: 10000;
 }

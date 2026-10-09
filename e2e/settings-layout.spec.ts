@@ -205,6 +205,8 @@ test('numeric focus has one indicator and keeps quick settings geometry stable',
       )
     ).toBe(1)
     expect(await row.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe('solid')
+    await expect(row).toHaveCSS('outline-width', '2px')
+    await expect(row).toHaveCSS('outline-offset', '-2px')
     expect(await input.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe('none')
     await alignedFields(panel)
   }

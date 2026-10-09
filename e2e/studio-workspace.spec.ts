@@ -69,7 +69,7 @@ test('Studio scroll panels omit focus frames while controls retain focus cues', 
   await link.focus()
   expect(await link.evaluate((element) => element.matches(':focus-visible'))).toBe(true)
   await expect(link).toHaveCSS('outline-width', '2px')
-  await expect(link).toHaveCSS('outline-offset', '4px')
+  await expect(link).toHaveCSS('outline-offset', '-2px')
   const starting = browser.getByRole('group', { name: 'Starting point', exact: true })
   const option = starting.getByRole('radio').first()
   await option.focus()
@@ -85,7 +85,7 @@ test('Studio scroll panels omit focus frames while controls retain focus cues', 
   await input.focus()
   expect(await input.evaluate((element) => element.matches(':focus-visible'))).toBe(true)
   await expect(input).toHaveCSS('outline-width', '2px')
-  await expect(input).toHaveCSS('outline-offset', '4px')
+  await expect(input).toHaveCSS('outline-offset', '-2px')
   await expect(inspector.locator('.studio-panel-scroll')).toHaveCSS('outline-style', 'none')
   await page.screenshot({
     path: testInfo.outputPath('input-focus-full-page.png'),
@@ -95,7 +95,7 @@ test('Studio scroll panels omit focus frames while controls retain focus cues', 
   const save = inspector.getByRole('button', { name: 'Save preset', exact: true })
   await expect(save).toBeFocused()
   await expect(save).toHaveCSS('outline-width', '2px')
-  await expect(save).toHaveCSS('outline-offset', '4px')
+  await expect(save).toHaveCSS('outline-offset', '-2px')
 })
 
 test('Studio Presets keeps configuration saving beside editing and code', async ({

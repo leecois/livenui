@@ -73,6 +73,7 @@ Every enum keeps its original typed value. Display names such as Idle are presen
 | `--livenui-radius-panel` | 24px | Panels, cards and preview corners |
 | `--livenui-font-body/label/caption` | 14/13/12px | Application text |
 | `--livenui-motion-feedback` | 160ms | Hover, border and pressed feedback |
+| `--livenui-focus-width/offset` | 2px / -2px | Focus indicators inside the target boundary |
 | `--livenui-motion-selection` | 240ms | Selected indicator movement |
 | `--livenui-ease-selection` | cubic-bezier(0.22, 1, 0.36, 1) | Finite control motion |
 
@@ -106,7 +107,7 @@ Numeric, color and text rows place labels and values inside a 54px shell, with 4
 
 Numeric dials reveal a neutral ruler on range hover, keyboard focus and active dragging. Keep minor/major ticks in the upper 4px inset, above the label and exact value, with a foreground marker aligned to the committed progress fill. Auto and custom values outside the drag window have no marker. The decorative layer is hidden from assistive technology, cannot intercept input, and fades using the 160ms feedback token; reduced motion snaps it. Do not add labels, resize the field or change its drag window.
 
-Color/text labels use an 80px column and flexible exact entries. Focus creates one shell ring without resizing or inserting content. Contextual controls can hide while preserving their values. The same state drives controls, preview, transfer and code.
+Color/text labels use an 80px column and flexible exact entries. Focus creates one inset shell ring without resizing or inserting content. Contextual controls can hide while preserving their values. The same state drives controls, preview, transfer and code.
 
 In Studio’s Presets tab, the New preset form uses a 14px heading, 13px field/action text and a compact 44px Save target. The name field occupies the full row below; do not split its width with the action. Use 12px spacing and a native form so Enter saves. Keep local-storage context in the accessible field hint, native Save tooltip and confirmation instead of a separate visible paragraph. Empty lists add no padding; saved names wrap without squeezing their delete targets.
 
@@ -136,7 +137,9 @@ Motion explains a gesture or state change. A selection pill travels to the newly
 
 Reduced motion snaps control transitions and initially pauses effects. Play is explicit; Replay replaces only the current preview. Lazy cards mount near the viewport instead of allocating every gallery scene. Native SDK materials, state and pointer interactions remain intact. Release frames, observers and microphone resources at their existing teardown boundaries.
 
-Use native radios, checkboxes, inputs and buttons. Radios retain native arrow-key selection. Tabs implement ArrowLeft/Right and Home/End with one tab stop. Selected state must be semantic, not only visual. Segmented cells and grid chips use one 2px inset `--ring` for keyboard focus. Other compound fields use one outer shell ring. Focus must remain visible without clipping, duplicate halos or layout shifts.
+Use native radios, checkboxes, inputs and buttons. Radios retain native arrow-key selection. Tabs implement ArrowLeft/Right and Home/End with one tab stop. Selected state must be semantic, not only visual. Every owned focus indicator stays inside its target: 2px `--ring` with a -2px outline offset, or an equivalent inset shadow for segmented cells and grid chips. Compound editors transfer the indicator to their shell and suppress the nested input outline. The chat composer indicates textarea focus; its send button owns a separate indicator. Pointer clicks on ordinary buttons follow native `:focus-visible` heuristics; text entry keeps a visible editing cue. Focus must remain visible without clipping, duplicate halos or layout shifts.
+
+Action buttons, standalone pills and Default actions use the 160ms feedback token and compress to 0.98 while pressed. Segmented targets stay stationary so the selected indicator remains aligned. Disabled actions do not compress; reduced motion removes compression. Selected gradient fills and white text survive hover, focus and press.
 
 Studio's structural scroll regions have no focus outline. Focus cues belong to their interactive children: links, buttons, radios and editors retain the shared ring or their compound field indicator. Do not add panel tab stops, redirect focus or change native scrolling to hide a container frame.
 

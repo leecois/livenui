@@ -472,6 +472,10 @@
   border-radius: var(--livenui-radius-control);
   background: transparent;
   color: var(--muted);
+  transition:
+    background-color var(--livenui-motion-feedback),
+    color var(--livenui-motion-feedback),
+    transform var(--livenui-motion-feedback) var(--livenui-ease-selection);
 }
 .agent-libraries .field-default:hover {
   color: var(--foreground);
@@ -484,8 +488,8 @@
 .agent-libraries .number-row:has(input:focus-visible),
 .agent-libraries .color-row:has(input:focus-visible),
 .agent-libraries .text-row:has(input:focus-visible) {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
+  outline: var(--livenui-focus-width) solid var(--ring);
+  outline-offset: var(--livenui-focus-offset);
 }
 .agent-libraries .number-row input:focus-visible,
 .agent-libraries .color-row input:focus-visible,
@@ -586,8 +590,8 @@
   background: white;
 }
 .agent-libraries .field-toggle input:focus-visible + .field-toggle-track {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
+  outline: var(--livenui-focus-width) solid var(--ring);
+  outline-offset: var(--livenui-focus-offset);
 }
 .agent-libraries .field-switch > label {
   cursor: pointer;
@@ -795,7 +799,7 @@
 }
 .agent-libraries .field-option input:focus-visible + span {
   outline: none;
-  box-shadow: inset 0 0 0 2px var(--ring);
+  box-shadow: inset 0 0 0 var(--livenui-focus-width) var(--ring);
 }
 .agent-libraries .field-choice > .helper-text {
   margin-top: var(--livenui-space-2);

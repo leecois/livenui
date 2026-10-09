@@ -37,9 +37,9 @@
   font-size: var(--livenui-font-label);
   outline: none;
 }
-.agent-libraries .catalog-search:focus-within {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
+.agent-libraries .catalog-search:has(input:focus-visible) {
+  outline: var(--livenui-focus-width) solid var(--ring);
+  outline-offset: var(--livenui-focus-offset);
 }
 .agent-libraries .library-grid {
   display: grid;

@@ -32,6 +32,8 @@ Root lint is intentionally scoped. Passing it does not mean every vendored engin
 
 ## Browser matrix
 
+`e2e/control-feedback.spec.ts` checks contained focus for compound numeric/color/text fields, native pointer-versus-keyboard button focus, preserved gradient emphasis, stationary segmented targets, pressed/reduced-motion feedback and a single composer indicator. Bounds and native renderer identity must survive focus changes. Inspect its focused full-page and isolated-control captures in all four projects.
+
 `e2e/clean-labels.spec.ts` checks concise visible labels alongside full accessible context, optional enum omission and native selection, unchanged example IDs/configuration, stable copy targets through success/failure with exact clipboard contents, 320px containment with a centered header copy icon and avatar playback/custom-outfit changes retaining the renderer. Inspect its Studio settings/code and avatar full-page captures across all four projects. Clipboard results use test doubles; they do not claim physical clipboard or device validation.
 
 Four projects cover 1440px desktop and 390px mobile in light and dark themes. Each checks all seven libraries, error boundaries, failed resources, stage-host clipping, accent/white text, form typography, 44px control height and rounded geometry. Studio context assertions cover all seven visible native links, inline presets, current-route emphasis and containment, and additionally run at 1440, 1024, 768, 390 and 320px.
