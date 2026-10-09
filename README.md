@@ -13,12 +13,13 @@ Coding agents must read [AGENTS.md](AGENTS.md) before editing.
 | [Development](docs/development.md) | Setup, commands and recipes for examples, UI, APIs and dependencies |
 | [Testing](docs/testing.md) | Reproducible static, browser and visual verification |
 | [Architecture decision](docs/decisions/001-component-library-foundation.md) | Research evidence and reasons for the current structure |
+| [Contributing](CONTRIBUTING.md) | Focused changes, validation and pull requests |
 
 ## Independent project
 
 This checkout uses an independent Git history on `main`. Remote configuration is local; pushing, publication and deployment require explicit authorization. The application, component source, tests, licenses and infrastructure configuration were copied from the previous project. Dependencies and generated outputs are installed or rebuilt locally.
 
-The site and registry default to `http://localhost:3000` until a deployment origin is configured. Set `NEXT_PUBLIC_APP_URL` in a local environment file before building for a hosted origin; replace localhost in static installation examples with that origin. No domain registration, npm publication or remote deployment is implied.
+Production metadata and installation use `https://livenui.dev`; development defaults to `http://localhost:3000`. `NEXT_PUBLIC_APP_URL` overrides the build-time origin; use the public HTTPS origin for hosted builds and rebuild after changing it. Metadata, registry, agent reference and sitemap share that origin. The project repository is [leecois/livenui](https://github.com/leecois/livenui). Local preparation does not register the domain, publish the repository or deploy the website.
 
 ## Run
 
@@ -51,7 +52,7 @@ The application preserves bright `--gradient-accent` controls with white text in
 
 `/r` and `/registry` regenerate complete editable SDK source from this checkout during production builds. Canonical entries use `beam`, `orbs`, `metal`, `gooey`, `voice`, `image` and `avatars`; legacy URLs remain aliases. Users import their installed `components/livenui` source, rather than downloading upstream effect packages. Image carries Three.js and its types; Metal retains its shader dependency. Search is local at `/api/search`; optional remote synchronization is explicitly gated. `/agent-skill.md`, `/llms.txt`, `/llms-full.txt`, MDX text, static JSON and OG routes retain integration/discovery contracts.
 
-Rendering source is ported from [Libraries.dev](https://github.com/Jakubantalik/Libraries.dev), with licenses and legal notices preserved. SDK workspaces remain private. Liven UI distributes its maintained fork through source registries, including licenses/notices; no npm ownership or original authorship is claimed. Local builds update registry payloads, and deployment is a separate authorized action. See [the source-distribution decision](docs/decisions/002-source-registry-distribution.md).
+Liven UI is an independently maintained component library. It can include components authored here and components adapted from licensed source. The current seven rendering SDKs retain their original copyright and license notices. SDK workspaces remain private; installation copies maintained source and its applicable legal files. Local builds update registry payloads, and deployment is a separate authorized action. See [contributing](CONTRIBUTING.md#licensing) and [the source-distribution decision](docs/decisions/002-source-registry-distribution.md).
 
 Historical integration/dependency/UX snapshots remain in `reports/`. They document past evidence and limits; canonical instructions are the linked guides above.
 
@@ -61,4 +62,4 @@ Read the [publication audit and licensing scope](docs/open-source.md). Private e
 
 ## License
 
-Liven UI's first-party code and documentation are licensed under the [MIT License](LICENSE), with copyright attributed to Liven UI contributors. Third-party code retains its existing licenses, copyright notices and attribution. Package-specific LICENSE and NOTICE files remain authoritative for their respective source; the root license does not replace them.
+Liven UI's original code, components and documentation use the [MIT License](LICENSE). Inherited portions retain the [upstream MIT terms](licenses/upstream-MIT.txt) and package-specific LICENSE/NOTICE files. Bundled [icons](packages/ui/LICENSE-ICONS), [fonts](apps/docs/lib/og/OFL.txt) and [shaders](packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Attribution applies to the included material, not unrelated original components.

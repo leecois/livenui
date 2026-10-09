@@ -14,4 +14,10 @@ For UI or rendering changes, run `bun run test:ui` after the fresh production bu
 
 Submit a focused pull request describing the problem, resulting behavior, verification and remaining limitations. Include screenshots for visible changes. Update canonical documentation when a contract changes. Do not commit credentials, local environment files, generated registry payloads, build outputs or browser artifacts. Source comments default to none; explain only necessary non-obvious runtime intent in a single line.
 
-First-party contributions use the [MIT license](LICENSE). Preserve applicable package LICENSE/NOTICE files. Report vulnerabilities through the process in [SECURITY.md](SECURITY.md).
+Report vulnerabilities through the process in [SECURITY.md](SECURITY.md).
+
+## Licensing
+
+Original components use the [MIT license](LICENSE) with Liven UI contributor copyright. A new registry package needs its own full `LICENSE` with the appropriate year.
+
+For adapted source or bundled assets, verify that the exact source version permits component redistribution, record its origin in package documentation, and preserve applicable LICENSE/NOTICE content. Attribution applies to the included material. Keep existing notices when modifying inherited code.

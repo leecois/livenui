@@ -231,7 +231,7 @@ Twelve multipliers (defaults are the tuned geometry) reshape the resting glow; t
 
 ## Looks
 
-Three ways to draw the same voice. `look="glow"` (the default) is coloured light: soft gradients, a band of light along the glow's ceiling and a blurred bloom. `look="dots"` is a gently domed sheet of dots seen in perspective along the bottom of the element, in the dotted language of [thinking-orbs](https://libraries.dev/orbs) — white on the dark theme, near-black ink on the light one. `look="lines"` is the same sheet drawn as lines.
+Three ways to draw the same voice. `look="glow"` (the default) is coloured light: soft gradients, a band of light along the glow's ceiling and a blurred bloom. `look="dots"` is a gently domed sheet of dots seen in perspective along the bottom of the element, in the dotted language of [thinking-orbs](https://livenui.dev/agents/orbs) — white on the dark theme, near-black ink on the light one. `look="lines"` is the same sheet drawn as lines.
 
 ```tsx
 <VoiceBeam look="dots" stream={mic.stream}>

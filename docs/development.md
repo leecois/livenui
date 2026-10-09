@@ -20,7 +20,7 @@ bun run dev:docs
 
 The application workspace is `@livenui/docs`, the control foundation is `@livenui/agent-ui`, and installer support uses `livenui-cli` and `livenui-ui`. Seven rendering SDKs retain their private build identities and public component APIs. Consumer source installs under `components/livenui`.
 
-The default site/registry origin is `http://localhost:3000`. Configure `NEXT_PUBLIC_APP_URL` for a hosted build and pass the hosted registry with the CLI's `--dir` option. Git uses independent history on `main`; adding a new remote, pushing, publishing and deployment require explicit authorization. Historical reports use current Liven UI identifiers while retaining original audit dates, findings and validation limits. Reports record naming normalization explicitly; obsolete machine-specific temporary paths are omitted rather than replaced with unverified paths.
+The production site/registry origin is `https://livenui.dev`; development defaults to `http://localhost:3000`. `NEXT_PUBLIC_APP_URL` overrides either default. Verify that a copied `.env.example` has not left a localhost override in a hosted environment. Pass the hosted registry with the CLI's `--dir` option. Registry URLs, metadata, sitemap and `/agent-skill.md` use the build-time origin; rebuild when it changes. Credentials, paths, queries and fragments are rejected. Edit `apps/docs/content/agent-skill.md` for the downloadable reference. Git uses independent history on `main`; adding a new remote, pushing, publishing and deployment require explicit authorization. Historical reports use current Liven UI identifiers while retaining original audit dates, findings and validation limits. Reports record naming normalization explicitly; obsolete machine-specific temporary paths are omitted rather than replaced with unverified paths.
 
 ## Commands
 
@@ -82,7 +82,7 @@ Read [mascot design and ownership](mascots.md). Add types, silhouettes and face 
 4. The source registry reads the owning SDK on every pre-build. Update source entry/export conventions and `lib/distribution.ts` when the public entry changes; both formats regenerate from local source.
 5. Test valid/invalid props, generated imports, package ESM/CJS exports, peers, resource lifecycle and relevant renderer variants.
 
-Copy an existing SDK package structure when adding an entirely new package. Match compiler/build/peer conventions and legal requirements. New package publication or a changed public dependency contract needs explicit review; adding another package simply to split an app module is unnecessary.
+Reuse an existing SDK package structure when adding an entirely new package. Match compiler/build/peer conventions and follow [licensing rules](../CONTRIBUTING.md#licensing): original implementations use Liven UI contributor copyright; adapted portions retain their applicable notices. Do not copy another package's copyright onto independently authored source. New package publication or a changed public dependency contract needs explicit review; adding another package simply to split an app module is unnecessary.
 
 ## Work on hooks and panels
 
@@ -117,6 +117,8 @@ The command factory in `packages/cli/src/program.ts` owns global option propagat
 Inspect root and workspace manifests, graph and peer ranges first. Upgrade deliberately and regenerate the Bun lockfile with the pinned binary. Do not mix npm/pnpm lockfiles into this workspace or use `--force`/ignored peers as a routine fix. Diagnose the package requesting the conflicting peer. Preserve the dual compiler contract until declarations and all builds prove compatibility.
 
 Use a fresh installation only when investigating dependency resolution or a requested upgrade; never delete `.git`, `.env*` or source alongside `node_modules`. No dependency cache reset is required for a CSS or documentation change.
+
+The root overrides pin patched esbuild and shell-quote and align transitive KaTeX with the app's version. Remove overrides only when parent ranges resolve safe versions and builds, math rendering and consumer installation pass. Unused standalone audit/proxy tools are not part of the installed toolchain. The publication audit records remaining advisories and their observed scope; `bun audit` must not be described as clean while it reports an advisory.
 
 ## Local delivery
 
