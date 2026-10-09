@@ -45,10 +45,8 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/three": "^0.186.0",
-    "@unlighthouse/cli": "^0.19.0",
-    "concurrently": "^10.0.5",
+    "concurrently": "^10.0.6",
     "minimatch": "^10.2.6",
-    "proxy-agent": "^8.0.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "sherif": "^1.13.0",
@@ -63,5 +61,10 @@
     "esbuild",
     "sharp",
     "@livenui/docs"
-  ]
+  ],
+  "overrides": {
+    "esbuild": "0.28.2",
+    "katex": "^0.19.0",
+    "shell-quote": "1.12.0"
+  }
 }
