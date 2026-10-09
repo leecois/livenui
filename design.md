@@ -14,6 +14,22 @@ Inline expansion uses “All N” and “Show fewer” within its labeled group;
 
 The reference catalog's strongest patterns are the object-first demos, visible chip families, parameter dials, contextual side panels and motion tied to gestures. Adapt these patterns with Liven UI's tokens and native behavior. Keep original artwork, product identity, SDK effects and legal attribution.
 
+## Clean labels
+
+A label names one action, property or state. Prefer one to three familiar words in sentence case, keeping any qualifier needed to avoid ambiguity. Actions use verbs such as Save or Replay; properties use nouns such as Color or Duration; feedback names the result, such as Copied or Copy failed. Preserve product and API capitalization.
+
+Let the surrounding group supply context once. Keep the full meaning in accessible names and contextual hints; required instructions, errors and recovery actions stay visible. Do not shorten a label until different actions or states become indistinguishable.
+
+| Context | Compact presentation | Retained meaning |
+| --- | --- | --- |
+| Presets form | Save | Accessible name Save preset; browser-local storage hint |
+| Installation command | Copy icon | Accessible name Copy command; tooltip and live feedback |
+| Clipboard feedback | Copied / Copy failed | Actual outcome of the current request |
+
+An optional icon reinforces the text only when it helps recognition. Keep decorative icons hidden from assistive technology, align them consistently and use `--livenui-space-2` for the icon/text gap. Use the existing label typography; code fonts belong to code. Long labels wrap rather than overlap or lose their meaning through truncation.
+
+Passive status labels fit their content, remain non-interactive and use neutral shell tokens with rounded-full geometry. Text carries the meaning; color and icons support it. Interactive choices retain their existing track/grid geometry, native semantics, 44px targets and focus feedback. Primary actions and selected pills retain `--gradient-accent` with white text. A static status-label reference does not establish hover, focus or animation behavior.
+
 ## Choose the right control
 
 | User task | Control | Contract |
