@@ -64,9 +64,6 @@
   border-color: transparent;
   background: transparent;
 }
-.agent-libraries .avatar-chat-back.avatar-chat-desktop {
-  display: none;
-}
 .agent-libraries .avatar-chat-status {
   display: none;
   align-items: center;
@@ -352,6 +349,7 @@
   font-size: var(--livenui-font-body);
 }
 .agent-libraries .avatar-chat-brand {
+  flex-shrink: 0;
   width: var(--livenui-space-6);
   height: var(--livenui-space-6);
   background: var(--foreground);
@@ -360,6 +358,19 @@
 .agent-libraries .avatar-chat-examples h2 {
   font-size: 15px;
   font-weight: 600;
+}
+.agent-libraries .avatar-chat-home {
+  padding: 0 var(--livenui-space-2);
+  border-color: transparent;
+  background: transparent;
+  color: var(--foreground);
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+}
+.agent-libraries .avatar-chat-home:hover {
+  border-color: transparent;
+  background: var(--track);
 }
 .agent-libraries .avatar-chat-panel-content {
   flex: 1;
@@ -558,8 +569,5 @@
   }
   .agent-libraries .avatar-chat-mobile {
     display: none;
-  }
-  .agent-libraries .avatar-chat-back.avatar-chat-desktop {
-    display: inline-flex;
   }
 }

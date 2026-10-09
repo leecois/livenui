@@ -20,7 +20,7 @@ On 2026-10-07, the owner selected a monochrome website mark after comparing its 
 
 - [logo.svg](../apps/docs/public/logo.svg) owns vector geometry and accessible standalone description. Its 40-unit square includes four units of clear space on every edge.
 - [tokens.css](../packages/agent-ui/src/tokens.css) owns the two accent stops and `--gradient-accent` for actions and selected controls. The shell foreground owns the website mark's color. The canonical SVG's standalone light/dark fills match that foreground pair.
-- [layout.shared.tsx](../apps/docs/lib/layout.shared.tsx) owns the shared navigation title in the desktop sidebar and mobile drawer. The decorative mark uses the canonical SVG as a mask; [brand.css](../apps/docs/app/brand.css) applies `--color-fd-foreground` at 24px. The chat Examples header uses the same mask and foreground. Visible text supplies the link's accessible name.
+- [layout.shared.tsx](../apps/docs/lib/layout.shared.tsx) owns the shared navigation title in the desktop sidebar and mobile drawer. The decorative mark uses the canonical SVG as a mask; [brand.css](../apps/docs/app/brand.css) applies `--color-fd-foreground` at 24px. The chat Examples header uses the same mask and foreground inside a complete mark/wordmark link to `/agents`. Its accessible name retains Liven UI and identifies All components; hover changes the neutral background without replacing the mark.
 - [metadata.ts](../apps/docs/lib/metadata.ts) declares the SVG favicon, multi-resolution ICO fallback and 180px touch icon.
 - The [sharing template](../apps/docs/app/og/[...slug]/generate.tsx) embeds the canonical SVG locally, without a network fetch.
 

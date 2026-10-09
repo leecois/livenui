@@ -28,7 +28,7 @@ export function AvatarChatPanel({
   wide,
   expanded,
   onClose,
-  leading,
+  heading,
   toolbar,
   children,
 }: {
@@ -37,7 +37,7 @@ export function AvatarChatPanel({
   wide: boolean
   expanded: boolean
   onClose: () => void
-  leading?: ReactNode
+  heading?: ReactNode
   toolbar?: ReactNode
   children: ReactNode
 }) {
@@ -76,11 +76,7 @@ export function AvatarChatPanel({
       }}
     >
       <div className="avatar-chat-panel-heading">
-        {leading}
-        <h2>
-          {side === 'examples' && <span className="avatar-chat-brand" aria-hidden="true" />}
-          {title}
-        </h2>
+        <h2>{heading ?? title}</h2>
         <button
           type="button"
           className="pill avatar-chat-icon avatar-chat-mobile"

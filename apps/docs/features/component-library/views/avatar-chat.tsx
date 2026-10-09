@@ -260,7 +260,21 @@ export function AvatarChat({
             wide={wide}
             expanded={panel === 'examples'}
             onClose={() => setPanel(undefined)}
-            leading={back('avatar-chat-desktop')}
+            heading={
+              <Link
+                href="/agents"
+                navigate={(path) => {
+                  leave()
+                  navigate(path)
+                }}
+                className="pill avatar-chat-home"
+                aria-label="Liven UI — All components"
+                title="All components"
+              >
+                <span className="avatar-chat-brand" aria-hidden="true" />
+                <span>Liven UI</span>
+              </Link>
+            }
             toolbar={
               <button
                 type="button"

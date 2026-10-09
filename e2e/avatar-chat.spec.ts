@@ -160,9 +160,11 @@ test('examples sidebar keeps its action and row alignment while the list scrolls
   expect(rows.every((row) => JSON.stringify(row) === JSON.stringify(rows[0]))).toBe(true)
   expect(rows[0].font).toBe('13px')
   if (testInfo.project.use.viewport?.width === 1440) {
-    const back = examples.getByRole('link', { name: 'Back to all components', exact: true })
-    const bounds = await back.boundingBox()
-    expect(rows[0].iconCenter).toBe((bounds?.x ?? 0) + (bounds?.width ?? 0) / 2)
+    const brand = examples.locator('.avatar-chat-brand')
+    const bounds = await brand.boundingBox()
+    if (!bounds || rows[0].iconCenter === null) throw new Error('Missing sidebar brand geometry')
+    expect(bounds).toMatchObject({ width: 24, height: 24 })
+    expect(Math.abs(rows[0].iconCenter - (bounds.x + bounds.width / 2))).toBeLessThanOrEqual(2)
     const mainHeader = chat(page).locator('.avatar-chat-header')
     expect((await mainHeader.boundingBox())?.height).toBe(header?.height)
   }
@@ -213,19 +215,24 @@ test('examples sidebar keeps its action and row alignment while the list scrolls
   })
 })
 
-test('header back stays visible across layouts and exits an active chat to all components', async ({
+test('brand navigation replaces the sidebar arrow and exits an active chat to all components', async ({
   page,
 }, testInfo) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto('/agents/avatars')
   await expect(chat(page).locator('.avatar-chat-actor canvas')).toBeVisible()
-  const back = chat(page).getByRole('link', { name: 'Back to all components', exact: true })
+  const back = chat(page)
+    .getByRole('link', {
+      name: /^(Liven UI — All components|Back to all components)$/,
+    })
+    .filter({ visible: true })
   await expect(back).toHaveCount(1)
   await expect(back).toHaveAttribute('href', '/agents')
   await expect(chat(page).getByRole('button', { name: 'All components', exact: true })).toHaveCount(
     0
   )
+  await expect(chat(page).locator('.avatar-chat-examples .avatar-chat-back')).toHaveCount(0)
   await back.focus()
   await expect(back).toHaveCSS('outline-style', 'solid')
   await page.screenshot({ path: testInfo.outputPath('chat-back-full-page.png'), fullPage: true })
@@ -243,7 +250,18 @@ test('header back stays visible across layouts and exits an active chat to all c
     await expect(back).toHaveCount(1)
     await expect(back).toBeVisible()
     const bounds = await back.boundingBox()
-    expect(bounds).toMatchObject({ width: 44, height: 44 })
+    expect(bounds?.height).toBe(44)
+    if (width >= 1100) {
+      expect(bounds?.width).toBeGreaterThan(44)
+      await expect(back).toHaveAccessibleName('Liven UI — All components')
+      await expect(back).toHaveText('Liven UI')
+      const mark = back.locator('.avatar-chat-brand')
+      await expect(mark).toBeVisible()
+      const beforeHover = await back.boundingBox()
+      await back.hover()
+      expect(await back.boundingBox()).toEqual(beforeHover)
+      await expect(mark).toBeVisible()
+    } else expect(bounds?.width).toBe(44)
     expect(bounds?.y).toBeGreaterThanOrEqual(8)
     expect(bounds?.y).toBeLessThanOrEqual(12)
     expect(bounds?.x).toBeLessThanOrEqual(20)
@@ -279,6 +297,23 @@ test('header back stays visible across layouts and exits an active chat to all c
     }
   }
   await page.setViewportSize(testInfo.project.use.viewport || { width: 390, height: 1000 })
+  if (testInfo.project.use.viewport?.width === 1440) await expect(examples).toBeVisible()
+  else await expect(examples).toBeHidden()
+  const examplesPanel = await openPanel(page, 'examples')
+  const brand = examplesPanel.getByRole('link', { name: 'Liven UI — All components', exact: true })
+  await expect(brand).toHaveAttribute('href', '/agents')
+  const popupOpened = page.context().waitForEvent('page')
+  await brand.click({ modifiers: ['ControlOrMeta'] })
+  const popup = await popupOpened
+  await expect(popup).toHaveURL(/\/agents$/)
+  await popup.close()
+  await expect(page).toHaveURL(/\/agents\/avatars$/)
+  await expect(chat(page).locator('.avatar-chat-actor canvas')).toBeVisible()
+  await brand.click()
+  await expect(page).toHaveURL(/\/agents$/)
+  await expect(chat(page)).toHaveCount(0)
+  await page.goto('/agents/avatars')
+  await expect(chat(page).locator('.avatar-chat-actor canvas')).toBeVisible()
   await chat(page).getByRole('textbox', { name: 'Message Clover', exact: true }).fill('Say hello')
   await chat(page).getByRole('button', { name: 'Send message', exact: true }).click()
   await expect(chat(page).getByRole('button', { name: 'Stop reply', exact: true })).toBeVisible()

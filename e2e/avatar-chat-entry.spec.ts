@@ -32,11 +32,16 @@ test('avatar chat covers the guide before hydration on entry and reload', async 
       await expect(chat).toBeVisible()
       await expect.poll(() => chat.evaluate((element) => element.matches(':modal'))).toBe(true)
       await expect(input).toBeVisible()
-      const back = chat.getByRole('link', { name: 'Back to all components', exact: true })
+      const wide = testInfo.project.use.viewport?.width === 1440
+      const back = chat.getByRole('link', {
+        name: wide ? 'Liven UI — All components' : 'Back to all components',
+        exact: true,
+      })
       await expect(back).toHaveCount(1)
       await expect(back).toHaveAttribute('href', '/agents')
       const backBefore = await back.boundingBox()
-      expect(backBefore?.width).toBe(44)
+      if (wide) expect(backBefore?.width).toBeGreaterThan(44)
+      else expect(backBefore?.width).toBe(44)
       expect(backBefore?.height).toBe(44)
       expect(backBefore?.y).toBeGreaterThanOrEqual(8)
       expect(backBefore?.y).toBeLessThanOrEqual(12)
