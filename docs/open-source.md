@@ -25,7 +25,7 @@ Git author and committer metadata used `Liven UI Maintainers <maintainers@livenu
 
 The unused template `apps/docs/public/banner.png` was removed; it displayed another product's documentation and had no source consumer. Eight remaining PNG/WebP assets had no EXIF, XMP, IPTC or ICC payloads; the ICO was checked separately through branding acceptance. Fonts retain their intended copyright/license metadata. Generated output, installed dependencies and browser artifacts remain ignored for local inspection. `.env.example` is credential-free; `.gitignore` excludes private `.env*`, keys, OS metadata, dumps, logs and generated output.
 
-The five reference JPEGs retired on 2026-10-06 remain in earlier Git revisions. Current public URLs return 404 and active demos use the original artwork documented in [demo media](demo-media.md). Removing a current file does not remove it from Git history. This audit preserves that history and the upstream MIT attribution; it does not claim that every historical asset was authored by Liven UI.
+The five reference JPEGs retired on 2026-10-06 and the unused banner were removed from every reachable `main` revision before publication. Their six blob objects are absent from the objects reachable through `main`. One commit containing only retired media was removed; replaying the remaining commits preserved the current tree byte-for-byte, including all source and legal files. Recovery bundles and unreachable objects remain local and ignored; an explicit push of `main` does not include them. Current retired public URLs return 404, and active demos use the original artwork documented in [demo media](demo-media.md).
 
 ## Licensing and claims
 
@@ -42,6 +42,8 @@ The dependency changes remove unused standalone audit/proxy tools, update concur
 ## Verification
 
 `bun install --frozen-lockfile` passed. `bun run check` passed with 82 tests, 12-workspace architecture validation and 11 build targets. Documentation link validation includes real route handlers. Two existing non-blocking Biome suggestions remain; no validation rule was disabled.
+
+The final push preflight repeated `bun run check`: 82 passed, zero failed and all 11 build targets succeeded. The configured SSH remote was accessible and advertised no refs; nothing was pushed. History sanitation retained the validated executable/configuration tree, so the earlier browser and independent-consumer evidence below remains applicable without claiming a new browser run. The dependency audit still reports the single High advisory, and the target domain still did not resolve from this environment.
 
 `LIVENUI_BROWSER_CHANNEL=chrome bun run scripts/check-consumer.ts` passed. A fresh npm React application installed all seven entries with shadcn, verified 119 source/legal files, compiled the copied configured snippets and rendered the actual installed SDKs. Hosted commands were checked, then directed to the owned local registry for execution. This does not establish live registry availability or fresh installation with all package managers. Clipboard uses a test double.
 
