@@ -146,7 +146,9 @@ test('examples sidebar keeps its action and row alignment while the list scrolls
       (row) => {
         const icon = row.querySelector('.avatar-chat-list-icon')?.getBoundingClientRect()
         const text = document.createRange()
-        text.selectNodeContents(row.lastChild as Node)
+        text.selectNodeContents(
+          row.querySelector('.avatar-chat-list-title') ?? (row.lastChild as Node)
+        )
         return {
           x: row.getBoundingClientRect().x,
           iconCenter: icon ? icon.x + icon.width / 2 : null,
@@ -198,7 +200,7 @@ test('examples sidebar keeps its action and row alignment while the list scrolls
   await openPanel(page, 'examples')
   const history = examples.getByRole('navigation', { name: 'Conversations' }).getByRole('button')
   await expect(history).toHaveCount(1)
-  expect((await history.locator('span').last().boundingBox())?.x).toBe(rows[0].textX)
+  expect((await history.locator('.avatar-chat-list-title').boundingBox())?.x).toBe(rows[0].textX)
   await action.click()
   await expect(chat(page).getByRole('button', { name: 'Stop reply', exact: true })).toHaveCount(0)
   await expect(chat(page).getByRole('heading', { name: 'Who’s helping?' })).toBeVisible()
@@ -218,11 +220,10 @@ test('examples sidebar keeps its action and row alignment while the list scrolls
   })
 })
 
-test('sidebar avatars stay still and retain each conversation identity after configuration changes', async ({
+test('sidebar avatars retain conversation identity and stable reduced-motion appearance', async ({
   page,
 }, testInfo) => {
   test.setTimeout(60_000)
-  await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/agents/avatars')
   const actor = chat(page).locator('.avatar-chat-actor canvas')
   await expect(actor).toBeVisible()
@@ -259,6 +260,9 @@ test('sidebar avatars stay still and retain each conversation identity after con
   const plannerCanvas = planner.locator('canvas')
   const appearance = () =>
     plannerCanvas.evaluate((element) => (element as HTMLCanvasElement).toDataURL())
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+  )
   const original = await appearance()
   await planner.hover()
   await page.evaluate(
@@ -334,6 +338,82 @@ test('sidebar avatars stay still and retain each conversation identity after con
     (row?.x ?? 0) + (row?.width ?? 0) - 12
   )
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})
+
+test('sidebar previews follow real messages and keep long titles and replies within each row', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/agents/avatars')
+  const examples = await openPanel(page, 'examples')
+  const shortExample = examples.getByRole('button', { name: 'A one-word reply', exact: true })
+  await expect(shortExample).toHaveAccessibleDescription('Reply with one word')
+  await shortExample.click()
+  const reply = chat(page).locator('.avatar-chat-message-assistant p').last()
+  await expect(reply).toHaveText('Hello.')
+  await openPanel(page, 'examples')
+  await expect(shortExample.locator('.avatar-chat-list-preview')).toHaveText('Hello.')
+  await expect(shortExample).toHaveAccessibleName('A one-word reply')
+  await examples.getByRole('button', { name: 'New chat', exact: true }).click()
+  await closePanel(page, 'examples')
+  const message = 'A long conversation title with enough detail to exceed the compact sidebar width'
+  const input = chat(page).getByRole('textbox', { name: /^Message / })
+  await input.fill(message)
+  await input.press('Enter')
+  await expect.poll(async () => (await reply.textContent())?.length ?? 0).toBeGreaterThan(50)
+  await chat(page).getByRole('button', { name: 'Stop reply', exact: true }).click()
+  const stopped = (await reply.textContent())?.replace(/\s+/g, ' ').trim() ?? ''
+  await openPanel(page, 'examples')
+  const row = examples
+    .getByRole('navigation', { name: 'Conversations', exact: true })
+    .getByRole('button', { name: message.slice(0, 60), exact: true })
+  const preview = row.locator('.avatar-chat-list-preview')
+  await expect(preview).toHaveText(stopped)
+  await expect(row).toHaveAccessibleDescription(stopped)
+  for (const label of [row.locator('.avatar-chat-list-title'), preview]) {
+    await expect(label).toHaveCSS('text-overflow', 'ellipsis')
+    await expect(label).toHaveCSS('white-space', 'nowrap')
+    expect(await label.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true)
+  }
+  await expect(preview).toHaveCSS('font-size', '12px')
+  await expect(preview).toHaveCSS('color', 'rgb(255, 255, 255)')
+  await expect(preview).toHaveCSS('opacity', '0.8')
+  await examples.locator('.avatar-chat-panel-content').evaluate((element) => {
+    element.scrollTop = 0
+  })
+  await page.screenshot({
+    path: testInfo.outputPath('chat-sidebar-message-preview-full-page.png'),
+    fullPage: true,
+  })
+  await closePanel(page, 'examples')
+  await input.fill('Reply with one word')
+  await input.press('Enter')
+  await expect(reply).toHaveText('Hello.')
+  await openPanel(page, 'examples')
+  await expect(preview).toHaveText('Hello.')
+  await examples.getByRole('button', { name: 'New chat', exact: true }).click()
+  await openPanel(page, 'examples')
+  await expect(preview).toHaveText('Hello.')
+  await expect(preview).toHaveCSS('opacity', '1')
+  const muted = await examples
+    .locator('h3')
+    .first()
+    .evaluate((element) => getComputedStyle(element).color)
+  await expect(preview).toHaveCSS('color', muted)
+  await expect(shortExample.locator('.avatar-chat-list-preview')).toHaveText('Hello.')
+  const bounds = await row.boundingBox()
+  const textBounds = await preview.boundingBox()
+  expect(bounds?.height).toBeGreaterThanOrEqual(44)
+  expect((textBounds?.x ?? 0) + (textBounds?.width ?? 0)).toBeLessThanOrEqual(
+    (bounds?.x ?? 0) + (bounds?.width ?? 0) - 12
+  )
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await examples.locator('.avatar-chat-panel-content').evaluate((element) => {
+    element.scrollTop = 0
+  })
+  await page.screenshot({
+    path: testInfo.outputPath('chat-sidebar-saved-preview-full-page.png'),
+    fullPage: true,
+  })
 })
 
 test('brand navigation replaces the sidebar arrow and exits an active chat to all components', async ({

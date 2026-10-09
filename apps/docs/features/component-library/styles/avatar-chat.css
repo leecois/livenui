@@ -446,12 +446,27 @@
   min-width: 0;
   flex: 1;
 }
+.agent-libraries .avatar-chat-list-title,
+.agent-libraries .avatar-chat-list-preview {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.agent-libraries .avatar-chat-list-preview {
+  color: var(--muted);
+  font-size: var(--livenui-font-caption);
+}
 .agent-libraries .avatar-chat-list button:hover {
   background: var(--track);
 }
 .agent-libraries .avatar-chat-list button[aria-current] {
   background: var(--gradient-accent);
   color: white;
+}
+.agent-libraries .avatar-chat-list button[aria-current] .avatar-chat-list-preview {
+  color: inherit;
+  opacity: 0.8;
 }
 .agent-libraries .avatar-chat-settings-tabs {
   flex-wrap: nowrap;

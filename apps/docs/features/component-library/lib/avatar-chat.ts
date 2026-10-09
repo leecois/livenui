@@ -197,6 +197,11 @@ export const avatarChatExamples = [
   { title: 'A one-word reply', prompt: 'Reply with one word', outfit: 'Resting', reply: 'Hello.' },
 ]
 
+export function avatarChatPreview(messages: readonly { text: string }[], fallback = '') {
+  const text = messages.findLast((message) => message.text.trim())?.text ?? fallback
+  return text.replace(/\s+/g, ' ').trim()
+}
+
 export function avatarDemoReply(message: string, name: string) {
   const example = avatarChatExamples.find(
     (item) => item.prompt.toLowerCase() === message.trim().toLowerCase()

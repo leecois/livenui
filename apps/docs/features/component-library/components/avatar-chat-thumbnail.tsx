@@ -17,8 +17,18 @@ const identityKeys = [
   'accessoryColor',
 ] as const
 
+const restingPose = { yaw: 0, pitch: 0, roll: 0 }
+
 export const AvatarChatThumbnail = memo(
-  function AvatarChatThumbnail({ props, theme }: { props: Props; theme: 'light' | 'dark' }) {
+  function AvatarChatThumbnail({
+    props,
+    theme,
+    animated,
+  }: {
+    props: Props
+    theme: 'light' | 'dark'
+    animated: boolean
+  }) {
     return (
       <span className="avatar-chat-list-icon avatar-chat-thumbnail" aria-hidden="true" inert>
         <PreviewBoundary>
@@ -29,9 +39,13 @@ export const AvatarChatThumbnail = memo(
               size: 32,
               shading: 'flat',
               interactive: false,
+              speed: 0.8,
+              turn: 0.35,
+              jumpEvery: 0,
+              pose: animated ? undefined : restingPose,
             }}
             theme={theme}
-            paused
+            paused={animated ? undefined : true}
             showcase
           />
         </PreviewBoundary>
@@ -40,5 +54,6 @@ export const AvatarChatThumbnail = memo(
   },
   (previous, next) =>
     previous.theme === next.theme &&
+    previous.animated === next.animated &&
     identityKeys.every((key) => previous.props[key] === next.props[key])
 )

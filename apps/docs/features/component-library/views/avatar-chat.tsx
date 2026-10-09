@@ -15,8 +15,8 @@ import { useTheme } from 'next-themes'
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { AvatarChatBotPicker } from '../components/avatar-chat-bot-picker'
 import { AvatarChatPanel, containDialogFocus } from '../components/avatar-chat-panel'
+import { AvatarChatRow } from '../components/avatar-chat-row'
 import { AvatarChatSettings } from '../components/avatar-chat-settings'
-import { AvatarChatThumbnail } from '../components/avatar-chat-thumbnail'
 import { CodePanel } from '../components/code-panel'
 import { Link } from '../components/link'
 import { Preview, PreviewBoundary } from '../components/preview'
@@ -25,6 +25,7 @@ import { useChatViewport } from '../hooks/use-chat-viewport'
 import type { PlaygroundState } from '../hooks/use-playground'
 import {
   avatarChatExamples,
+  avatarChatPreview,
   avatarHelperProps,
   avatarHelpers,
   selectedOutfit,
@@ -146,6 +147,7 @@ export function AvatarChat({
   const follow = useRef(true)
   const [wide, setWide] = useState(false)
   const [panel, setPanel] = useState<'examples' | 'settings'>()
+  const [sidebarMotion, setSidebarMotion] = useState(false)
   const [settingsView, setSettingsView] = useState('playground')
   const tabsId = useId()
   const [creating, setCreating] = useState(false)
@@ -177,6 +179,13 @@ export function AvatarChat({
       color: typeof profile.props.color === 'string' ? profile.props.color : avatarColors[0].value,
     })),
   ]
+  useEffect(() => {
+    const media = matchMedia('(prefers-reduced-motion: reduce)')
+    const change = () => setSidebarMotion(!media.matches)
+    change()
+    media.addEventListener('change', change)
+    return () => media.removeEventListener('change', change)
+  }, [])
   useLayoutEffect(() => {
     const element = dialog.current
     element?.showModal()
@@ -297,11 +306,15 @@ export function AvatarChat({
                 {chat.conversations
                   .filter((item) => item.messages.length > 0 && !item.example)
                   .map((item) => (
-                    <button
-                      type="button"
+                    <AvatarChatRow
                       key={item.id}
-                      aria-current={item.id === chat.current.id ? 'true' : undefined}
-                      onClick={() => {
+                      label={item.title}
+                      preview={avatarChatPreview(item.messages)}
+                      avatarProps={item.bot?.props ?? state.exportedProps}
+                      theme={theme}
+                      selected={item.id === chat.current.id}
+                      motionEnabled={sidebarMotion}
+                      onSelect={() => {
                         chat.select(item.id)
                         if (item.bot) {
                           setBot(item.bot.profile)
@@ -313,13 +326,7 @@ export function AvatarChat({
                         }
                         setPanel(undefined)
                       }}
-                    >
-                      <AvatarChatThumbnail
-                        props={item.bot?.props ?? state.exportedProps}
-                        theme={theme}
-                      />
-                      <span className="avatar-chat-list-label">{item.title}</span>
-                    </button>
+                    />
                   ))}
               </nav>
             )}
@@ -328,12 +335,21 @@ export function AvatarChat({
               {avatarChatExamples.map((example) => {
                 const previous = chat.conversations.find((item) => item.example === example.title)
                 return (
-                  <button
-                    type="button"
+                  <AvatarChatRow
                     key={example.title}
-                    aria-current={chat.current.example === example.title ? 'true' : undefined}
+                    label={example.title}
+                    preview={avatarChatPreview(previous?.messages ?? [], example.prompt)}
+                    avatarProps={
+                      previous?.bot?.props ?? {
+                        ...state.exportedProps,
+                        ...avatarHelperProps(example.outfit),
+                      }
+                    }
+                    theme={theme}
+                    selected={chat.current.example === example.title}
+                    motionEnabled={sidebarMotion}
                     disabled={!!chat.pending || !chat.online}
-                    onClick={() => {
+                    onSelect={() => {
                       if (previous?.bot) {
                         chat.select(previous.id)
                         setBot(previous.bot.profile)
@@ -365,18 +381,7 @@ export function AvatarChat({
                       setPanel(undefined)
                       composer.current?.focus({ preventScroll: true })
                     }}
-                  >
-                    <AvatarChatThumbnail
-                      props={
-                        previous?.bot?.props ?? {
-                          ...state.exportedProps,
-                          ...avatarHelperProps(example.outfit),
-                        }
-                      }
-                      theme={theme}
-                    />
-                    <span className="avatar-chat-list-label">{example.title}</span>
-                  </button>
+                  />
                 )
               })}
             </nav>

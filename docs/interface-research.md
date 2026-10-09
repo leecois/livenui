@@ -33,3 +33,7 @@ No reference artwork, brand marks, palette, source implementation or backend is 
 ## Verification
 
 Follow [testing](testing.md). Verify direct choices, default omission, typed numeric/CSS sizes, inline expansion with selected-option retention, native keyboard behavior, configuration/code parity, renderer retention, container-based layout, zoom and both themes. Review full-page captures, not only individual controls.
+
+## Sidebar avatar motion follow-up
+
+On 2026-10-09, the owner supplied a sidebar image from [Grok Bot](https://x.ai/bot) and requested avatar motion on hover or selection. The public text was accessible, but the live automated browser was blocked; exact animation timing and gestures were not verified. The supplied images support compact avatar/title anatomy and a muted latest-message line below each title. They do not establish animation behavior. Sidebar previews use actual local conversation text, or an unvisited example’s starter prompt, rather than invented summaries or reference identities. Liven UI uses its own native flat avatars, restrained gaze/breathing, still inactive rows, reduced-motion handling and existing offscreen/hidden lifecycle. No reference artwork or animation implementation was imported. See [avatar playground](avatar-playground.md) for the implemented contract.

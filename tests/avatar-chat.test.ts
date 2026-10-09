@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test'
 import {
   avatarChatExamples,
+  avatarChatPreview,
   avatarDemoReply,
   avatarHelperProps,
   avatarHelpers,
@@ -43,4 +44,18 @@ test('every helper has a role description and a valid native outfit and color', 
     expect(props.color).toMatch(/^#[0-9A-F]{6}$/)
   }
   expect(avatarHelperProps('Unknown')).toEqual({})
+})
+
+test('chat previews use the latest nonempty message without inventing reply content', () => {
+  expect(avatarChatPreview([], 'Starter prompt')).toBe('Starter prompt')
+  expect(avatarChatPreview([{ text: 'User question' }, { text: '' }])).toBe('User question')
+  expect(
+    avatarChatPreview([{ text: 'User question' }, { text: ' First line\n\nNext\tline ' }])
+  ).toBe('First line Next line')
+  expect(avatarChatPreview([{ text: 'Response stopped.' }, { text: ' \n ' }])).toBe(
+    'Response stopped.'
+  )
+  expect(
+    avatarChatPreview([{ text: 'Previous reply' }, { text: 'A follow-up' }, { text: '' }])
+  ).toBe('A follow-up')
 })
