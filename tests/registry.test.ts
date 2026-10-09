@@ -66,6 +66,11 @@ test('both registry formats discard retired outputs and preserve legal file payl
     await writeFile(join(dir, 'blur-text.json'), '{}')
     await writeLivenUIRegistry(output, { dir, cleanDir: true, log: false })
     expect((await readdir(dir)).sort()).toEqual(['_registry.json', ...names].sort())
+    const metal = JSON.parse(await readFile(join(dir, 'metal.json'), 'utf8'))
+    expect(
+      metal.files.find((file: { target: string }) => file.target.endsWith('/LICENSE-APACHE-2.0'))
+        .content
+    ).toBe(await readFile('packages/metal-fx/LICENSE-APACHE-2.0', 'utf8'))
     await writeShadcnRegistry(output, { dir, cleanDir: true, baseUrl: 'http://localhost:3000' })
     expect((await readdir(dir)).sort()).toEqual(names.sort())
     for (const library of libraries) {
@@ -77,6 +82,14 @@ test('both registry formats discard retired outputs and preserve legal file payl
       )
       expect(license.type).toBe('registry:file')
       expect(license.content).toContain('MIT License')
+      if (library.id === 'metal') {
+        const apache = payload.files.find((file: { target: string }) =>
+          file.target.endsWith('/LICENSE-APACHE-2.0')
+        )
+        expect(apache.type).toBe('registry:file')
+        expect(apache.content).toBe(await readFile('packages/metal-fx/LICENSE-APACHE-2.0', 'utf8'))
+        expect(apache.content).toContain('END OF TERMS AND CONDITIONS')
+      }
       expect(
         payload.dependencies.some((dependency: string) =>
           libraries.some((item) => dependency.startsWith(`${item.package}@`))

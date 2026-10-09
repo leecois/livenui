@@ -51,20 +51,18 @@ export async function buildAgentRegistry(): Promise<Output> {
         target: `${component.target}.tsx`,
         content: `'use client'\n\nexport * from './${component.name}/index'\n`,
       })
-      for (const file of ['LICENSE', 'NOTICE']) {
-        const content = await readFile(join(root, file), 'utf8').catch(
-          (error: NodeJS.ErrnoException) => {
-            if (file === 'NOTICE' && error.code === 'ENOENT') return null
-            throw error
-          }
-        )
-        if (content)
-          files.push({
-            type: 'components',
-            path: `${component.source}/${file}`,
-            target: `${component.target}/${file}`,
-            content,
-          })
+      const legalFiles = (await readdir(root, { withFileTypes: true }))
+        .filter((entry) => entry.isFile() && /^(LICENSE(?:[.-].+)?|NOTICE)$/.test(entry.name))
+        .map((entry) => entry.name)
+        .sort()
+      if (!legalFiles.includes('LICENSE')) throw new Error(`Missing LICENSE: ${component.source}`)
+      for (const file of legalFiles) {
+        files.push({
+          type: 'components',
+          path: `${component.source}/${file}`,
+          target: `${component.target}/${file}`,
+          content: await readFile(join(root, file), 'utf8'),
+        })
       }
       const dependencies = { ...manifest.dependencies }
       const devDependencies: Record<string, string> = {}

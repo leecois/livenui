@@ -22,7 +22,8 @@
   "files": [
     "dist/*",
     "css/*",
-    "NOTICE"
+    "NOTICE",
+    "LICENSE-ICONS"
   ],
   "scripts": {
     "build": "node ../../node_modules/typescript-native/bin/tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
@@ -84,5 +85,7 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "private": true,
+  "license": "MIT AND ISC"
 }
