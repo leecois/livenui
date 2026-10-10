@@ -1,4 +1,10 @@
-export { BorderBeam } from './BorderBeam';
-export { default } from './BorderBeam';
-export type { BorderBeamProps, BorderBeamSize, BorderBeamTheme, BorderBeamColorVariant, SizeConfig, ThemeColors, } from './types';
-export { sizePresets, sizeThemePresets, themeColors } from './styles';
+export { BorderBeam, BorderBeam as default } from './BorderBeam'
+export type {
+  BorderBeamColorVariant,
+  BorderBeamProps,
+  BorderBeamSize,
+  BorderBeamTheme,
+  SizeConfig,
+  ThemeColors,
+} from './model'
+export { sizePresets, sizeThemePresets, themeColors } from './model'

@@ -1,214 +1,276 @@
-import { forwardRef, useId, useEffect, useState, useCallback, useMemo, useRef, type CSSProperties, type ForwardedRef, type AnimationEvent, type MutableRefObject, } from 'react';
-import type { BorderBeamProps, BorderBeamTheme } from './types';
-import { sizePresets, sizeThemePresets, generateBeamCSS, getPulseDriverConfig } from './styles';
-import { registerPulseInstance } from './pulseDriver';
-function useSystemTheme(): 'dark' | 'light' {
-    const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-        if (typeof window === 'undefined')
-            return 'dark';
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    });
-    useEffect(() => {
-        if (typeof window === 'undefined')
-            return;
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handler = (e: MediaQueryListEvent) => {
-            setTheme(e.matches ? 'dark' : 'light');
-        };
-        mediaQuery.addEventListener('change', handler);
-        return () => mediaQuery.removeEventListener('change', handler);
-    }, []);
-    return theme;
-}
-function resolveTheme(theme: BorderBeamTheme, systemTheme: 'dark' | 'light'): 'dark' | 'light' {
-    return theme === 'auto' ? systemTheme : theme;
-}
-export const BorderBeam = forwardRef<HTMLDivElement, BorderBeamProps>(function BorderBeam({ children, size = 'md', colorVariant = 'colorful', theme = 'dark', staticColors = false, duration, active = true, borderRadius: customBorderRadius, brightness: brightnessProp, saturation, hueRange = 30, glowSize = 1, strength = 1, className, style, css: extraCss, onActivate, onDeactivate, onAnimationEnd: consumerOnAnimationEnd, ...props }: BorderBeamProps, ref: ForwardedRef<HTMLDivElement>) {
-    const baseId = useId();
-    const id = baseId.replace(/:/g, '-');
-    const systemTheme = useSystemTheme();
-    const internalRef = useRef<HTMLDivElement>(null);
-    const [isActive, setIsActive] = useState(active);
-    const [isFading, setIsFading] = useState(false);
-    const [isVisible, setIsVisible] = useState(true);
-    const [detectedRadius, setDetectedRadius] = useState<number | null>(null);
-    const [pulseGlowScale, setPulseGlowScale] = useState<{
-        x: number;
-        y: number;
-    }>({ x: 1, y: 1 });
-    useEffect(() => {
-        if (customBorderRadius != null)
-            return;
-        const el = internalRef.current;
-        if (!el)
-            return;
-        const detect = () => {
-            const child = el.firstElementChild as HTMLElement | null;
-            if (!child)
-                return;
-            const computed = getComputedStyle(child);
-            const raw = parseFloat(computed.borderTopLeftRadius);
-            if (!isNaN(raw) && raw > 0) {
-                setDetectedRadius(raw);
-            }
-        };
-        detect();
-        const observer = new MutationObserver(detect);
-        observer.observe(el, { childList: true, subtree: false });
-        return () => observer.disconnect();
-    }, [customBorderRadius, children]);
-    useEffect(() => {
-        if (active && !isActive && !isFading) {
-            setIsActive(true);
-        }
-        else if (!active && isActive && !isFading) {
-            setIsFading(true);
-        }
-    }, [active, isActive, isFading]);
-    useEffect(() => {
-        const el = internalRef.current;
-        if (!el || typeof IntersectionObserver === 'undefined')
-            return;
-        const observer = new IntersectionObserver(entries => {
-            for (const entry of entries)
-                setIsVisible(entry.isIntersecting);
-        }, { rootMargin: '256px' });
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, []);
-    useEffect(() => {
-        if (size !== 'pulse-outside') {
-            setPulseGlowScale({ x: 1, y: 1 });
-            return;
-        }
-        const el = internalRef.current;
-        if (!el)
-            return;
-        const REF_WIDTH = 350;
-        const REF_HEIGHT = 140;
-        const MIN_SCALE = 0.35;
-        const MAX_SCALE = 4;
-        const clamp = (value: number) => Math.max(MIN_SCALE, Math.min(MAX_SCALE, value));
-        const measure = () => {
-            const child = el.firstElementChild as HTMLElement | null;
-            if (!child)
-                return;
-            const rect = child.getBoundingClientRect();
-            if (!rect.width || !rect.height)
-                return;
-            const x = +clamp(rect.width / REF_WIDTH).toFixed(3);
-            const y = +clamp(rect.height / REF_HEIGHT).toFixed(3);
-            setPulseGlowScale(prev => (prev.x === x && prev.y === y ? prev : { x, y }));
-        };
-        measure();
-        if (typeof ResizeObserver === 'undefined')
-            return;
-        const child = el.firstElementChild as HTMLElement | null;
-        if (!child)
-            return;
-        const resizeObserver = new ResizeObserver(measure);
-        resizeObserver.observe(child);
-        return () => resizeObserver.disconnect();
-    }, [size, children]);
-    const handleAnimationEnd = useCallback((e: AnimationEvent<HTMLDivElement>) => {
-        const animationName = e.animationName;
-        if (animationName.includes('fade-out')) {
-            setIsActive(false);
-            setIsFading(false);
-            onDeactivate?.();
-        }
-        else if (animationName.includes('fade-in')) {
-            onActivate?.();
-        }
-        consumerOnAnimationEnd?.(e);
-    }, [onActivate, onDeactivate, consumerOnAnimationEnd]);
-    const resolvedTheme = resolveTheme(theme, systemTheme);
-    const themeConfig = sizeThemePresets[size][resolvedTheme];
-    const sizeConfig = sizePresets[size];
-    const isPulse = size === 'pulse-inner' || size === 'pulse-outside';
-    const finalBorderRadius = customBorderRadius ?? detectedRadius ?? sizeConfig.borderRadius;
-    const finalDuration = duration ?? (size === 'line' ? 3.1 : isPulse ? 2.3 : 1.96);
-    const finalSaturation = saturation ?? themeConfig.saturation;
-    const finalBrightness = brightnessProp ?? themeConfig.brightness ?? 1.3;
-    const finalHueRange = size === 'line' ? Math.min(hueRange, 13) : hueRange;
-    const finalStaticColors = colorVariant === 'mono' ? true : staticColors;
-    const cssStyles = useMemo(() => generateBeamCSS({
-        id,
-        borderRadius: finalBorderRadius,
-        borderWidth: sizeConfig.borderWidth,
-        duration: finalDuration,
-        strokeOpacity: themeConfig.strokeOpacity,
-        innerOpacity: themeConfig.innerOpacity,
-        bloomOpacity: themeConfig.bloomOpacity,
-        innerShadow: themeConfig.innerShadow,
-        size,
-        colorVariant,
-        staticColors: finalStaticColors,
-        brightness: finalBrightness,
-        saturation: finalSaturation,
-        hueRange: finalHueRange,
-        theme: resolvedTheme,
-        hairlineOpacity: themeConfig.hairlineOpacity,
-        glowSize,
-    }), [
-        id,
-        finalBorderRadius,
-        sizeConfig.borderWidth,
-        finalDuration,
-        themeConfig.strokeOpacity,
-        themeConfig.innerOpacity,
-        themeConfig.bloomOpacity,
-        themeConfig.innerShadow,
-        themeConfig.hairlineOpacity,
-        size,
-        colorVariant,
-        finalStaticColors,
-        finalBrightness,
-        finalSaturation,
-        finalHueRange,
-        glowSize,
-        resolvedTheme,
-    ]);
-    const driverConfig = useMemo(() => isPulse
-        ? getPulseDriverConfig(size, resolvedTheme, finalDuration, finalHueRange, finalStaticColors, id)
-        : null, [isPulse, size, resolvedTheme, finalDuration, finalHueRange, finalStaticColors, id]);
-    useEffect(() => {
-        if (!driverConfig)
-            return;
-        if (!(isActive || isFading) || !isVisible)
-            return;
-        const el = internalRef.current;
-        if (!el)
-            return;
-        if (typeof window !== 'undefined' &&
-            window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-            return;
-        }
-        return registerPulseInstance(el, driverConfig);
-    }, [driverConfig, isActive, isFading, isVisible]);
-    const setRefs = useCallback((node: HTMLDivElement | null) => {
-        (internalRef as MutableRefObject<HTMLDivElement | null>).current = node;
-        if (typeof ref === 'function') {
-            ref(node);
-        }
-        else if (ref) {
-            (ref as MutableRefObject<HTMLDivElement | null>).current = node;
-        }
-    }, [ref]);
-    const mergedStyle = {
-        ...(style ?? {}),
-        '--beam-strength': Math.max(0, Math.min(1, strength)),
-        ...(size === 'pulse-outside'
-            ? { '--pulse-glow-sx': pulseGlowScale.x, '--pulse-glow-sy': pulseGlowScale.y }
-            : {}),
-    } as CSSProperties;
-    return (<>
-        <style>{extraCss ? `${cssStyles}
-${extraCss.split('{id}').join(id)}` : cssStyles}</style>
-        <div {...props} ref={setRefs} data-beam={id} data-active={isActive && !isFading ? '' : undefined} data-fading={isFading ? '' : undefined} data-paused={isActive && !isFading && !isVisible ? '' : undefined} className={className} style={mergedStyle} onAnimationEnd={handleAnimationEnd}>
-          {children}
-          <div data-beam-bloom/>
-        </div>
-      </>);
-});
-export default BorderBeam;
+'use client'
+
+import { forwardRef, useEffect, useId, useImperativeHandle, useRef, useState } from 'react'
+import {
+  type BorderBeamProps,
+  beamPath,
+  bounded,
+  palettes,
+  sizePresets,
+  sizeThemePresets,
+} from './model'
+import { animateBeam, fadeBeam } from './motion'
+
+export const BorderBeam = forwardRef<HTMLDivElement, BorderBeamProps>(function BorderBeam(
+  {
+    children,
+    size = 'md',
+    colorVariant = 'colorful',
+    theme = 'dark',
+    active = true,
+    duration,
+    borderRadius,
+    brightness,
+    saturation = 1.2,
+    glowSize = 1,
+    hueRange = 30,
+    strength = 1,
+    staticColors = false,
+    css,
+    style,
+    onActivate,
+    onDeactivate,
+    ...attributes
+  },
+  forwardedRef
+) {
+  const identity = `liven-beam-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
+  const host = useRef<HTMLDivElement>(null)
+  const surface = useRef<HTMLSpanElement>(null)
+  const svg = useRef<SVGSVGElement>(null)
+  const controller = useRef<ReturnType<typeof animateBeam> | null>(null)
+  const callbacks = useRef({ onActivate, onDeactivate })
+  callbacks.current = { onActivate, onDeactivate }
+  const enabled = useRef(active)
+  enabled.current = active
+  const [systemDark, setSystemDark] = useState(true)
+  const [box, setBox] = useState({ width: 0, height: 0, radius: sizePresets[size].borderRadius })
+  useImperativeHandle(forwardedRef, () => host.current as HTMLDivElement, [])
+
+  useEffect(() => {
+    if (theme !== 'auto') return
+    const preference = matchMedia('(prefers-color-scheme: dark)')
+    const update = () => setSystemDark(preference.matches)
+    update()
+    preference.addEventListener('change', update)
+    return () => preference.removeEventListener('change', update)
+  }, [theme])
+
+  useEffect(() => {
+    const node = host.current
+    if (!node) return
+    let child: Element | undefined
+    const update = () => {
+      const width = node.clientWidth
+      const height = node.clientHeight
+      const value = child ? getComputedStyle(child).borderTopLeftRadius : ''
+      const inferred = value.includes('%')
+        ? (Number.parseFloat(value) * Math.min(width, height)) / 100
+        : Number.parseFloat(value)
+      const radius = bounded(
+        borderRadius,
+        Number.isFinite(inferred) ? inferred : sizePresets[size].borderRadius,
+        0,
+        Math.min(width, height) / 2
+      )
+      setBox((previous) =>
+        previous.width === width && previous.height === height && previous.radius === radius
+          ? previous
+          : { width, height, radius }
+      )
+    }
+    const attributes = new MutationObserver(update)
+    const resize = new ResizeObserver(update)
+    const observeChild = () => {
+      if (child) resize.unobserve(child)
+      attributes.disconnect()
+      child = Array.from(node.children).find(
+        (item) => item !== surface.current && item.tagName !== 'STYLE'
+      )
+      if (child) {
+        attributes.observe(child, { attributes: true, attributeFilter: ['class', 'style'] })
+        resize.observe(child)
+      }
+      update()
+    }
+    const childrenObserver = new MutationObserver(observeChild)
+    childrenObserver.observe(node, { childList: true })
+    resize.observe(node)
+    observeChild()
+    return () => {
+      attributes.disconnect()
+      resize.disconnect()
+      childrenObserver.disconnect()
+    }
+  }, [borderRadius, size])
+
+  useEffect(() => {
+    if (!svg.current) return
+    const motion = animateBeam(svg.current, {
+      size,
+      duration,
+      hueRange: bounded(hueRange, 30, -3600, 3600),
+      shiftColors: !staticColors && colorVariant !== 'mono',
+    })
+    controller.current = motion
+    motion.setActive(enabled.current)
+    return () => {
+      motion.destroy()
+      controller.current = null
+    }
+  }, [size, duration, hueRange, staticColors, colorVariant])
+
+  useEffect(() => {
+    controller.current?.setActive(active)
+  }, [active])
+
+  useEffect(() => {
+    if (!surface.current) return
+    return fadeBeam(surface.current, active, () => {
+      if (active) callbacks.current.onActivate?.()
+      else callbacks.current.onDeactivate?.()
+    })
+  }, [active])
+
+  const resolvedTheme = theme === 'auto' ? (systemDark ? 'dark' : 'light') : theme
+  const colors = sizeThemePresets[size][resolvedTheme]
+  const palette =
+    colorVariant === 'mono' && resolvedTheme === 'light'
+      ? ['#52525b', '#18181b', '#71717a']
+      : palettes[colorVariant]
+  const pulse = size.startsWith('pulse-')
+  const halo = bounded(glowSize, 1, 0, 20)
+  const stroke = sizePresets[size].borderWidth
+  const path = beamPath(box.width, box.height, box.radius, size === 'line')
+  const common = {
+    d: path,
+    pathLength: 100,
+    fill: 'none',
+    stroke: `url(#${identity}-paint)`,
+    strokeLinecap: 'round' as const,
+  }
+  return (
+    <div
+      {...attributes}
+      ref={host}
+      data-beam={identity}
+      data-active={active ? '' : undefined}
+      data-beam-size={size}
+      data-beam-theme={resolvedTheme}
+      style={{
+        position: 'relative',
+        display: 'inline-block',
+        maxWidth: '100%',
+        isolation: 'isolate',
+        ...style,
+      }}
+    >
+      {children}
+      <span
+        ref={surface}
+        aria-hidden="true"
+        data-beam-surface=""
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          opacity: 0,
+          borderRadius: box.radius,
+        }}
+      >
+        <svg
+          ref={svg}
+          aria-hidden="true"
+          focusable="false"
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${Math.max(1, box.width)} ${Math.max(1, box.height)}`}
+          style={{
+            display: 'block',
+            overflow: 'visible',
+            visibility: box.width && box.height ? 'visible' : 'hidden',
+            opacity: bounded(strength, 1, 0, 1),
+            filter: `brightness(${bounded(brightness, colors.brightness || 1, 0, 10)}) saturate(${bounded(saturation, 1.2, 0, 10)})`,
+          }}
+        >
+          <defs>
+            <linearGradient
+              id={`${identity}-paint`}
+              gradientUnits="userSpaceOnUse"
+              x1="0"
+              y1="0"
+              x2={box.width}
+              y2={box.height}
+            >
+              {palette.map((color, index) => (
+                <stop
+                  key={color}
+                  offset={`${(index / (palette.length - 1)) * 100}%`}
+                  stopColor={color}
+                />
+              ))}
+            </linearGradient>
+            <filter
+              id={`${identity}-soft`}
+              filterUnits="userSpaceOnUse"
+              x="-120"
+              y="-120"
+              width={box.width + 240}
+              height={box.height + 240}
+              colorInterpolationFilters="sRGB"
+            >
+              <feGaussianBlur stdDeviation={Math.min(24, halo * (size === 'sm' ? 2 : 4))} />
+            </filter>
+            <filter
+              id={`${identity}-bloom`}
+              filterUnits="userSpaceOnUse"
+              x="-120"
+              y="-120"
+              width={box.width + 240}
+              height={box.height + 240}
+              colorInterpolationFilters="sRGB"
+            >
+              <feGaussianBlur
+                stdDeviation={Math.min(40, halo * (size === 'pulse-outside' ? 12 : 7))}
+              />
+            </filter>
+            <clipPath id={`${identity}-clip`}>
+              <rect width={box.width} height={box.height} rx={box.radius} />
+            </clipPath>
+          </defs>
+          <g clipPath={size === 'pulse-inner' ? `url(#${identity}-clip)` : undefined}>
+            <g data-beam-color="">
+              <path {...common} strokeWidth={stroke} opacity={colors.hairlineOpacity} />
+              <g
+                data-beam-motion=""
+                strokeDasharray={pulse ? undefined : size === 'sm' ? '12 88' : '28 72'}
+              >
+                <path
+                  {...common}
+                  data-beam-bloom=""
+                  strokeWidth={size === 'pulse-outside' ? 10 : 5}
+                  opacity={colors.bloomOpacity}
+                  filter={`url(#${identity}-bloom)`}
+                />
+                <path
+                  {...common}
+                  data-beam-glow=""
+                  strokeWidth={size === 'pulse-inner' ? 6 : 3}
+                  opacity={colors.innerOpacity}
+                  filter={`url(#${identity}-soft)`}
+                />
+                <path
+                  {...common}
+                  data-beam-stroke=""
+                  strokeWidth={stroke}
+                  opacity={colors.strokeOpacity}
+                />
+              </g>
+            </g>
+          </g>
+        </svg>
+      </span>
+      {css ? <style>{css.replaceAll('{id}', identity)}</style> : null}
+    </div>
+  )
+})

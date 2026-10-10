@@ -4,7 +4,7 @@ Audit date: 2026-10-10. Target repository: [leecois/livenui](https://github.com/
 
 ## Current verdict
 
-The local source has been prepared for publication, with the limitations below. Public marketing is not ready: the target domain did not resolve from the audit environment, and the unauthenticated repository URL returned 404. A 404 cannot distinguish a private repository from a missing repository. Remote visibility, HTTPS, repository settings and deployed behavior remain unverified.
+The publication baseline below predates the ongoing [renderer replacement](decisions/003-original-component-implementations.md). Border Beam is the first replacement; six SDK migrations remain. Revalidate changed source and distribution before publishing, in addition to the limitations below. Public marketing is not ready: the target domain did not resolve from the audit environment, and the unauthenticated repository URL returned 404. A 404 cannot distinguish a private repository from a missing repository. Remote visibility, HTTPS, repository settings and deployed behavior remain unverified.
 
 | Area | Result |
 | --- | --- |
@@ -29,7 +29,7 @@ The five reference JPEGs retired on 2026-10-06 and the unused banner were remove
 
 ## Licensing and claims
 
-The [root MIT license](../LICENSE) covers Liven UI's original contributions. Inherited source retains [upstream MIT terms](../licenses/upstream-MIT.txt) and all seven SDK licenses. Bundled [icons](../packages/ui/LICENSE-ICONS), [fonts](../apps/docs/lib/og/OFL.txt) and [shaders](../packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Original SDK LICENSE/NOTICE files remain unchanged. Source registries include required LICENSE, all additional LICENSE-* / LICENSE.* files and available NOTICE. Metal installation now carries the full Apache license alongside its notice.
+The [root MIT license](../LICENSE) covers Liven UI's original contributions. Inherited source retains [upstream MIT terms](../licenses/upstream-MIT.txt) and the six remaining inherited SDK licenses. The new Border Beam renderer uses the Liven UI MIT license. Bundled [icons](../packages/ui/LICENSE-ICONS), [fonts](../apps/docs/lib/og/OFL.txt) and [shaders](../packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Original notices remain with retained inherited material and historical revisions. Source registries include required LICENSE, all additional LICENSE-* / LICENSE.* files and available NOTICE. Metal installation now carries the full Apache license alongside its notice.
 
 All workspaces are private; the public distribution is editable source from the Liven UI registry. Marketing may describe an independently maintained component library with seven current families, 87 examples, live configuration and copied React integration. Original contributions use MIT; adapted source and assets retain their applicable terms. [Contributing](../CONTRIBUTING.md#licensing) covers new component ownership. Do not claim original authorship of every renderer, an independently published npm scope, hosted AI chat, cloud presets or live microphone/device coverage from simulated tests. Chat replies are scripted, presets stay in the browser and microphone access is explicit. Public internal-team identity recommendations remain skipped. Bright accent/white-text contrast warnings remain accepted design trade-offs.
 
@@ -50,6 +50,10 @@ The final push preflight repeated `bun run check`: 82 passed, zero failed and al
 `LIVENUI_BROWSER_CHANNEL=chrome LIVENUI_TEST_PORT=43219 bun run test:ui` passed against the newly built production output: 426 passed and two intentional desktop drawer skips, across 428 cases with one worker. Eight full-page captures were inspected: Components overview and safe Gooey Studio in desktop/mobile light/dark. No overlapping controls or clipped installation commands were observed in these captures; bright accent/white-text controls remain unchanged. The browser used Chrome with software rendering.
 
 The audit does not claim Safari, Firefox, physical-device, live microphone, deployed runtime or production analytics validation. Earlier manual iPhone acceptance remains historical evidence in [testing](testing.md).
+
+## Border Beam replacement follow-up
+
+The new renderer passed `bun run check` (82 tests and 11 build targets), the complete production UI suite (438 passed, two intentional desktop skips) and independent installation of all seven entries (118 source/legal files). Focused Beam checks additionally passed 24 WebKit/Firefox cases; Guide and Studio captures were reviewed in desktop/mobile light/dark. This updates the runtime and distribution evidence for the Border Beam changes above. It does not repeat the historical secret/dependency/remote audit, establish physical-device behavior or complete the other six replacements. See [Decision 003](decisions/003-original-component-implementations.md) for ownership and CSS migration limits.
 
 ## Release sequence
 

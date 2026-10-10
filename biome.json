@@ -16,6 +16,7 @@
       "apps/docs/app/studio/**",
       "apps/docs/features/component-library/**",
       "packages/agent-ui/**",
+      "packages/border-beam/src/**",
       "packages/*/package.json",
       "packages/*/tsconfig.json",
       "tests/**",

@@ -1,204 +1,77 @@
-# border-beam
+# Border Beam
 
-Liven UI maintains and distributes this component as editable source. The installation includes its licenses and available notices. Imports below assume the `@/components` alias; adjust it to your project.
-
-Animated border beam effect for React. A lightweight component that adds a traveling or breathing glow animation around any element — cards, buttons, inputs, or search bars.
+An editable React component with a traveling edge or breathing halo. This implementation uses SVG paths and browser-owned animations; it needs no rendering dependency beyond React.
 
 ## Install
 
-```bash
+```sh
 npx shadcn@latest add https://livenui.dev/r/beam.json
 ```
-
-## Quick start
 
 ```tsx
 import { BorderBeam } from '@/components/livenui/beam';
 
-function App() {
+export function HighlightCard() {
   return (
-    <BorderBeam>
-      <div style={{ padding: 32, borderRadius: 16, background: '#1d1d1d' }}>
-        Your content here
-      </div>
+    <BorderBeam size="md" colorVariant="ocean" theme="auto">
+      <article style={{ padding: 24, borderRadius: 24 }}>
+        Make room for ideas.
+      </article>
     </BorderBeam>
   );
 }
 ```
 
-The component wraps your content and overlays the animated beam effect. It auto-detects the `border-radius` of the first child element.
+Adjust the import to your application's component alias. The wrapper forwards its div ref and standard HTML attributes. Its decorative layers do not intercept input or change the content's opacity.
 
-## Types
+## Options
 
-Built-in presets control the glow style and motion. They fall into two families:
+| Option | Default | Behavior |
+| --- | --- | --- |
+| `children` | Required | Content inside the wrapper |
+| `size` | `md` | `sm`: short traveling edge; `md`: full-size traveling edge; `line`: bottom edge; `pulse-inner`: contained halo; `pulse-outside`: outward halo |
+| `colorVariant` | `colorful` | `colorful`, `mono`, `ocean`, `sunset`, `forest`, `candy`, `ice` or `gold` |
+| `theme` | `dark` | `dark`, `light` or `auto`; auto follows system preference |
+| `active` | `true` | Play and fade in; false pauses and fades out |
+| `duration` | Variant-dependent | Seconds per cycle: 1.96 for traveling borders, 3.1 for line, 2.3 for pulses; bounded to 0.05–3600 |
+| `strength` | `1` | Effect opacity, bounded to 0–1 |
+| `borderRadius` | Inferred | Pixels; reads the first content element's top-left radius and clamps to half the smaller wrapper dimension |
+| `glowSize` | `1` | Halo spread multiplier, bounded to 0–20; blur layers also have fixed upper limits |
+| `brightness` | Theme-dependent | 1.3 in dark mode, 0.85 in light mode; bounded to 0–10 |
+| `saturation` | `1.2` | Saturation multiplier, bounded to 0–10 |
+| `hueRange` | `30` | Hue movement in degrees, bounded to -3600–3600 |
+| `staticColors` | `false` | Stop hue movement while retaining edge/pulse motion; mono always uses static colors |
+| `css` | None | Optional per-instance CSS; `{id}` becomes the wrapper's identity |
+| `onActivate` | None | Called when activation settles, including initial active mounting |
+| `onDeactivate` | None | Called when deactivation settles, including initial inactive mounting |
+| `className`, `style` | None | Applied to the wrapper |
 
-### Rotate (traveling beam)
+Non-finite numeric values fall back to defaults. Radius inference tracks resizing, content replacement and the child's class/style changes. Use an explicit `borderRadius` when the content uses asymmetric corners or a radius that changes without a size/class/style change.
 
-```tsx
-<BorderBeam size="md">
-  <Card />
-</BorderBeam>
+The outward halo works with transparent content. Ancestor overflow clipping can still cut it off; leave space around the wrapper when the bloom should remain visible.
 
-<BorderBeam size="sm">
-  <IconButton />
-</BorderBeam>
+## Motion and lifecycle
 
-<BorderBeam size="line">
-  <SearchBar />
-</BorderBeam>
-```
+All five variants pause when outside the viewport or in a hidden document. Reduced motion displays a stationary frame and applies activation immediately. Otherwise activation fades over 180ms. Reversing activation cancels the previous completion callback; unmounting releases animations, observers and listeners. Multiple instances have separate identities and playback.
 
-- `<BorderBeam size="md">`: Full border glow (default)
-- `<BorderBeam size="sm">`: Compact glow for small elements
-- `<BorderBeam size="line">`: Bottom-only traveling glow
+SVG and the Web Animations, ResizeObserver, IntersectionObserver and MediaQueryList event APIs are the browser integration surface. Server rendering does not access the DOM; effect sizing and motion start after mounting. A browser without `Element.animate` displays the static effect.
 
-### Pulse (breathing glow, no rotation)
-
-```tsx
-<BorderBeam size="pulse-inner">
-  <Card />
-</BorderBeam>
-
-<BorderBeam size="pulse-outside">
-  <Card />
-</BorderBeam>
-```
-
-- `<BorderBeam size="pulse-inner">`: Contained breathing border glow
-- `<BorderBeam size="pulse-outside">`: Outward-blooming halo around the element
-
-Both pulse types support all color variants, `strength`, `theme`, and the breathe
-speed via `duration` (defaults to `2.3`).
-
-> **`pulse-outside` requires an opaque wrapped child.** The colorful core and halo
-> render *behind* your content (`z-index: -1`) and bloom outward, so only the part
-> that spills beyond the element shows. If your child is transparent, the inner glow
-> will show through. The wrapper uses `overflow: visible`, so make sure the
-> surrounding layout has room (or `overflow: visible`) for the halo to spill.
-
-> **`pulse-outside` relies on the wrapped element's own 1px border as the idle
-> hairline.** It does not paint its own hairline by default, so the colored stroke
-> rides directly on top of your element's existing edge instead of doubling it. If
-> your child has no border, add a subtle 1px border (or `box-shadow: inset 0 0 0 1px`)
-> so the edge stays defined while the beam is faded out.
-
-## Color variants
-
-Four color palettes are available:
+## CSS customization
 
 ```tsx
-<BorderBeam colorVariant="colorful" />
-<BorderBeam colorVariant="mono" />
-<BorderBeam colorVariant="ocean" />
-<BorderBeam colorVariant="sunset" />
-```
-
-- `<BorderBeam colorVariant="colorful" />`: Rainbow spectrum (default)
-- `<BorderBeam colorVariant="mono" />`: Grayscale
-- `<BorderBeam colorVariant="ocean" />`: Blue-purple tones
-- `<BorderBeam colorVariant="sunset" />`: Orange-yellow-red tones
-
-All variants except `mono` animate through a hue-shift cycle.
-
-## Theme
-
-Adapts beam colors for dark or light backgrounds:
-
-```tsx
-<BorderBeam theme="dark" />
-<BorderBeam theme="light" />
-<BorderBeam theme="auto" />
-```
-
-- `<BorderBeam theme="dark" />`: Dark background (default)
-- `<BorderBeam theme="light" />`: Light background
-- `<BorderBeam theme="auto" />`: Detects system preference
-
-## Strength
-
-Control the overall intensity of the effect without affecting the wrapped content:
-
-```tsx
-<BorderBeam strength={0.7}>
-  <Card />
+<BorderBeam
+  css={'[data-beam="{id}"] [data-beam-stroke] { stroke-width: 2; }'}
+>
+  <button style={{ borderRadius: 24 }}>Continue</button>
 </BorderBeam>
 ```
 
-- `<BorderBeam strength={0.7}>`: 70% intensity
+Use `[data-beam-stroke]`, `[data-beam-glow]` and `[data-beam-bloom]` to target SVG paths. `[data-beam-motion]` groups the moving paths; `[data-beam-color]` owns hue movement. `[data-beam-surface]` owns activation opacity. Scope rules through `[data-beam="{id}"]` to keep instances separate. Pass only trusted application CSS.
 
-`strength` accepts a value from `0` (invisible) to `1` (full intensity, default).
+The public React prop and export names are retained. Rendering and palette tuning have changed. Earlier pseudo-element selectors, generated keyframe names and internal custom properties are not part of this renderer; migrate those overrides to the SVG layers above.
 
-## Play / pause
+## Source and license
 
-Toggle the animation on and off with smooth fade transitions:
+`src/BorderBeam.tsx` owns React integration and SVG composition, `src/model.ts` owns public types and geometry, and `src/motion.ts` owns animation lifecycle. `src/index.ts` exposes the public API, including `sizePresets`, `sizeThemePresets` and `themeColors`.
 
-```tsx
-const [active, setActive] = useState(true);
-
-<BorderBeam active={active} onDeactivate={() => console.log('faded out')}>
-  <Card />
-</BorderBeam>
-```
-
-## Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `ReactNode` | — | Content to wrap |
-| `size` | `'sm' \| 'md' \| 'line' \| 'pulse-outside' \| 'pulse-inner'` | `'md'` | Size/type preset |
-| `colorVariant` | `'colorful' \| 'mono' \| 'ocean' \| 'sunset'` | `'colorful'` | Color palette |
-| `theme` | `'dark' \| 'light' \| 'auto'` | `'dark'` | Background adaptation |
-| `strength` | `number` | `1` | Effect opacity (0–1), only affects the beam layers |
-| `duration` | `number` | `1.96` / `3.1` / `2.3` | Animation cycle duration in seconds (rotate / line / pulse) |
-| `active` | `boolean` | `true` | Whether the animation is playing |
-| `borderRadius` | `number` | auto-detected | Custom border radius in px |
-| `brightness` | `number` | per-type (`1.3`) | Glow brightness multiplier; falls back to the type's preset default |
-| `saturation` | `number` | `1.2` | Glow saturation multiplier |
-| `hueRange` | `number` | `30` | Hue rotation range in degrees |
-| `staticColors` | `boolean` | `false` | Disable hue-shift animation |
-| `className` | `string` | — | Additional class on the wrapper |
-| `style` | `CSSProperties` | — | Additional inline styles on the wrapper |
-| `onActivate` | `() => void` | — | Called when fade-in completes |
-| `onDeactivate` | `() => void` | — | Called when fade-out completes |
-
-All standard `HTMLDivElement` attributes are also forwarded to the wrapper.
-
-## How it works
-
-`BorderBeam` renders a wrapper `<div>` with:
-
-- **`::after`** — the beam stroke (rotate: conic gradient masked to the border; pulse: the colored perimeter ring / hairline)
-- **`::before`** — inner glow layer (pulse-outside pushes this outward behind the content)
-- **`[data-beam-bloom]`** — outer bloom/glow child div
-
-All effect layers are absolutely positioned and use `pointer-events: none`, so they never interfere with your content. The rotate and line types animate via CSS `@property` keyframes for smooth GPU-accelerated transitions; because the keyframes also declare explicit `0% / 50% / 100%` stops, browsers without `@property` support degrade gracefully (stepped instead of interpolated motion) rather than breaking. The pulse types drive their slow breathing from a single shared, frame-rate-capped (~30fps) `requestAnimationFrame` loop that writes plain CSS custom properties — so the breathing works even without `@property` support, repaints less often, and automatically pauses when the instance is inactive, offscreen, or the user prefers reduced motion. The pulse types also isolate their stacking context, cap blur radii, and hint `will-change` on the animated layers for performance.
-
-## Project structure
-
-```
-border-beam/
-├── src/
-│   ├── index.ts          # Public exports
-│   ├── BorderBeam.tsx     # React component
-│   ├── types.ts           # TypeScript type definitions
-│   ├── styles.ts          # CSS generation engine
-│   └── pulseDriver.ts     # Shared rAF loop driving the pulse breathing
-├── demo/                  # Vite + React demo site
-├── dist/                  # Built output (ESM + CJS + types)
-├── package.json
-├── LICENSE
-└── README.md
-```
-
-## Requirements
-
-- React 18+
-- Modern browser with CSS `@property` support (Chrome 85+, Safari 15.4+, Firefox 128+)
-
-## Accessibility
-
-The effect layers are purely decorative and use `pointer-events: none`. They do not affect keyboard navigation or screen readers. The pulse types ship a built-in `prefers-reduced-motion: reduce` block that disables their animations; the rotate types respect `prefers-reduced-motion` when implemented by the consumer.
-
-## License
-
-[MIT](./LICENSE)
+The replacement renderer and this guide are authored for Liven UI under [MIT](LICENSE). Historical implementations and retained repository support files keep their applicable original notices. See [the implementation decision](../../docs/decisions/003-original-component-implementations.md) for scope and verification.
