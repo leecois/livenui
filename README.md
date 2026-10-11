@@ -1,27 +1,16 @@
 # Liven UI
 
-A developer component library with seven rendering SDKs, 87 configurable examples and a shared live playground in the Fumadocs Glass layout. Find an interaction, try it, configure it and copy integration code.
+Interactive React components with live configuration and ready-to-copy integration code.
 
-## Start here
+Explore [the component library](https://livenui.dev/agents), try [Studio](https://livenui.dev/studio), or read the [integration guide](https://livenui.dev/agents/integration).
 
-Coding agents must read [AGENTS.md](AGENTS.md) before editing.
+## Components
 
-| Guide | Purpose |
-| --- | --- |
-| [Architecture](docs/architecture.md) | Workspace topology, ownership, dependency boundaries and runtime contracts |
-| [Design guide](design.md) | Implemented visual tokens, control recipes, responsive behavior and acceptance |
-| [Development](docs/development.md) | Setup, commands and recipes for examples, UI, APIs and dependencies |
-| [Testing](docs/testing.md) | Reproducible static, browser and visual verification |
-| [Architecture decision](docs/decisions/001-component-library-foundation.md) | Research evidence and reasons for the current structure |
-| [Contributing](CONTRIBUTING.md) | Focused changes, validation and pull requests |
+Seven families cover border beams, thinking orbs, metallic effects, liquid interactions, voice visualization, image reveals and bot avatars. Guides provide starting examples and quick settings; Studio adds advanced configuration, code export and browser-local presets.
 
-## Independent project
+Installation copies editable component source from the registry into your application. The playground and generated integration code use the same configuration. Avatar chat is a scripted local demo; microphone access is optional and starts only after an explicit action.
 
-This checkout uses an independent Git history on `main`. Remote configuration is local; pushing, publication and deployment require explicit authorization. The application, component source, tests, licenses and infrastructure configuration were copied from the previous project. Dependencies and generated outputs are installed or rebuilt locally.
-
-Production metadata and installation use `https://livenui.dev`; development defaults to `http://localhost:3000`. `NEXT_PUBLIC_APP_URL` overrides the build-time origin; use the public HTTPS origin for hosted builds and rebuild after changing it. Metadata, registry, agent reference and sitemap share that origin. The project repository is [leecois/livenui](https://github.com/leecois/livenui). Local preparation does not register the domain, publish the repository or deploy the website.
-
-## Run
+## Develop locally
 
 Use Node 24 and Bun 1.4.2.
 
@@ -30,35 +19,26 @@ bun install --frozen-lockfile
 bun run dev:docs
 ```
 
+The development site runs at `http://localhost:3000`. Production defaults to `https://livenui.dev`; `NEXT_PUBLIC_APP_URL` overrides the build-time origin. See [setup and origin configuration](docs/development.md#project-identity-and-origin).
+
 ```sh
 bun run check
 bunx playwright install chromium
 bun run test:ui
 ```
 
-`bun run check:ui` executes both verification stages. `bun run start` serves the built application; `PORT` overrides port 3000. Browser tests own their production preview server and run with one worker.
+Browser tests use the production build from `check` and own their preview server. See [testing](docs/testing.md) for focused checks and browser coverage.
 
-## Workspace and product
+## Contribute
 
-`apps/docs` owns the site, feature modules, MDX and source registry definitions. `packages/agent-ui` owns shared controls/tokens. Seven SDK packages implement border beam, thinking orbs, Metal Fx/Text/Badge, liquid morph/move/melt/bend, voice, image reveal and bot avatars. Existing `ui`, `cli` and `tsconfig` workspaces retain installer/build contracts. SDK builds provide ESM, CJS and declarations; the application and declaration compiler retain their existing compatibility split.
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [developer documentation](docs/README.md). The documentation index covers architecture, design, change recipes and release checks. Automated maintenance also follows [AGENTS.md](AGENTS.md).
 
-`/` opens `/agents`. `/agents/gallery` offers URL-shareable filters and progressive example loading. Each `/agents/{id}` guide starts with examples and quick settings, with direct **Preview / Install & Usage** views. **Open in Studio** carries its configuration into `/studio?library={id}` through a validated URL fragment. Studio adds advanced controls, JSON editing and browser-local saved presets. Example links also select an initial configuration, and `/agents/integration` explains setup.
+- `apps/docs`: website, playgrounds, guides and source registry.
+- `packages/agent-ui`: shared controls and design tokens.
+- Seven SDK packages: rendering implementations and public component APIs.
+- `packages/cli`, `packages/ui`, `packages/tsconfig`: installation and build support.
 
-Playgrounds support essential/advanced controls, validated JSON, starting examples, browser-local presets, pause/replay, generated code, agent prompts and portable import/export. Microphone access is optional and click-initiated. Reduced motion pauses effects; offscreen previews release or pause their scenes. Hosted accounts, billing, cloud presets and agent chat are not connected.
-
-The application preserves bright `--gradient-accent` controls with white text in both themes. Contrast flags are accepted design trade-offs. Public founder, executive and internal team identity display recommendations are skipped.
-
-## Distribution and references
-
-`/r` and `/registry` regenerate complete editable SDK source from this checkout during production builds. Canonical entries use `beam`, `orbs`, `metal`, `gooey`, `voice`, `image` and `avatars`; legacy URLs remain aliases. Users import their installed `components/livenui` source, rather than downloading upstream effect packages. Image carries Three.js and its types; Metal retains its shader dependency. Search is local at `/api/search`; optional remote synchronization is explicitly gated. `/agent-skill.md`, `/llms.txt`, `/llms-full.txt`, MDX text, static JSON and OG routes retain integration/discovery contracts.
-
-Liven UI is an independently maintained component library. It can include components authored here and components adapted from licensed source. The current seven rendering SDKs retain their original copyright and license notices. SDK workspaces remain private; installation copies maintained source and its applicable legal files. Local builds update registry payloads, and deployment is a separate authorized action. See [contributing](CONTRIBUTING.md#licensing) and [the source-distribution decision](docs/decisions/002-source-registry-distribution.md).
-
-Historical integration/dependency/UX snapshots remain in `reports/`. They document past evidence and limits; canonical instructions are the linked guides above.
-
-## Open-source readiness
-
-Read the [publication audit and licensing scope](docs/open-source.md). Private environment files, local editor integrations and generated artifacts are excluded.
+Source registries regenerate from the maintained SDKs during builds. Workspace packages are private; public installation uses the registry. See the [distribution decision](docs/decisions/002-source-registry-distribution.md).
 
 ## License
 

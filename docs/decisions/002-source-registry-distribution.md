@@ -1,11 +1,11 @@
 # Decision 002: Distribute Liven UI source
 
-Status: implemented; owner selected source managed by Liven UI and installed from its registry.
+Status: implemented.
 Date: 2026-10-04.
 
 ## Problem
 
-The playground recommended npm installation of the original effect packages. Registry entries contained only re-export adapters with the same dependencies. Local SDK corrections therefore reached the site preview but not the user installing a component. The owner requires Liven UI to maintain and distribute the component source.
+The playground recommended npm installation of the original effect packages. Registry entries contained only re-export adapters with the same dependencies. Local SDK corrections therefore reached the site preview but not the user installing a component. The registry must distribute the implementation used by the playground.
 
 ## Decision
 

@@ -1,6 +1,6 @@
 # Decision 001: Component library foundation
 
-Status: implemented; owner approved the architectural commit.
+Status: implemented.
 Date: 2026-10-04.
 
 ## Problem

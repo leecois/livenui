@@ -20,7 +20,7 @@ bun run dev:docs
 
 The application workspace is `@livenui/docs`, the control foundation is `@livenui/agent-ui`, and installer support uses `livenui-cli` and `livenui-ui`. Seven rendering SDKs retain their private build identities and public component APIs. Consumer source installs under `components/livenui`.
 
-The production site/registry origin is `https://livenui.dev`; development defaults to `http://localhost:3000`. `NEXT_PUBLIC_APP_URL` overrides either default. Verify that a copied `.env.example` has not left a localhost override in a hosted environment. Pass the hosted registry with the CLI's `--dir` option. Registry URLs, metadata, sitemap and `/agent-skill.md` use the build-time origin; rebuild when it changes. Credentials, paths, queries and fragments are rejected. Edit `apps/docs/content/agent-skill.md` for the downloadable reference. Git uses independent history on `main`; adding a new remote, pushing, publishing and deployment require explicit authorization. Historical reports use current Liven UI identifiers while retaining original audit dates, findings and validation limits. Reports record naming normalization explicitly; obsolete machine-specific temporary paths are omitted rather than replaced with unverified paths.
+The production site/registry origin is `https://livenui.dev`; development defaults to `http://localhost:3000`. `NEXT_PUBLIC_APP_URL` overrides either default. Verify that a copied `.env.example` has not left a localhost override in a hosted environment. Pass the hosted registry with the CLI's `--dir` option. Registry URLs, metadata, sitemap and `/agent-skill.md` use the build-time origin; rebuild when it changes. Credentials, paths, queries and fragments are rejected. Edit `apps/docs/content/agent-skill.md` for the downloadable reference. Git uses independent history on `main`; adding a new remote, pushing, publishing and deployment require explicit authorization.
 
 ## Commands
 
@@ -118,7 +118,7 @@ Inspect root and workspace manifests, graph and peer ranges first. Upgrade delib
 
 Use a fresh installation only when investigating dependency resolution or a requested upgrade; never delete `.git`, `.env*` or source alongside `node_modules`. No dependency cache reset is required for a CSS or documentation change.
 
-The root overrides pin patched esbuild and shell-quote and align transitive KaTeX with the app's version. Remove overrides only when parent ranges resolve safe versions and builds, math rendering and consumer installation pass. Unused standalone audit/proxy tools are not part of the installed toolchain. The publication audit records remaining advisories and their observed scope; `bun audit` must not be described as clean while it reports an advisory.
+The root overrides pin patched esbuild and shell-quote and align transitive KaTeX with the app's version. Remove overrides only when parent ranges resolve safe versions and builds, math rendering and consumer installation pass. Unused standalone audit/proxy tools are not part of the installed toolchain. Run `bun audit` and record unresolved advisories with their dependency paths and observed scope; do not describe it as clean while it reports an advisory.
 
 ## Local delivery
 
@@ -126,8 +126,12 @@ Inspect `git diff --check` and the exact scope. Stage only intended changes. Run
 
 ## Publication sanitation
 
-Follow [open-source readiness](open-source.md) before publication. Ordinary maintenance preserves local environment files; an explicit sanitation request can authorize their removal. Keep `.env.example` free of credentials, ignore all other `.env*` files, and keep local editor integrations outside tracked source. Shared formatting settings in `.vscode` remain portable project configuration.
+Follow the [release checklist](open-source.md) before publication. Ordinary maintenance preserves local environment files; an explicit sanitation request can authorize their removal. Keep `.env.example` free of credentials, ignore all other `.env*` files, and keep local editor integrations outside tracked source. Shared formatting settings in `.vscode` remain portable project configuration.
 
 Remote search synchronization requires `LIVENUI_SYNC_SEARCH=1`, `ORAMA_PRIVATE_API_KEY` and `ORAMA_INDEX_ID`. The index identifier is supplied by the operator; no hosted resource identifier is embedded in source. Missing credentials skip synchronization, and a missing index with supplied credentials fails before reading build output or contacting the service. Local search and ordinary builds do not require these settings.
 
-The sanitized local history uses a neutral maintainer identity. Future local commits use the repository-local identity configuration. Do not overwrite global Git identity, discard source changes or publish rewritten history without explicit authorization.
+Use the repository-local identity configuration for local commits. Do not overwrite global Git identity, discard source changes or publish rewritten history without explicit authorization.
+
+## Maintain documentation
+
+Follow the [documentation policy and index](README.md). Update the owning guide when a contract changes; keep reproducible checks in the test suite. Store investigation logs and recovery artifacts under ignored `tmp/`. Record release-specific results separately from reusable instructions. Run `bun run check:architecture` for maintenance-document links and `bun run lint:docs` when changing public guides.

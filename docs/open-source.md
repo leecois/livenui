@@ -1,63 +1,43 @@
-# Open-source and marketing readiness
+# Release checklist
 
-Audit date: 2026-10-10. Target repository: [leecois/livenui](https://github.com/leecois/livenui). Target website: [livenui.dev](https://livenui.dev). This is a local release-readiness audit, not permission to push, publish or deploy. See [architecture](architecture.md), [development](development.md), [testing](testing.md) and [source distribution](decisions/002-source-registry-distribution.md).
+Targets: [leecois/livenui](https://github.com/leecois/livenui) and [livenui.dev](https://livenui.dev). Complete these checks for the revision being released. This checklist is not a current audit result or authorization to push, publish or deploy.
 
-## Current verdict
+## Source and documentation
 
-The local source has been prepared for publication, with the limitations below. Public marketing is not ready: the target domain did not resolve from the audit environment, and the unauthenticated repository URL returned 404. A 404 cannot distinguish a private repository from a missing repository. Remote visibility, HTTPS, repository settings and deployed behavior remain unverified.
+- Review `git status --porcelain`, the release diff and intended commit history. Resolve unexplained changes before publishing.
+- Scan tracked files and reachable history for credentials, private endpoints, personal data and local artifacts. Inspect findings without printing secret values; targeted searches cannot prove that every secret is absent.
+- Keep private environment files ignored and `.env.example` credential-free. Preserve local configuration during ordinary maintenance.
+- Keep contributor guides current and follow the [documentation policy](README.md#documentation-policy). Exclude raw audit logs, screenshots and recovery bundles from the published tree.
+- Verify asset provenance and applicable notices. Demo artwork is documented in [demo media](demo-media.md).
 
-| Area | Result |
-| --- | --- |
-| Source and history hygiene | No actual credential or private endpoint identified by the targeted scans; no private environment or generated artifact tracked |
-| Licensing | Original MIT notices retained; inherited application/support, icons, fonts and shader terms included |
-| Playground security | Executable raw SVG filter configuration rejected; installed SDK keeps its trusted application-code API |
-| Dependencies | Ten advisory records across nine packages reduced to one unresolved High advisory in build/installer tooling |
-| Distribution | All seven current source integrations installed, typechecked, bundled and rendered in an independent React application |
-| Production URLs | Production defaults to `https://livenui.dev`; development remains localhost; build-time override validated |
-| Collaboration | Contribution/security guides added; pull requests configured for checks; dependency auto-merge no longer uses administrator bypass |
-| Remote launch | DNS, public repository access, required checks, private reporting and deployed verification remain release tasks |
+## Licensing and distribution
 
-## Hygiene evidence
+The [root MIT license](../LICENSE) covers original Liven UI contributions. Inherited source retains [upstream MIT terms](../licenses/upstream-MIT.txt) and the seven SDKs' applicable licenses. Bundled [icons](../packages/ui/LICENSE-ICONS), [fonts](../apps/docs/lib/og/OFL.txt) and [shaders](../packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Follow [contribution licensing](../CONTRIBUTING.md#licensing) for new or adapted components.
 
-The audit started at commit `5079c24` with 435 tracked files and 98 reachable revisions. It scanned 977 unique historical blobs, including six unreachable blobs, and checked current tracked/new text plus the structure outside hidden and dependency directories. Targeted rules covered private-key material, common provider token formats, credential assignments, credential-bearing URLs, private endpoints, email addresses, workstation paths and retired project names. Matches were classified without publishing credential values. Current email/path matches were synthetic fixtures or neutral maintainer documentation; historical retired-name matches were reference provenance and evidence snapshots. No actual leaked credential was identified. These checks cannot prove the absence of every possible secret.
+- Verify that generated registry entries contain complete maintained source, LICENSE, additional license files and available NOTICE content.
+- Run the [fresh consumer integration check](testing.md#fresh-consumer-integration) when changing source distribution.
+- Keep private workspace package identities distinct from the public source registry. Do not advertise unpublished npm packages.
 
-Git author and committer metadata used `Liven UI Maintainers <maintainers@livenui.invalid>` throughout the inspected history. Subjects remain single-line Conventional Commits without bodies. Credential findings did not require a history rewrite. The owner-requested pre-publication cleanup condensed 105 local commits to 98, combining navigation, mascot, logo, focus and documentation iterations. Optional licensing-index documents were removed from reachable `main` history. Each recreated commit passed its staged-comment gate; the resulting tree matched the validated cleanup target. The original history is saved in an ignored local Git bundle, and unreachable objects are preserved. Existing `.git`, environment files, build targets, executable source and legal content remain intact; CI changes are listed below.
+See [source distribution](decisions/002-source-registry-distribution.md) and [renderer restoration](decisions/003-original-component-implementations.md) for implementation provenance and scope.
 
-The unused template `apps/docs/public/banner.png` was removed; it displayed another product's documentation and had no source consumer. Eight remaining PNG/WebP assets had no EXIF, XMP, IPTC or ICC payloads; the ICO was checked separately through branding acceptance. Fonts retain their intended copyright/license metadata. Generated output, installed dependencies and browser artifacts remain ignored for local inspection. `.env.example` is credential-free; `.gitignore` excludes private `.env*`, keys, OS metadata, dumps, logs and generated output.
+## Security and verification
 
-The five reference JPEGs retired on 2026-10-06 and the unused banner were removed from every reachable `main` revision before publication. Their six blob objects are absent from the objects reachable through `main`. One commit containing only retired media was removed; replaying the remaining commits preserved the current tree byte-for-byte, including all source and legal files. Recovery bundles and unreachable objects remain local and ignored; an explicit push of `main` does not include them. Current retired public URLs return 404, and active demos use the original artwork documented in [demo media](demo-media.md).
+- Run `bun run check`. For UI or rendering changes, run the fresh-production browser suite and inspect desktop/mobile captures in both themes, following [testing](testing.md).
+- Run `bun audit` and assess each current finding by dependency path and exposure. Record unresolved findings with the tested revision; do not describe a nonzero audit as clean.
+- Recheck the previously unresolved [braces advisory GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), observed in build/installer dependencies on 2026-10-10. That historical finding does not establish its current status.
+- Preserve rejection of raw SVG filters in shared configuration, JSON and presets. Trusted application-code APIs have a different boundary; see [architecture](architecture.md).
+- Report exact browser/device coverage. Simulated viewport, clipboard and microphone checks do not establish physical-device or live-hardware behavior.
 
-## Licensing and claims
+## Repository and deployed site
 
-The [root MIT license](../LICENSE) covers Liven UI's original contributions. Inherited source retains [upstream MIT terms](../licenses/upstream-MIT.txt) and all seven SDK licenses. Bundled [icons](../packages/ui/LICENSE-ICONS), [fonts](../apps/docs/lib/og/OFL.txt) and [shaders](../packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Original SDK LICENSE/NOTICE files remain unchanged. Source registries include required LICENSE, all additional LICENSE-* / LICENSE.* files and available NOTICE. Metal installation now carries the full Apache license alongside its notice.
+- Confirm public repository access, private vulnerability reporting, required Workspace checks and auto-merge permissions. Local workflow files do not establish remote settings.
+- Confirm DNS and HTTPS for the public domain. Build with the intended origin; remove any hosted localhost override and rebuild when `NEXT_PUBLIC_APP_URL` changes.
+- Verify deployed canonical/share URLs, sitemap, robots, agent reference and all seven `/r/{id}.json` entries.
+- Complete one installed-source journey from the live site and check keyboard/touch input, copy behavior and representative renderer interactions on the intended devices.
+- Record the revision, verification results and remaining release blockers before requesting any required publication approval.
 
-All workspaces are private; the public distribution is editable source from the Liven UI registry. Marketing may describe an independently maintained component library with seven current families, 87 examples, live configuration and copied React integration. Original contributions use MIT; adapted source and assets retain their applicable terms. [Contributing](../CONTRIBUTING.md#licensing) covers new component ownership. Do not claim original authorship of every renderer, an independently published npm scope, hosted AI chat, cloud presets or live microphone/device coverage from simulated tests. Chat replies are scripted, presets stay in the browser and microphone access is explicit. Public internal-team identity recommendations remain skipped. Bright accent/white-text contrast warnings remain accepted design trade-offs.
+## Product claims
 
-## Security and dependency follow-up
+Describe Liven UI as an independently maintained component library with live configuration and editable React integration source. Original contributions and adapted implementations coexist; do not claim exclusive authorship of inherited renderers.
 
-A shared Gooey configuration could inject raw SVG containing an inline image error handler. The audit reproduced JavaScript execution locally. The parser now rejects `filter` in JSON, shared links and presets; controls omit code-only props and the preview adapter discards raw filter markup. Domain tests and browser regressions cover rejected configuration, retained safe rendering and code export. The SDK API remains available to trusted application code. Other application-reference props remain code-only.
-
-The dependency changes remove unused standalone audit/proxy tools, update concurrently and pin patched shell-quote/esbuild while aligning transitive KaTeX with the app. MDX formula rendering and the full build remain required compatibility gates. `bun audit` still exits nonzero for [braces GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), with no published fixed version on the audit date. Observed paths run through build/installer dependencies such as Tailwind tooling, shadcn and tsc-alias. No public request-to-pattern path was identified in this checkout; this is not proof of universal non-exploitability. Do not suppress the advisory or describe the dependency audit as clean. Review it when upstream fixes are available.
-
-## Verification
-
-`bun install --frozen-lockfile` passed. `bun run check` passed with 82 tests, 12-workspace architecture validation and 11 build targets. Documentation link validation includes real route handlers. Two existing non-blocking Biome suggestions remain; no validation rule was disabled.
-
-The final push preflight repeated `bun run check`: 82 passed, zero failed and all 11 build targets succeeded. The configured SSH remote was accessible and advertised no refs; nothing was pushed. History sanitation retained the validated executable/configuration tree, so the earlier browser and independent-consumer evidence below remains applicable without claiming a new browser run. The dependency audit still reports the single High advisory, and the target domain still did not resolve from this environment.
-
-`LIVENUI_BROWSER_CHANNEL=chrome bun run scripts/check-consumer.ts` passed. A fresh npm React application installed all seven entries with shadcn, verified 119 source/legal files, compiled the copied configured snippets and rendered the actual installed SDKs. Hosted commands were checked, then directed to the owned local registry for execution. This does not establish live registry availability or fresh installation with all package managers. Clipboard uses a test double.
-
-`LIVENUI_BROWSER_CHANNEL=chrome LIVENUI_TEST_PORT=43219 bun run test:ui` passed against the newly built production output: 426 passed and two intentional desktop drawer skips, across 428 cases with one worker. Eight full-page captures were inspected: Components overview and safe Gooey Studio in desktop/mobile light/dark. No overlapping controls or clipped installation commands were observed in these captures; bright accent/white-text controls remain unchanged. The browser used Chrome with software rendering.
-
-The audit does not claim Safari, Firefox, physical-device, live microphone, deployed runtime or production analytics validation. Earlier manual iPhone acceptance remains historical evidence in [testing](testing.md).
-
-## Renderer restoration on 2026-10-11
-
-The owner chose to restore the seven established SDK renderers after reviewing the replacement experiment. Source, package-specific licenses, notices and distribution metadata were restored from `d240803`; application improvements already present at that revision remain intact. The experiment is superseded, as recorded in [Decision 003](decisions/003-original-component-implementations.md). Fresh restoration verification is recorded there and does not refresh the earlier remote, secret or dependency audit.
-
-## Release sequence
-
-1. Keep the local validated commits on `main`. Review `git status --porcelain`, staged comments and the diff before any separately authorized push.
-2. Configure DNS and HTTPS for `livenui.dev`; ensure a hosted environment has not retained `.env.example`'s localhost override. Build with the intended origin and verify canonical/share URLs, sitemap, robots, agent reference and all seven `/r/{id}.json` entries online.
-3. Make the repository publicly accessible when authorized. Enable private vulnerability reporting, require the Workspace checks status on `main`, and review auto-merge permissions/settings. Local workflow files do not establish those remote protections.
-4. Repeat one installed-source journey from the live site, keyboard/touch chat and copy behavior on a real device, and a representative renderer interaction before beginning public marketing. Use the documented independent-library, scoped attribution and local-demo wording.
+Avatar chat uses scripted local replies, presets stay in the browser and microphone access is explicit. Do not imply hosted AI chat, cloud storage or device coverage that has not been tested. Public team-identity recommendations remain skipped; bright accent/white-text contrast warnings remain accepted design trade-offs under the [design guide](../design.md).

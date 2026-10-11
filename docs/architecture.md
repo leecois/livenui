@@ -129,6 +129,6 @@ All workspaces are private; public distribution uses source registries. Applicab
 
 ## Documentation audiences
 
-Root guides and `docs/` instruct coding agents maintaining this repository. Public MDX and `content/agent-skill.md`, served at `/agent-skill.md`, instruct developers/agents integrating components into another app. Keep these audiences separate: public pages do not need internal commit policies, absolute workstation paths or maintenance diagnostics.
+Root guides and `docs/` support contributors and maintainers, including coding agents. Public MDX and `content/agent-skill.md`, served at `/agent-skill.md`, instruct developers/agents integrating components into another app. Keep these audiences separate: public pages do not need internal commit policies, absolute workstation paths or maintenance diagnostics.
 
-Architectural research and adaptation rationale are in [the decision record](decisions/001-component-library-foundation.md). Historical audits remain under `reports/` with their original dates and limits.
+Architectural research and adaptation rationale are in [the decision record](decisions/001-component-library-foundation.md). Keep run-specific evidence outside canonical guides, following the [documentation policy](README.md#documentation-policy).

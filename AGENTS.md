@@ -10,7 +10,7 @@ Liven UI is a component library for developers. Optimize the path **find a compo
 4. Read [testing](docs/testing.md) before reporting completion.
 5. Use [decisions](docs/decisions/001-component-library-foundation.md) for the rationale behind these boundaries.
 
-If documentation disagrees with source, inspect the implementation and tests, then reconcile both in the same change. Historical files in `reports/` are evidence snapshots, not current instructions.
+If documentation disagrees with source, inspect the implementation and tests, then reconcile both in the same change. Follow the [documentation policy](docs/README.md#documentation-policy); local audit artifacts are evidence snapshots, not current instructions.
 
 ## Non-negotiable rules
 
