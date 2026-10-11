@@ -1,49 +1,30 @@
-# Decision 003: Original component implementations
+# Decision 003: Renderer replacement and restoration
 
-Status: Border Beam implemented and verified. Owner approved its commit and continuation through all remaining replacements on 2026-10-10.
+Status: superseded by the owner's decision to restore the established renderers on 2026-10-11. Restoration has passed the checks below, and the owner approved its local commit. Nothing has been pushed or published.
 
-## Scope
+## Decision
 
-Replace the inherited rendering implementations in this order: Border Beam, Thinking Orbs, Voice, Image, Gooey, Bot Avatars and Metal. Preserve useful public integration contracts while designing the rendering code independently. Each component must pass source, installation, lifecycle and visual acceptance before replacing its predecessor. Existing licenses remain applicable to any retained inherited source, assets and historical revisions.
+Restore all seven SDK implementations from `d240803`, the revision before the renderer replacement experiment. The owner preferred the prior visual quality and interaction behavior after reviewing the replacements. Retain the application workspace, Studio, avatar chat, shared controls, original demo artwork and other improvements already present at that revision.
 
-Compatibility is specified by public type declarations, documented behavior, application adapters and observable interactions. The implementation must not be a line-by-line translation, renaming or rearrangement of inherited code. Record the design, dependencies and remaining attribution for each replacement. Passing a similarity check is not certification of legal independence.
+The replacement experiment and its quality refinements are preserved in a local recovery bundle and binary patches. The committed Border Beam replacement remains in Git history; its working-tree restoration is a normal forward change, not a history rewrite.
 
-## Border Beam specification
+## Attribution and distribution
 
-- Keep the named/default React export, forwarded div ref, standard div attributes and public option/preset type names.
-- Wrap content without intercepting its pointer or keyboard interaction. Effects do not change content opacity or layout.
-- Support a full traveling border, compact traveling border, bottom traveling line, contained breathing border and outward breathing halo.
-- Retain the eight named palette choices, explicit/system theme, strength, duration, radius, brightness, saturation, halo size and optional hue movement.
-- Infer the first content element's corner radius when no explicit radius is provided. Track container size and content replacement.
-- Fade activation changes and report only completed activation/deactivation transitions; cancel stale completion callbacks on reversal and unmount.
-- Pause decorative motion outside the viewport, in a hidden document and under reduced motion. Release animations, observers and event listeners when unmounted.
-- Keep per-instance custom CSS substitution for `{id}`. The renderer exposes documented SVG layers; inherited pseudo-element/keyframe internals are not a compatibility promise.
+Restore the corresponding package licenses, notices, dependencies, registry metadata and package guides with the implementation. Retained upstream source must keep its attribution. Liven UI's own application work does not establish exclusive authorship of the restored renderers. The root MIT license does not replace component-specific notices or the Metal shader's Apache license.
 
-## Border Beam design
+## Verification
 
-Use an SVG path normalized to a perimeter of 100 units. Browser-owned dash-offset animation moves the highlight along that path; opacity animation breathes the pulse variants. A sharp stroke and blurred strokes share the same geometry and timeline. The contained variant clips its glow to the rounded host; the outer variant can bloom beyond it without requiring an opaque child. No custom frame loop, canvas, shader, CSS property registration or generated keyframe stylesheet is needed.
+Run the source, build, browser and independent-consumer gates in [testing](../testing.md). Use a newly built production application and inspect full-page desktop/mobile light/dark captures. Tests tied exclusively to the discarded replacement engines are restored to the pre-experiment suite; existing integration, layout, lifecycle, mascot and legal-retention contracts remain required.
 
-The implementation uses standard [SVG path length](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/pathLength) and [Web Animations](https://developer.mozilla.org/en-US/docs/Web/API/Element/animate) APIs. Colors and tuning are authored for this implementation. Existing public declarations define compatibility, not rendering structure.
+Verification on 2026-10-11:
 
-## Acceptance and ownership
+- All 134 tracked files in the seven SDK directories match `d240803` byte for byte, including licenses and notices.
+- `bun run check` passed: 82 source tests and 11 build targets. One existing non-blocking lint suggestion remains.
+- The complete Chrome production matrix ran 432 cases with one worker and no retries: 426 passed, two intentional desktop drawer skips, and four failures of the same Image test. That test enabled autoplay before asserting the initial manual state. Moving the motion override after manual configuration preserved every assertion; all four affected cases then passed. No renderer source or timeout was changed to obtain those passes.
+- Keep the stronger scroll-end assertion and microphone lifecycle coverage. The controlled microphone now supplies a valid, internally generated `MediaStream` with native track events; no physical microphone is opened.
+- An independent React consumer installed, typechecked, bundled and rendered all seven registry entries, verifying 119 source/legal files.
+- Full-page Studio avatar captures were inspected in all four viewport/theme combinations, with additional Metal, Image and Gooey captures. Bright accent fills and white selected labels remain unchanged.
 
-Run the repository gates in [testing](../testing.md), including moving-frame browser checks, resizing, independent instances, reduced motion, visibility, rapid activation reversal, teardown, source installation and full-page captures in both themes and viewport sizes. Review the final package source and documentation before updating its ownership statement. Preserve the recovery bundle locally, and retain historical attribution until a separately reviewed publication-history transition.
+An initial managed-Chromium run was stopped after navigation, request teardown and interaction timeouts. The acceptance matrix above used locally installed Chrome with software rendering, matching the pre-experiment validation environment. These results do not establish a clean managed-Chromium run, other browser engines, physical devices, live microphone behavior or deployment readiness. The earlier remote/security/dependency audit was not repeated.
 
-The website, installer support, remaining SDKs, bundled icons, fonts and external shaders are outside the first replacement. Their license files are not removed by completion of Border Beam.
-
-## Border Beam replacement review
-
-The former stylesheet generator, shared pulse driver and component implementation are removed. The replacement has four source files: React composition, public model/geometry, native animation lifecycle and exports. It imports React and local modules only, with no bundled artwork, shader or copied rendering dependency. Public type declarations were checked for bidirectional TypeScript assignability against the saved pre-change declarations. Preset values and palette tuning are newly authored; custom CSS must migrate as described in the [package guide](../../packages/border-beam/README.md#css-customization).
-
-The package's MIT notice now names Liven UI contributors for this replacement. Repository support files remain covered by the retained root attribution; other package legal files are byte-identical to the pre-change revision. Git history is unchanged, so earlier implementations retain their original notices. This review records the implementation boundary, not a formal legal determination.
-
-## Verification on 2026-10-10
-
-- `bun run check`: 82 tests passed; all 11 build targets succeeded. The lint scope now includes the new renderer source.
-- The three new browser contracts passed in desktop/mobile light/dark: 12 cases in Chrome, plus 24 cases using WebKit and Firefox with the same checked-in spec and a temporary project matrix. This is automated browser coverage, not an installed Safari or physical-device claim.
-- The independent npm consumer installed, typechecked, bundled and rendered all seven registry entries, verifying 118 source/legal files. Border Beam contributes six files and no additional rendering dependency. The hosted installation URL was redirected to the owned local test server; live distribution remains unverified.
-- The saved pre-change and current declaration surfaces passed bidirectional TypeScript checks for all public values and types. Custom CSS migration remains necessary for former internal selectors.
-
-The full production UI suite passed: 438 cases, two intentional desktop drawer skips, one worker, zero retries. Guide and Studio full-page captures were inspected at desktop/mobile sizes in both themes, alongside moving Beam variants and independent-consumer output. No layout regression was observed in these captures; accent controls retain their existing gradient and white text.
-
-The owner approved committing this verified replacement and continuing the remaining sequence on 2026-10-10. Thinking Orbs is next. No history rewrite, push or deployment is authorized by that continuation.
+Local recovery artifacts are in `tmp/renderer-restore-20261011/`: the pre-restoration bundle and patches, source comparison, initial failure traces, production screenshots, and validation logs. The owner approved committing this architectural restoration under [AGENTS.md](../../AGENTS.md). No push or publication is authorized.

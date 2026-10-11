@@ -1,6 +1,6 @@
 # Liven UI agent interface libraries
 
-Install editable source from the Liven UI registry. The registry includes original and adapted implementations with their applicable licenses; no upstream effect SDK is installed. Imports below assume the `@/components` alias; use your configured alias. Image requires Three.js, and Metal retains its shader dependency.
+Install editable source from the Liven UI registry. These components are maintained forks with licenses and notices included; no upstream effect SDK is installed. Imports below assume the `@/components` alias; use your configured alias. Image requires Three.js, and Metal retains its shader dependency.
 
 React 18+. Preserve semantic markup, synchronize theme, use existing design tokens and respect reduced motion.
 
@@ -10,18 +10,18 @@ A travelling glow for cards, inputs and buttons. Five beam shapes, eight palette
 
 Import: BorderBeam from '@/components/livenui/beam'
 - size: BorderBeamSize. Size/type preset Rotate family: 'sm' (compact), 'md' (full border, default), 'line' (bottom traveling). Pulse family: 'pulse-outside' (outward bloom), 'pulse-inner' (contained breathe).
-- colorVariant: BorderBeamColorVariant. Beam palette: colorful (default), mono, ocean, sunset, forest, candy, ice or gold.
+- colorVariant: BorderBeamColorVariant. Color variant for the beam effect - 'colorful': Full rainbow spectrum (default) - 'mono': Monochromatic grayscale - 'ocean': Blue and purple tones - 'sunset': Warm orange, yellow, and red tones
 - theme: BorderBeamTheme. Theme mode - adapts beam/glow colors for dark or light backgrounds 'auto' detects system preference via prefers-color-scheme
 - staticColors: boolean. Disable the hue-shift animation for static colors (e.g., monochrome)
-- duration: number. Seconds per cycle: 1.96 for traveling borders, 3.1 for line, 2.3 for pulses. Bounded to 0.05–3600.
+- duration: number. Rotation/travel duration in seconds
 - active: boolean. Whether the animation is active
 - borderRadius: number. Custom border radius in pixels. When omitted, the component auto-detects the border-radius of the first child element. Falls back to the size preset default if detection fails.
-- brightness: number. Glow brightness multiplier. Defaults to 1.3 in dark mode and 0.85 in light mode; bounded to 0–10.
+- brightness: number. Brightness multiplier for the glow effect. Falls back to the type's preset default (1.3 for most types).
 - saturation: number. Saturation multiplier for the glow effect
 - glowSize: number. Multiplies the blur radius of every glow layer, so the halo reads tighter (< 1) or wider and softer (> 1). Each layer keeps its own tuned proportion — the core stays tighter than the bloom — because this scales the presets rather than replacing them.
 - hueRange: number. Hue rotation range in degrees for the hue-shift animation
 - strength: number. Overall strength/opacity of the effect (0-1). Only affects the beam, glow, and bloom layers -- not the children.
-- css: string. Per-instance CSS. Scope rules through `[data-beam="{id}"]`; `{id}` is replaced with the instance identity. Target SVG paths using `[data-beam-stroke]`, `[data-beam-glow]` and `[data-beam-bloom]`. Earlier pseudo-element selectors and generated keyframe names are no longer used.
+- css: string. Extra CSS appended after the beam's own generated stylesheet, so it can override or add layers and keyframes. Write `{id}` wherever the instance id belongs — the root is `[data-beam="{id}"]`, its layers are the `::before` / `::after` pseudo-elements and `[data-beam-bloom]`, and keyframes are named `*-{id}` — and it is substituted per instance.
 
 ## Thinking orbs
 Install source: npx shadcn@latest add https://livenui.dev/r/orbs.json

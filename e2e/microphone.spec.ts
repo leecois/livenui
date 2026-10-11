@@ -3,7 +3,12 @@ import { changeLibrary } from './helpers/choices'
 
 declare global {
   interface Window {
-    __captureRequests: { resolve: () => void; reject: () => void; stops: number }[]
+    __captureRequests: {
+      resolve: () => void
+      reject: () => void
+      end: () => void
+      stops: number
+    }[]
   }
 }
 
@@ -15,14 +20,25 @@ async function controlledMicrophone(page: Page, path = '/studio?library=voice') 
       value: {
         getUserMedia: () =>
           new Promise<MediaStream>((resolve, reject) => {
+            const context = new AudioContext()
+            const stream = context.createMediaStreamDestination().stream
+            const track = stream.getAudioTracks()[0]
+            if (!track) throw new Error('Missing controlled audio track')
+            const stop = track.stop.bind(track)
+            track.stop = () => {
+              request.stops++
+              stop()
+              void context.close()
+            }
             const request = {
               stops: 0,
-              resolve: () =>
-                resolve({
-                  getAudioTracks: () => [],
-                  getTracks: () => [{ stop: () => request.stops++ }],
-                } as unknown as MediaStream),
-              reject: () => reject(new DOMException('Permission denied', 'NotAllowedError')),
+              end: () => track.dispatchEvent(new Event('ended')),
+              resolve: () => resolve(stream),
+              reject: () => {
+                stop()
+                void context.close()
+                reject(new DOMException('Permission denied', 'NotAllowedError'))
+              },
             }
             window.__captureRequests.push(request)
           }),
@@ -83,6 +99,18 @@ test('leaving Preview stops live capture and returning requires a new explicit r
   await expect(page.getByRole('button', { name: 'Stop microphone', exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Stop microphone', exact: true }).click()
   await expect.poll(() => page.evaluate(() => window.__captureRequests[1].stops)).toBe(1)
+})
+
+test('ending a captured track restores the explicit microphone action', async ({ page }) => {
+  await controlledMicrophone(page)
+  await page.evaluate(() => window.__captureRequests[0].resolve())
+  await expect(page.getByRole('button', { name: 'Stop microphone', exact: true })).toBeVisible()
+  await page.evaluate(() => window.__captureRequests[0].end())
+  await expect(
+    page.locator('.preview-stage').getByRole('button', { name: 'Use microphone', exact: true })
+  ).toBeVisible()
+  expect(await page.evaluate(() => window.__captureRequests[0].stops)).toBe(1)
+  expect(await page.evaluate(() => window.__captureRequests.length)).toBe(1)
 })
 
 test('late microphone denial cannot replace a newer live request', async ({ page }) => {

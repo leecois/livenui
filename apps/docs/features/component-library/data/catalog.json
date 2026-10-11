@@ -6,7 +6,7 @@
     "component": "BorderBeam",
     "tagline": "A little light goes a long way.",
     "description": "A travelling glow for cards, inputs and buttons. Five beam shapes, eight palettes, endless ways to draw attention.",
-    "engine": "SVG",
+    "engine": "CSS",
     "version": "1.4.1",
     "fields": [
       {
@@ -20,7 +20,7 @@
       {
         "name": "colorVariant",
         "type": "BorderBeamColorVariant",
-        "description": "Beam palette: colorful (default), mono, ocean, sunset, forest, candy, ice or gold.",
+        "description": "Color variant for the beam effect - 'colorful': Full rainbow spectrum (default) - 'mono': Monochromatic grayscale - 'ocean': Blue and purple tones - 'sunset': Warm orange, yellow, and red tones",
         "kind": "select",
         "options": ["colorful", "mono", "ocean", "sunset", "forest", "candy", "ice", "gold"],
         "optional": true
@@ -44,7 +44,7 @@
       {
         "name": "duration",
         "type": "number",
-        "description": "Seconds per cycle: 1.96 for traveling borders, 3.1 for line, 2.3 for pulses. Bounded to 0.05\u20133600.",
+        "description": "Rotation/travel duration in seconds",
         "kind": "number",
         "options": [],
         "optional": true
@@ -68,7 +68,7 @@
       {
         "name": "brightness",
         "type": "number",
-        "description": "Glow brightness multiplier. Defaults to 1.3 in dark mode and 0.85 in light mode; bounded to 0\u201310.",
+        "description": "Brightness multiplier for the glow effect. Falls back to the type's preset default (1.3 for most types).",
         "kind": "number",
         "options": [],
         "optional": true
@@ -108,7 +108,7 @@
       {
         "name": "css",
         "type": "string",
-        "description": "Per-instance CSS. Scope rules through `[data-beam=\"{id}\"]`; `{id}` is replaced with the instance identity. Target SVG paths using `[data-beam-stroke]`, `[data-beam-glow]` and `[data-beam-bloom]`. Earlier pseudo-element selectors and generated keyframe names are no longer used.",
+        "description": "Extra CSS appended after the beam's own generated stylesheet, so it can override or add layers and keyframes. Write `{id}` wherever the instance id belongs \u2014 the root is `[data-beam=\"{id}\"]`, its layers are the `::before` / `::after` pseudo-elements and `[data-beam-bloom]`, and keyframes are named `*-{id}` \u2014 and it is substituted per instance.",
         "kind": "string",
         "options": [],
         "optional": true
@@ -130,7 +130,7 @@
           {
             "name": "colorVariant",
             "type": "BorderBeamColorVariant",
-            "description": "Beam palette: colorful (default), mono, ocean, sunset, forest, candy, ice or gold.",
+            "description": "Color variant for the beam effect - 'colorful': Full rainbow spectrum (default) - 'mono': Monochromatic grayscale - 'ocean': Blue and purple tones - 'sunset': Warm orange, yellow, and red tones",
             "kind": "select",
             "options": ["colorful", "mono", "ocean", "sunset", "forest", "candy", "ice", "gold"],
             "optional": true
@@ -154,7 +154,7 @@
           {
             "name": "duration",
             "type": "number",
-            "description": "Seconds per cycle: 1.96 for traveling borders, 3.1 for line, 2.3 for pulses. Bounded to 0.05\u20133600.",
+            "description": "Rotation/travel duration in seconds",
             "kind": "number",
             "options": [],
             "optional": true
@@ -178,7 +178,7 @@
           {
             "name": "brightness",
             "type": "number",
-            "description": "Glow brightness multiplier. Defaults to 1.3 in dark mode and 0.85 in light mode; bounded to 0\u201310.",
+            "description": "Brightness multiplier for the glow effect. Falls back to the type's preset default (1.3 for most types).",
             "kind": "number",
             "options": [],
             "optional": true
@@ -218,7 +218,7 @@
           {
             "name": "css",
             "type": "string",
-            "description": "Per-instance CSS. Scope rules through `[data-beam=\"{id}\"]`; `{id}` is replaced with the instance identity. Target SVG paths using `[data-beam-stroke]`, `[data-beam-glow]` and `[data-beam-bloom]`. Earlier pseudo-element selectors and generated keyframe names are no longer used.",
+            "description": "Extra CSS appended after the beam's own generated stylesheet, so it can override or add layers and keyframes. Write `{id}` wherever the instance id belongs \u2014 the root is `[data-beam=\"{id}\"]`, its layers are the `::before` / `::after` pseudo-elements and `[data-beam-bloom]`, and keyframes are named `*-{id}` \u2014 and it is substituted per instance.",
             "kind": "string",
             "options": [],
             "optional": true

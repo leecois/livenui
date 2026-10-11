@@ -275,6 +275,7 @@ test('image one-shot hide completes after pause and resume', async ({ page }) =>
     .getByLabel('Edit component props')
     .fill(JSON.stringify({ autoReveal: false, revealFadeOutMs: 3000, paused: true }))
   await page.getByRole('button', { name: /Apply configuration/ }).click()
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.getByRole('button', { name: 'Play', exact: true }).click()
   await page.getByRole('button', { name: 'Reveal', exact: true }).click()
   await expect(page.locator('.image-demo .demo-note')).toHaveText('visible')

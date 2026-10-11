@@ -55,6 +55,13 @@ test('Studio scroll panels omit focus frames while controls retain focus cues', 
     if (focus.overflow) {
       await region.press('End')
       await expect.poll(() => region.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
+      await expect
+        .poll(() =>
+          region.evaluate(
+            (element) => element.scrollHeight - element.clientHeight - element.scrollTop
+          )
+        )
+        .toBeLessThanOrEqual(1)
       await region.press('Home')
       await expect.poll(() => region.evaluate((element) => element.scrollTop)).toBe(0)
     }
