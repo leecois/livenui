@@ -42,4 +42,4 @@ Source registries regenerate from the maintained SDKs during builds. Workspace p
 
 ## License
 
-Liven UI's original code, components and documentation use the [MIT License](LICENSE). Inherited portions retain the [upstream MIT terms](licenses/upstream-MIT.txt) and package-specific LICENSE/NOTICE files. Bundled [icons](packages/ui/LICENSE-ICONS), [fonts](apps/docs/lib/og/OFL.txt) and [shaders](packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Attribution applies to the included material, not unrelated original components.
+The root [MIT License](LICENSE) retains the copyright notices for Liven UI contributions and inherited MIT-licensed source. Components retain their package-specific LICENSE/NOTICE files for standalone distribution. Bundled [icons](packages/ui/LICENSE-ICONS), [fonts](apps/docs/lib/og/OFL.txt) and [shaders](packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Attribution applies to the included material, not unrelated original components.
