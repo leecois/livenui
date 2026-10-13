@@ -22,6 +22,10 @@ Canonical component IDs are `beam`, `orbs`, `metal`, `gooey`, `voice`, `image` a
 
 The public integration path uses the standard source registry. See [the integration guide](../../apps/docs/content/docs/agents/integration.mdx).
 
+## Registry formats
+
+The build API exports both writers from `livenui-cli/build`. `writeLivenUIRegistry` writes `_registry.json` and `{name}.json` with file namespaces and dependency metadata; `writeShadcnRegistry` writes standard registry items for the public `/r` endpoint. Both consume the same validated output. See the [schemas](src/registry/schema.ts) and [source distribution contract](../../docs/architecture.md#build-and-compatibility-contracts).
+
 ## License
 
 The installer adapts [Fumadocs source](https://github.com/fuma-nama/fumadocs/blob/481a7cbbd196cc4e8d6bfef7e664ab0cd998fd95/packages/cli/src/utils/add/install-component.ts) under its [MIT license](https://github.com/fuma-nama/fumadocs/blob/481a7cbbd196cc4e8d6bfef7e664ab0cd998fd95/LICENSE). The local [LICENSE](LICENSE) retains the upstream notice and Liven UI contributor copyright.

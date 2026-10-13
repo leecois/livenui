@@ -111,10 +111,9 @@ for (const path of await files('packages/agent-ui/src')) {
 }
 
 const documents = [
-  'AGENTS.md',
-  'README.md',
-  'design.md',
+  ...(await readdir(root)).filter((path) => path.endsWith('.md')),
   ...(await files('docs')).filter((path) => path.endsWith('.md')),
+  ...(await files('packages')).filter((path) => path.endsWith('.md')),
 ]
 for (const path of documents) {
   const source = await readFile(path, 'utf8')

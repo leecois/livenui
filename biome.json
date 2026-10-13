@@ -32,7 +32,6 @@
       "apps/docs/app/robots.ts",
       "apps/docs/app/sitemap.ts",
       "apps/docs/components/registry.mts",
-      "apps/docs/registry/**",
       "apps/docs/scripts/build-registry.ts",
       "apps/docs/scripts/pre-build.ts",
       "apps/docs/lib/layout.shared.tsx",

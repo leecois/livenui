@@ -29,7 +29,7 @@ The production site/registry origin is `https://livenui.dev`; development defaul
 | `bun run typecheck` | All workspace typechecks, upstream builds and maintenance/browser tooling types |
 | `bun run lint` | Scoped Biome formatting, import and lint checks |
 | `bun run lint:docs` | MDX generation, public documentation links and docs lint |
-| `bun run check:architecture` | Workspace graph, feature import boundaries and maintenance-document links |
+| `bun run check:architecture` | Workspace graph, feature import boundaries and root/developer/package-document links |
 | `bun run test` | Domain, configuration, engine and installer contracts |
 | `bun run build` | All package and production application builds |
 | `bun run check` | All non-browser gates in sequence |
