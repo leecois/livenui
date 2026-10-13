@@ -126,7 +126,7 @@ Inspect `git diff --check` and the exact scope. Stage only intended changes. Run
 
 ## Publication sanitation
 
-Follow the [release checklist](open-source.md) before publication. Ordinary maintenance preserves local environment files; an explicit sanitation request can authorize their removal. Keep `.env.example` free of credentials, ignore all other `.env*` files, and keep local editor integrations outside tracked source. Shared formatting settings in `.vscode` remain portable project configuration.
+Before publication, review the intended diff and reachable history for credentials, private data and local artifacts without printing sensitive values. Ordinary maintenance preserves local environment files; an explicit sanitation request can authorize their removal. Keep `.env.example` free of credentials, ignore all other `.env*` files, and keep local editor integrations outside tracked source. Shared formatting settings in `.vscode` remain portable project configuration.
 
 Remote search synchronization requires `LIVENUI_SYNC_SEARCH=1`, `ORAMA_PRIVATE_API_KEY` and `ORAMA_INDEX_ID`. The index identifier is supplied by the operator; no hosted resource identifier is embedded in source. Missing credentials skip synchronization, and a missing index with supplied credentials fails before reading build output or contacting the service. Local search and ordinary builds do not require these settings.
 

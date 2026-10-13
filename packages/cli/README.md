@@ -21,3 +21,7 @@ node /path/to/livenui/packages/cli/dist/index.js add orbs --dir http://localhost
 Canonical component IDs are `beam`, `orbs`, `metal`, `gooey`, `voice`, `image` and `avatars`. Existing legacy registry aliases remain supported. The installer copies source and legal files, installs required dependencies and respects the consumer aliases in `cli.json`.
 
 The public integration path uses the standard source registry. See [the integration guide](../../apps/docs/content/docs/agents/integration.mdx).
+
+## License
+
+The installer adapts [Fumadocs source](https://github.com/fuma-nama/fumadocs/blob/481a7cbbd196cc4e8d6bfef7e664ab0cd998fd95/packages/cli/src/utils/add/install-component.ts) under its [MIT license](https://github.com/fuma-nama/fumadocs/blob/481a7cbbd196cc4e8d6bfef7e664ab0cd998fd95/LICENSE). The local [LICENSE](LICENSE) retains the upstream notice and Liven UI contributor copyright.

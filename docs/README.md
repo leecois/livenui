@@ -10,8 +10,7 @@ For installing and using components, start with the [integration guide](https://
 | [Development](development.md) | Setting up the workspace or changing a feature |
 | [Architecture](architecture.md) | Finding ownership, dependencies and runtime contracts |
 | [Design](../design.md) | Changing layout, controls, tokens or motion |
-| [Testing](testing.md) | Choosing checks and reviewing visual evidence |
-| [Release checklist](open-source.md) | Preparing source publication or a website release |
+| [Testing](testing.md) | Choosing checks, reviewing visual evidence and verifying releases |
 | [Agent contract](../AGENTS.md) | Running automated maintenance |
 
 ## Feature guides

@@ -122,6 +122,8 @@ Add targeted moving-scene tests for animation-engine changes: time-varying frame
 
 ## Evidence
 
+For a release, record the tested revision, gate results, unresolved dependency advisories and device coverage. Confirm public repository access and [private vulnerability reporting](../SECURITY.md). After an authorized deployment, verify HTTPS, canonical/share URLs, sitemap, robots, the agent reference and all seven registry endpoints on the actual domain, then complete one installed-source journey from that site.
+
 `tests/publication.test.ts` checks origin validation, a hosted agent reference and canonical crawler output with a synthetic origin, plus MDX math compatibility with patched KaTeX. `e2e/library.spec.ts` checks the real production sitemap, robots, agent reference and shader license payload. Orb resource tests validate count arithmetic without executing pathological frames and compare conservative bounds with SDK presets. The security browser journey rejects oversized Orb configurations through links, imports, JSON, saved presets and direct editing while preserving a working preview.
 
 `e2e/playground-security.spec.ts` rejects executable raw SVG filters through shared configuration, JSON and saved presets while retaining safe Gooey rendering and exported tuning. These tests do not establish live DNS, deployed origin configuration or remote repository settings.
