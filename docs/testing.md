@@ -110,6 +110,8 @@ Connector's raster regression samples transparent centerlines inside both openin
 
 `tests/avatar-relief.test.ts` checks that concave volume layers have non-increasing areas and keep each arm within its original band at half-depths 3, 9.75 and 30, with roundness 0.35 and 1. The first raised layer must retain all three arm tips. Empty masks must produce no contour or non-finite geometry. These checks cover volume construction; front-facing clearance and branch counts alone cannot establish correct shading or surface attachment.
 
+`tests/metal-lifecycle.test.ts` and `tests/image-reentrancy.test.ts` run isolated subprocess probes for teardown and replacement inside renderer callbacks. They check callback ordering, removed-instance exclusion and cancellation of pending work; mocked frames/timers do not establish visual quality.
+
 Add targeted moving-scene tests for animation-engine changes: time-varying frames, per-instance pause, pointer interaction, material isolation and teardown are not proven by a paused layout capture.
 
 `e2e/selection-tracks.spec.ts` verifies inset target geometry, actual intermediate indicator motion and final alignment, native radio keys, reduced-motion snapping, renderer retention, exported props, all owned tab/device contexts, 320px containment and 200% zoom. Closed compact panels must not advertise modal state; opening one must set `aria-modal` and match the browser's native `:modal` state. Inspect chat settings and Guide/Studio full-page captures in all four projects. Gradient assertions inspect the actual shared indicator and white selected labels; they also retain direct-fill checks for controls without an indicator.
@@ -118,7 +120,9 @@ Add targeted moving-scene tests for animation-engine changes: time-varying frame
 
 ## Evidence
 
-`tests/publication.test.ts` checks origin validation, a hosted agent reference and canonical crawler output with a synthetic origin, plus MDX math compatibility with patched KaTeX. `e2e/library.spec.ts` checks the real production sitemap, robots, agent reference and shader license payload. `e2e/playground-security.spec.ts` rejects executable raw SVG filters through shared configuration, JSON and saved presets while retaining safe Gooey rendering and exported tuning. These tests do not establish live DNS, deployed origin configuration or remote repository settings.
+`tests/publication.test.ts` checks origin validation, a hosted agent reference and canonical crawler output with a synthetic origin, plus MDX math compatibility with patched KaTeX. `e2e/library.spec.ts` checks the real production sitemap, robots, agent reference and shader license payload. Orb resource tests validate count arithmetic without executing pathological frames and compare conservative bounds with SDK presets. The security browser journey rejects oversized Orb configurations through links, imports, JSON, saved presets and direct editing while preserving a working preview.
+
+`e2e/playground-security.spec.ts` rejects executable raw SVG filters through shared configuration, JSON and saved presets while retaining safe Gooey rendering and exported tuning. These tests do not establish live DNS, deployed origin configuration or remote repository settings.
 
 `e2e/branding.spec.ts` verifies the shared navigation title's accessible name and keyboard destination, its 24px decorative foreground mask, the chat Examples mark, retained gradient actions, metadata icon declarations, decoded SVG/ICO/touch dimensions and visible monochrome pixels in the actual 1200×630 sharing image's logo region. The L and leaf remain distinct and unclipped at 16/32/48px. Inspect its isolated marks, icons, sharing image and four full-page theme/viewport captures; see [brand ownership](brand.md).
 
