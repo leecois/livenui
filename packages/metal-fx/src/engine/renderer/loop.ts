@@ -242,7 +242,10 @@ export function tickInstanceGlow(inst: MetalFxInstance, nowMs: number): void {
         return;
     if (!SHARED.glowQueue.includes(inst))
         return;
-    inst.glowFast = !!_glowCallback(inst, nowMs);
+    const shared = SHARED;
+    const fast = !!_glowCallback(inst, nowMs);
+    if (SHARED === shared && shared.instances.has(inst))
+        inst.glowFast = fast;
 }
 function resizeInstanceCanvas(inst: MetalFxInstance): void {
     inst.dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
@@ -320,8 +323,9 @@ function freezeFrame(inst: MetalFxInstance): HTMLCanvasElement | null {
     return fc;
 }
 function copyShaderToInstance(inst: MetalFxInstance): void {
-    if (!SHARED)
+    if (!SHARED || !SHARED.instances.has(inst))
         return;
+    const shared = SHARED;
     const src: CanvasImageSource = (inst.paused ? (inst.frozen ?? freezeFrame(inst)) : null) ?? inst.shaderFrame ?? SHARED.frameBitmap ?? SHARED.glCanvas;
     const dpr = inst.dpr;
     const dw = inst.canvas.width, dh = inst.canvas.height;
@@ -468,10 +472,14 @@ function copyShaderToInstance(inst: MetalFxInstance): void {
         ctx.globalCompositeOperation = 'source-over';
     }
     inst.onComposite?.();
+    if (SHARED !== shared || !shared.instances.has(inst))
+        return;
     if (inst.onFirstCopy) {
         const cb = inst.onFirstCopy;
         inst.onFirstCopy = undefined;
         cb();
+        if (SHARED !== shared || !shared.instances.has(inst))
+            return;
     }
     inst.onAfterFrame?.();
 }
@@ -553,6 +561,7 @@ let lastFrameMs = 0;
 function tick(now: number): void {
     if (!SHARED)
         return;
+    const shared = SHARED;
     if (SHARED.contextLost) {
         SHARED.rafId = 0;
         return;
@@ -571,9 +580,11 @@ function tick(now: number): void {
     SHARED.rafId = requestAnimationFrame(tick);
     if (now - lastFrameMs < FRAME_INTERVAL_MS) {
         if (_glowCallback) {
-            for (const inst of SHARED.glowQueue) {
-                if (inst.glowFast && inst.visible && !inst.paused)
-                    inst.glowFast = !!_glowCallback(inst, now);
+            for (const inst of [...shared.glowQueue]) {
+                if (inst.glowFast)
+                    tickInstanceGlow(inst, now);
+                if (SHARED !== shared)
+                    return;
             }
         }
         return;
@@ -622,16 +633,22 @@ function tick(now: number): void {
         ctx?.clearRect(0, 0, frame.canvas.width, frame.canvas.height);
         ctx?.drawImage(SHARED.frameBitmap ?? SHARED.glCanvas, 0, 0);
         for (const inst of instances) {
+            if (!shared.instances.has(inst))
+                continue;
             inst.shaderFrame = frame.canvas;
             inst.glowPixels = frame.pixels;
             copyShaderToInstance(inst);
-            inst.everCopied = true;
+            if (SHARED !== shared)
+                return;
+            if (shared.instances.has(inst))
+                inst.everCopied = true;
         }
     }
     if (_glowCallback && SHARED.glowQueue.length > 0 && ++SHARED.glowSkip % GLOW_SKIP_FRAMES === 0) {
-        for (const inst of SHARED.glowQueue) {
-            if (inst.visible && !inst.paused)
-                inst.glowFast = !!_glowCallback(inst, now);
+        for (const inst of [...shared.glowQueue]) {
+            tickInstanceGlow(inst, now);
+            if (SHARED !== shared)
+                return;
         }
     }
 }
