@@ -19,11 +19,37 @@ import {
   variantDefaults,
 } from '../apps/docs/features/component-library/lib/config'
 import { sourceImport } from '../apps/docs/features/component-library/lib/distribution'
-import { buildAgentRegistry } from '../apps/docs/scripts/build-registry'
+import { buildAgentRegistry, writePublicLicenses } from '../apps/docs/scripts/build-registry'
 import { createComponentInstaller } from '../packages/cli/src/utils/add/install-component'
 
 let built: Promise<Output> | undefined
 const build = () => (built ??= buildAgentRegistry())
+
+test('website license copies regenerate from package notices with unchanged public paths', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'livenui-licenses-'))
+  const sources = {
+    'border-beam.txt': 'packages/border-beam/LICENSE',
+    'thinking-orbs.txt': 'packages/thinking-orbs/LICENSE',
+    'metal-fx.txt': 'packages/metal-fx/LICENSE',
+    'liquid-gooey.txt': 'packages/liquid-gooey/LICENSE',
+    'voice-glow.txt': 'packages/voice-glow/LICENSE',
+    'img-fx.txt': 'packages/img-fx/LICENSE',
+    'bot-avatars.txt': 'packages/bot-avatars/LICENSE',
+    'shaders.txt': 'packages/metal-fx/LICENSE-APACHE-2.0',
+    'metal-notice.txt': 'packages/metal-fx/NOTICE',
+  }
+  try {
+    const output = join(directory, 'public/licenses')
+    await writePublicLicenses(output)
+    expect((await readdir(output)).sort()).toEqual(Object.keys(sources).sort())
+    await writeFile(join(output, 'metal-notice.txt'), 'outdated notice')
+    await writePublicLicenses(output)
+    for (const [name, source] of Object.entries(sources))
+      expect(await readFile(join(output, name), 'utf8')).toBe(await readFile(source, 'utf8'))
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
 
 test('registry contains complete local source and licenses without upstream effect dependencies', async () => {
   const registry = await build()

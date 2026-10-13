@@ -1,5 +1,5 @@
-import { readdir, readFile } from 'node:fs/promises'
-import { dirname, join, resolve } from 'node:path'
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   type Output,
@@ -96,9 +96,29 @@ export async function buildAgentRegistry(): Promise<Output> {
   }
 }
 
+export async function writePublicLicenses(directory: string) {
+  const sources = [
+    ...registry.components.map((component) => [
+      `${component.source}/LICENSE`,
+      `${basename(component.source)}.txt`,
+    ]),
+    ['packages/metal-fx/LICENSE-APACHE-2.0', 'shaders.txt'],
+    ['packages/metal-fx/NOTICE', 'metal-notice.txt'],
+  ]
+  const files = await Promise.all(
+    sources.map(async ([source, name]) => ({
+      name,
+      content: await readFile(join(projectRoot, source)),
+    }))
+  )
+  await mkdir(directory, { recursive: true })
+  await Promise.all(files.map(({ name, content }) => writeFile(join(directory, name), content)))
+}
+
 export async function buildRegistry() {
   const output = await buildAgentRegistry()
   await Promise.all([
+    writePublicLicenses(join(appRoot, 'public/licenses')),
     writeLivenUIRegistry(output, { dir: 'public/registry', cleanDir: true }),
     writeShadcnRegistry(output, {
       dir: 'public/r',
