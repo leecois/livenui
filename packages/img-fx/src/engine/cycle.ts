@@ -69,7 +69,9 @@ export function createCycle(opts: CycleOptions): Cycle {
     holdMode: 'auto' | 'manual' = 'auto'
   ): void {
     if (!running || paused) return
+    const request = generation
     emit('idle')
+    if (!running || paused || request !== generation) return
     const [min, max] = delayRange
     const delaySec = min + Math.random() * Math.max(0, max - min)
     const ms = initialMs ?? delaySec * 1000
@@ -93,6 +95,7 @@ export function createCycle(opts: CycleOptions): Cycle {
     if (paused) return
     const request = ++generation
     emit('hide')
+    if (!running || paused || request !== generation) return
     opts.reveal.startHide(fadeOutMs)
     clearTimer()
     timer = setTimeout(() => {
@@ -133,6 +136,7 @@ export function createCycle(opts: CycleOptions): Cycle {
       return
     }
     const pick = pickAvoidingExcluded()
+    if (!running || paused || request !== generation) return
     if (!pick) {
       if (reschedule) scheduleIdle(500)
       else running = false
@@ -146,6 +150,7 @@ export function createCycle(opts: CycleOptions): Cycle {
       .then((img) => {
         if (!running || paused || request !== generation) return
         emit('reveal')
+        if (!running || paused || request !== generation) return
         opts.reveal.startReveal({
           image: img,
           cssWidth: opts.reveal.canvas.clientWidth || opts.reveal.canvas.width,
@@ -153,6 +158,7 @@ export function createCycle(opts: CycleOptions): Cycle {
           onRevealComplete: () => {
             if (!running || paused || request !== generation) return
             emit('visible')
+            if (!running || paused || request !== generation) return
             if (holdMode === 'manual') {
               clearTimer()
               return
@@ -212,12 +218,13 @@ export function createCycle(opts: CycleOptions): Cycle {
     triggerBoil(boilOpts) {
       if (paused) return
       if (phase !== 'reveal' && phase !== 'visible') return
-      generation++
+      const request = ++generation
       clearTimer()
       opts.reveal.startBoil()
       currentSrc = null
       running = false
       emit('idle')
+      if (paused || running || request !== generation) return
       const afterMs = boilOpts?.autoRevealAfterMs
       if (afterMs != null && Number.isFinite(afterMs)) {
         timer = setTimeout(
