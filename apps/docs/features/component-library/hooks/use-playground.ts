@@ -15,6 +15,7 @@ import { content, fieldLabel, matchesSearch } from '../lib/content'
 import { controlVisible } from '../lib/controls'
 import { type Example, findExample } from '../lib/examples'
 import { createId } from '../lib/id'
+import { validateOrbConfiguration } from '../lib/orb-limits'
 import type { Theme } from '../lib/types'
 
 export type PlaygroundSnapshot = {
@@ -91,6 +92,11 @@ export function usePlayground({
   const [variant, setVariant] = useState(initial.variant)
   const activeLibrary = configuredLibrary(library, variant)
   const [props, setProps] = useState<Props>(initial.props)
+  const currentProps = useRef(props)
+  const replaceProps = (next: Props) => {
+    currentProps.current = next
+    setProps(next)
+  }
   const [tab, setTab] = useState(retained?.tab || 'controls')
   const [query, setQuery] = useState(retained?.query || '')
   const [all, setAll] = useState(retained?.all || false)
@@ -152,7 +158,7 @@ export function usePlayground({
     setStartingPoint('')
     setVariant(next)
     const nextProps = variantDefaults(library, next)
-    setProps(nextProps)
+    replaceProps(nextProps)
     setDraft(JSON.stringify(playbackProps(nextProps), null, 2))
     setRevision((value) => value + 1)
     setControlVersion((value) => value + 1)
@@ -173,26 +179,31 @@ export function usePlayground({
       )
   )
   const update = (name: string, value: unknown) => {
-    setStartingPoint('')
+    configurationRevision.current++
     if (typeof value === 'number' && (!Number.isFinite(value) || Math.abs(value) > 10000)) {
       setNotice('Use a finite value within the playground limit of 10000.')
       return
     }
-    configurationRevision.current++
+    const next = { ...currentProps.current }
+    if (value === undefined) delete next[name]
+    else next[name] = value
+    try {
+      if (library.id === 'orbs') validateOrbConfiguration(next)
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Invalid configuration.')
+      return
+    }
+    setStartingPoint('')
+    setNotice('')
     if (name === 'paused' || name === 'active') setPaused(configurationPlayback({ [name]: value }))
-    setProps((current) => {
-      const next = { ...current }
-      if (value === undefined) delete next[name]
-      else next[name] = value
-      return next
-    })
+    replaceProps(next)
   }
   const apply = () => {
     try {
       const next = parseProps(draft, activeLibrary)
       configurationRevision.current++
       setStartingPoint('')
-      setProps(next)
+      replaceProps(next)
       setPaused(configurationPlayback(next))
       setNotice('Configuration applied.')
       setRevision((value) => value + 1)
@@ -239,7 +250,7 @@ export function usePlayground({
       const { props: next, variant: nextVariant } = parseConfiguration(text, library, variant)
       setStartingPoint('')
       setVariant(nextVariant)
-      setProps(next)
+      replaceProps(next)
       setDraftValue(JSON.stringify(playbackProps(next, configurationPlayback(next)), null, 2))
       setRevision((value) => value + 1)
       setControlVersion((value) => value + 1)
@@ -281,7 +292,7 @@ export function usePlayground({
   const reset = () => {
     const next = variantDefaults(library, variant)
     setStartingPoint('')
-    setProps(next)
+    replaceProps(next)
     setDraft(JSON.stringify(playbackProps(next), null, 2))
     setRevision((value) => value + 1)
     setControlVersion((value) => value + 1)
@@ -290,7 +301,7 @@ export function usePlayground({
   const load = (next: { props: Props; variant: string; name: string }, exampleId = '') => {
     setStartingPoint(exampleId)
     setVariant(next.variant)
-    setProps({ ...next.props })
+    replaceProps({ ...next.props })
     setPaused(configurationPlayback(next.props))
     setDraft(JSON.stringify(playbackProps(next.props, configurationPlayback(next.props)), null, 2))
     setRevision((value) => value + 1)

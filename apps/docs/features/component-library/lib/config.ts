@@ -1,6 +1,7 @@
 import catalog from '../data/catalog.json'
 import { sourceImport, sourceInstallCommand } from './distribution'
 import { meltDemoImages } from './media'
+import { validateOrbConfiguration } from './orb-limits'
 import { validateStructuredProp } from './structured-props'
 
 export type Props = Record<string, unknown>
@@ -130,6 +131,7 @@ export function parseProps(text: string, library: Library): Props {
       validateStructuredProp(library.component, key, value)
     }
   }
+  if (library.id === 'orbs') validateOrbConfiguration(result)
   return result
 }
 

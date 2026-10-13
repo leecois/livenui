@@ -73,3 +73,12 @@ test('integer counts and signed avatar landing timing retain their semantics', (
   expect(numberError(1.5, required(numberSpec(avatar, 'jumpSpin')))).toBe('Use a whole number.')
   expect(numberError(-0.4, required(numberSpec(avatar, 'jumpLand')))).toBeUndefined()
 })
+
+test('Orb exact density editing stays within the playground hard limit', () => {
+  const orb = required(libraries.find((library) => library.id === 'orbs'))
+  const density = required(numberSpec(orb, 'dots'))
+  expect(density.max).toBe(3)
+  expect(numberError(4, density)).toBeUndefined()
+  expect(numberError(10.01, density)).toBe('Use 10 or less.')
+  expect(numberError(0, density)).toBe('Use 0.1 or greater.')
+})

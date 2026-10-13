@@ -1,4 +1,5 @@
 import type { Field, Library, Props } from './config'
+import { orbDensityLimit } from './orb-limits'
 
 export type ControlGroup = 'Appearance' | 'Motion' | 'Interaction'
 export type NumberSpec = {
@@ -41,7 +42,7 @@ const numeric: Record<string, Record<string, NumberSpec>> = {
   beam,
   orbs: {
     speed: range(0.25, 3, 0.05, '×'),
-    dots: positive(0.1, 3, 0.05, '×'),
+    dots: { ...positive(0.1, 3, 0.05, '×'), limitMax: orbDensityLimit },
     dotSize: positive(0.1, 3, 0.05, '×'),
   },
   metal: {
