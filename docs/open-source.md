@@ -12,12 +12,23 @@ Targets: [leecois/livenui](https://github.com/leecois/livenui) and [livenui.dev]
 
 ## Licensing and distribution
 
-The [root MIT license](../LICENSE) retains the copyright notices for Liven UI contributions and inherited MIT-licensed source. Components retain their package-specific LICENSE/NOTICE files for standalone distribution. Bundled [icons](../packages/ui/LICENSE-ICONS), [fonts](../apps/docs/lib/og/OFL.txt) and [shaders](../packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Follow [contribution licensing](../CONTRIBUTING.md#licensing) for new or adapted components.
+The [root MIT license](../LICENSE) retains the copyright notices for Liven UI contributions and inherited MIT-licensed source. Components retain their package-specific LICENSE/NOTICE files for standalone distribution. Bundled [icons](../packages/ui/LICENSE-ICONS) and [shaders](../packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Follow [contribution licensing](../CONTRIBUTING.md#licensing) for new or adapted components.
 
 - Verify that generated registry entries contain complete maintained source, LICENSE, additional license files and available NOTICE content.
 - Maintain licenses at their package or asset owner. Website copies in `apps/docs/public/licenses/` are ignored build outputs generated from package originals; do not commit or edit them separately. Icon attribution is included in `packages/ui/LICENSE-ICONS`.
 - Run the [fresh consumer integration check](testing.md#fresh-consumer-integration) when changing source distribution.
 - Keep private workspace package identities distinct from the public source registry. Do not advertise unpublished npm packages.
+
+Apply third-party notices only to the material they cover:
+
+| Material | Applicable notices | Source evidence |
+| --- | --- | --- |
+| Seven rendering SDKs | Each SDK's MIT `LICENSE`; Metal additionally retains its shader Apache license and `NOTICE` | [Renderer provenance](decisions/003-original-component-implementations.md) and `packages/metal-fx/src/engine/shaders.ts` |
+| Inherited CLI and documentation support | Fuma's MIT notice in the root license and CLI license | [Historical installer source](https://github.com/fuma-nama/fumadocs/blob/481a7cbbd196cc4e8d6bfef7e664ab0cd998fd95/packages/cli/src/utils/add/install-component.ts) and [source license](https://github.com/fuma-nama/fumadocs/blob/481a7cbbd196cc4e8d6bfef7e664ab0cd998fd95/LICENSE) |
+| Vendored icons in `packages/ui/src/icons.tsx` | `packages/ui/LICENSE-ICONS` | `packages/ui/tsconfig.json` maps `lucide-react` imports to this local source |
+| Original application features and `packages/agent-ui` | Liven UI's root MIT license | Do not inherit another SDK's copyright merely by sharing this repository |
+
+Dependency installation alone is not evidence that a copied-source notice belongs to a component. Check retained source and bundled assets, and include applicable notices in their distribution. Remove an asset's local license only when the covered asset is also no longer retained. The unused legacy OG template and bundled fonts have been removed; the active OG route owns its renderer in `apps/docs/app/og/[...slug]/generate.tsx`.
 
 See [source distribution](decisions/002-source-registry-distribution.md) and [renderer restoration](decisions/003-original-component-implementations.md) for implementation provenance and scope.
 

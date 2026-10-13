@@ -67,6 +67,13 @@ test('registry contains complete local source and licenses without upstream effe
     expect(
       item.files.some((file) => file.target === `components/livenui/${library.id}/LICENSE`)
     ).toBe(true)
+    const legalFiles = item.files
+      .map((file) => file.target?.split('/').at(-1) ?? '')
+      .filter((name) => /^(LICENSE(?:[.-].+)?|NOTICE)$/.test(name))
+      .sort()
+    expect(legalFiles).toEqual(
+      library.id === 'metal' ? ['LICENSE', 'LICENSE-APACHE-2.0', 'NOTICE'] : ['LICENSE']
+    )
     for (const source of item.files.slice(1)) {
       expect(source.content).toBe(await readFile(resolve(source.path), 'utf8'))
     }

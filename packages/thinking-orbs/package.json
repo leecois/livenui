@@ -19,8 +19,7 @@
   },
   "files": [
     "dist",
-    "LICENSE",
-    "NOTICE"
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup src/index.ts src/engine/index.ts --format esm,cjs --dts --sourcemap --clean --external react,react-dom",
