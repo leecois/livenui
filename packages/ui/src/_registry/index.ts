@@ -3,9 +3,6 @@ import { fileURLToPath } from 'node:url'
 import type { Registry } from 'livenui-cli/build'
 
 const srcDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../')
-const mapToPackage = {
-  'utils/use-copy-button.ts': 'livenui-cli/utils/use-copy-button',
-}
 
 export const registry: Registry = {
   name: 'livenui-ui',
@@ -22,14 +19,6 @@ export const registry: Registry = {
         dep: 'lucide-react',
         specifier: 'lucide-react',
       }
-
-    if (filePath in mapToPackage) {
-      return {
-        type: 'dependency',
-        dep: 'livenui-ui',
-        specifier: mapToPackage[filePath as keyof typeof mapToPackage],
-      }
-    }
 
     return ref
   },
@@ -203,7 +192,6 @@ export const registry: Registry = {
   ],
   dependencies: {
     'fumadocs-core': null,
-    'livenui-cli': null,
     'lucide-react': null,
     react: null,
   },

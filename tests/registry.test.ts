@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { getPlannedFilePaths } from '@shadcn/registry/internal/utils/updaters/update-files'
 import {
+  build as buildRegistry,
   type Output,
   toShadcnRegistry,
   writeLivenUIRegistry,
@@ -21,9 +22,28 @@ import {
 import { sourceImport } from '../apps/docs/features/component-library/lib/distribution'
 import { buildAgentRegistry, writePublicLicenses } from '../apps/docs/scripts/build-registry'
 import { createComponentInstaller } from '../packages/cli/src/utils/add/install-component'
+import { registry as uiRegistry } from '../packages/ui/src/_registry'
 
 let built: Promise<Output> | undefined
 const build = () => (built ??= buildAgentRegistry())
+
+test('support registry includes local copy utilities without installer runtime imports', async () => {
+  const output = await buildRegistry(uiRegistry)
+  const accordion = output.components.find((component) => component.name === 'accordion')
+  expect(accordion).toBeDefined()
+  if (!accordion) throw new Error('Missing accordion')
+  expect(accordion.files.find((file) => file.path === 'utils/use-copy-button.ts')?.content).toBe(
+    await readFile('packages/ui/src/utils/use-copy-button.ts', 'utf8')
+  )
+  expect(
+    accordion.files.find((file) => file.path === 'components/accordion.tsx')?.content
+  ).toContain('@/utils/use-copy-button')
+  for (const component of output.components) {
+    expect(component.dependencies['livenui-cli']).toBeUndefined()
+    expect(component.dependencies['livenui-ui']).toBeUndefined()
+    expect(component.files.some((file) => file.content.includes('livenui-cli/'))).toBe(false)
+  }
+})
 
 test('website license copies regenerate from package notices with unchanged public paths', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'livenui-licenses-'))

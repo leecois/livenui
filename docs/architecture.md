@@ -119,6 +119,8 @@ Next's pre-build regenerates both source registry formats with clean output dire
 
 The same pre-build generates ignored `public/licenses/` copies from package originals, preserving existing public license URLs and full notice text. These copies are build-cache outputs, not separately maintained sources. Package licenses remain with independently installed components; icon attribution is consolidated in `packages/ui/LICENSE-ICONS`.
 
+The separate `livenui-ui/registry` support registry includes local utilities with their consuming components. It must not emit browser imports from the build-time installer package or require its own package to supply those utilities.
+
 Post-build task failures propagate a nonzero process exit. Optional search synchronization cannot report a successful build after a requested sync fails.
 
 Protected public contracts include `/agents`, `/agents/gallery`, `/studio`, seven `/agents/{id}` guides, `/agents/integration`, `/api/search`, `/r`, `/registry`, `/agent-skill.md`, `/llms.txt`, `/llms-full.txt`, MDX text, static JSON and OG routes. `/` and retired blog routes retain redirects. Glass page-tree navigation has one active destination. The site origin is owned by `lib/site.ts`: `NEXT_PUBLIC_APP_URL` overrides the development localhost default or shared production `https://livenui.dev` fallback in the pure distribution helper. Metadata and registry generation share this origin; do not advertise retired RSS endpoints. Infrastructure in `nixpacks.toml`, Turbo outputs, root scripts and `.github` remains explicit and reviewed.
