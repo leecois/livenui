@@ -26,11 +26,14 @@ export function createComponentInstaller(options: {
   const installedFiles = new Set<string>()
   const downloadedComps = new Map<string, OutputComponent>()
 
-  function buildFileList(downloaded: DownloadedComponents): OutputFile[] {
+  function buildFileList(
+    downloaded: DownloadedComponents,
+    resolveOutputPath: (file: OutputFile) => string
+  ): OutputFile[] {
     const map = new Map<string, OutputFile>()
     for (const item of downloaded) {
       for (const file of item.files) {
-        const filePath = file.target ?? file.path
+        const filePath = resolveOutputPath(file)
 
         if (map.has(filePath)) {
           console.warn(`noticed duplicated output file for ${filePath}, ignoring for now.`)
@@ -55,7 +58,7 @@ export function createComponentInstaller(options: {
         Object.assign(devDependencies, item.devDependencies)
       }
 
-      const fileList = buildFileList(downloaded)
+      const fileList = buildFileList(downloaded, (file) => this.resolveOutputPath(file))
       const outputPaths: { file: OutputFile; outPath: string }[] = []
       for (const file of fileList) {
         const outputPath = this.resolveOutputPath(file)
@@ -71,7 +74,7 @@ export function createComponentInstaller(options: {
 
       for (const { file, outPath } of outputPaths) {
         const filePath = file.target ?? file.path
-        if (installedFiles.has(filePath)) continue
+        if (installedFiles.has(outPath)) continue
 
         const output = typescriptExtensions.includes(path.extname(filePath))
           ? this.transform(outPath, file, fileList)
@@ -86,7 +89,7 @@ export function createComponentInstaller(options: {
           .catch(() => 'write')
 
         if (status === 'ignore') {
-          installedFiles.add(filePath)
+          installedFiles.add(outPath)
           continue
         }
 
@@ -102,7 +105,7 @@ export function createComponentInstaller(options: {
           }
 
           if (!override) {
-            installedFiles.add(filePath)
+            installedFiles.add(outPath)
             continue
           }
         }
@@ -111,7 +114,7 @@ export function createComponentInstaller(options: {
         await fs.mkdir(path.dirname(outPath), { recursive: true })
         await assertContainedPath(projectDir, outPath)
         await fs.writeFile(outPath, output)
-        installedFiles.add(filePath)
+        installedFiles.add(outPath)
         log.step(`downloaded ${outPath}`)
       }
 

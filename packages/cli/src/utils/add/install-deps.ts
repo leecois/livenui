@@ -1,4 +1,5 @@
 import { confirm, isCancel, spinner } from '@clack/prompts'
+import { resolveCommand } from 'package-manager-detector/commands'
 import { x } from 'tinyexec'
 import { getDeps } from '@/utils/add/get-deps'
 import { getPackageManager } from '@/utils/get-package-manager'
@@ -30,11 +31,15 @@ export function createDependencyInstaller(
 
     const spin = (options.spinner ?? spinner)()
     const run = options.run ?? x
+    const add = async (packages: string[]) => {
+      const command = resolveCommand(manager, 'add', packages)
+      if (!command) throw new Error(`Dependency installation is unsupported for ${manager}`)
+      await run(command.command, command.args, { throwOnError: true })
+    }
     spin.start('Installing dependencies...')
     try {
-      if (items.length) await run(manager, ['install', ...items], { throwOnError: true })
-      if (devItems.length)
-        await run(manager, ['install', ...devItems, '-D'], { throwOnError: true })
+      if (items.length) await add(items)
+      if (devItems.length) await add([...devItems, '-D'])
       spin.stop('Dependencies installed.')
     } catch (error) {
       spin.stop('Dependency installation failed.')

@@ -14,6 +14,7 @@ import {
   remoteResolver,
 } from '../packages/cli/src/utils/add/install-component'
 import { createDependencyInstaller } from '../packages/cli/src/utils/add/install-deps'
+import type { PackageManager } from '../packages/cli/src/utils/get-package-manager'
 
 const config: LoadedConfig = {
   baseDir: 'src',
@@ -54,6 +55,49 @@ async function inProject(run: (project: string, outside: string) => Promise<void
 }
 
 describe('registry installation containment', () => {
+  for (const separateInstalls of [false, true]) {
+    test(`keeps matching file names in distinct namespaces across ${separateInstalls ? 'successive installs' : 'one dependency graph'}`, async () => {
+      await inProject(async (project) => {
+        const files: OutputFile[] = [
+          { type: 'components', path: 'index.txt', content: 'component' },
+          { type: 'lib', path: 'index.txt', content: 'library' },
+        ]
+        const installer = createComponentInstaller({
+          projectDir: project,
+          config,
+          resolver: async (name) =>
+            separateInstalls
+              ? component([files[name === 'first.json' ? 0 : 1]])
+              : name === 'first.json'
+                ? { ...component([files[0]]), subComponents: ['second'] }
+                : component([files[1]]),
+        })
+        await installer.install('first')
+        if (separateInstalls) await installer.install('second')
+        expect(await readFile(join(project, 'src/components/index.txt'), 'utf8')).toBe('component')
+        expect(await readFile(join(project, 'src/lib/index.txt'), 'utf8')).toBe('library')
+      })
+    })
+  }
+
+  test('keeps the first duplicate destination after normalizing dot prefixes', async () => {
+    await inProject(async (project) => {
+      const installer = createComponentInstaller({
+        projectDir: project,
+        config,
+        resolver: async () =>
+          component([
+            file('sample.txt'),
+            { ...file('sample.txt'), content: 'ignored duplicate' },
+            file('./sample.txt'),
+          ]),
+      })
+      await installer.install('sample')
+      expect(await readFile(join(project, 'src/sample.txt'), 'utf8')).toBe('installed')
+      expect(await readdir(join(project, 'src'))).toEqual(['sample.txt'])
+    })
+  })
+
   test('preflights directory targets and can retry after the blocker is removed', async () => {
     await inProject(async (project) => {
       const blocked = join(project, 'src/blocked.txt')
@@ -322,13 +366,53 @@ test('registry production rejects cycles while preserving shared-child and dupli
 })
 
 describe('dependency subprocess results', () => {
-  for (const failedCommand of [1, 2]) {
-    test(`propagates failure from install command ${failedCommand} and never reports success`, async () => {
+  const managers = {
+    npm: 'i',
+    yarn: 'add',
+    pnpm: 'add',
+    bun: 'add',
+    deno: 'add',
+    nub: 'add',
+    aube: 'add',
+  } satisfies Record<PackageManager, string>
+
+  for (const [manager, command] of Object.entries(managers) as [PackageManager, string][]) {
+    for (const failedCommand of [1, 2]) {
+      test(`${manager} propagates failure from install command ${failedCommand} and never reports success`, async () => {
+        const events: string[] = []
+        let calls = 0
+        const install = createDependencyInstaller({
+          getInstalled: async () => new Map(),
+          getManager: async () => manager,
+          confirm: async () => true,
+          spinner: () => ({
+            ...spinner(),
+            start: () => undefined,
+            stop: (message) => {
+              events.push(message ?? '')
+            },
+          }),
+          run: (_manager, _args, options) => {
+            calls++
+            return x(
+              process.execPath,
+              ['-e', `process.exit(${calls === failedCommand ? 37 : 0})`],
+              options
+            )
+          },
+        })
+        await expect(install({ react: '^19' }, { typescript: '^7' })).rejects.toThrow()
+        expect(calls).toBe(failedCommand)
+        expect(events).toEqual(['Dependency installation failed.'])
+      })
+    }
+
+    test(`${manager} adds runtime/dev dependencies and skips existing dependencies`, async () => {
+      const calls: { command: string; args: string[]; throwOnError: boolean }[] = []
       const events: string[] = []
-      let calls = 0
       const install = createDependencyInstaller({
-        getInstalled: async () => new Map(),
-        getManager: async () => 'bun',
+        getInstalled: async () => new Map([['existing', '^1']]),
+        getManager: async () => manager,
         confirm: async () => true,
         spinner: () => ({
           ...spinner(),
@@ -337,46 +421,18 @@ describe('dependency subprocess results', () => {
             events.push(message ?? '')
           },
         }),
-        run: (_manager, _args, options) => {
-          calls++
-          return x(
-            process.execPath,
-            ['-e', `process.exit(${calls === failedCommand ? 37 : 0})`],
-            options
-          )
+        run: async (command, args, options) => {
+          calls.push({ command, args, ...options })
         },
       })
-      await expect(install({ react: '^19' }, { typescript: '^7' })).rejects.toThrow()
-      expect(calls).toBe(failedCommand)
-      expect(events).toEqual(['Dependency installation failed.'])
+      await install({ existing: '^1', react: '^19' }, { typescript: '^7' })
+      expect(calls).toEqual([
+        { command: manager, args: [command, 'react@^19'], throwOnError: true },
+        { command: manager, args: [command, 'typescript@^7', '-D'], throwOnError: true },
+      ])
+      expect(events).toEqual(['Dependencies installed.'])
     })
   }
-
-  test('successful installs preserve runtime/dev flags and skip existing dependencies', async () => {
-    const calls: { command: string; args: string[]; throwOnError: boolean }[] = []
-    const events: string[] = []
-    const install = createDependencyInstaller({
-      getInstalled: async () => new Map([['existing', '^1']]),
-      getManager: async () => 'bun',
-      confirm: async () => true,
-      spinner: () => ({
-        ...spinner(),
-        start: () => undefined,
-        stop: (message) => {
-          events.push(message ?? '')
-        },
-      }),
-      run: async (command, args, options) => {
-        calls.push({ command, args, ...options })
-      },
-    })
-    await install({ existing: '^1', react: '^19' }, { typescript: '^7' })
-    expect(calls).toEqual([
-      { command: 'bun', args: ['install', 'react@^19'], throwOnError: true },
-      { command: 'bun', args: ['install', 'typescript@^7', '-D'], throwOnError: true },
-    ])
-    expect(events).toEqual(['Dependencies installed.'])
-  })
 })
 
 test('add loads the supplied global config and retains its aliases without creating default config', async () => {
