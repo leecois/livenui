@@ -32,6 +32,8 @@ Root lint is intentionally scoped. Passing it does not mean every vendored engin
 
 ## Fresh consumer integration
 
+`tests/registry.test.ts` also checks that website license copies regenerate from package originals, retain all nine existing public paths and replace stale content. Build caching must restore these generated files with the application output.
+
 After `bun run check`, run `bun run scripts/check-consumer.ts` from the checkout root. It owns a new production server, creates an independent React application in ignored `tmp/consumer-*`, installs dependencies with npm and executes the standard installation command copied from each of the seven Studio integrations. The copied command's production registry origin is verified, then replaced with the owned test server's address for execution; no application environment file is changed.
 
 The runner applies explicit props through the real JSON editor and copies the displayed React code. It verifies those props in the clipboard payload, every installed SDK/legal file, required runtime/type dependencies and the absence of workspace links. With `rsc: false`, the standard installer removes the generated entry's client directive; that single entry transformation is accepted. SDK source and legal content still match the registry. Copied JSX receives only a consumer component wrapper, then typechecks and bundles with independently installed dependencies. Bundle metadata rejects any source resolved outside the consumer. Chromium renders all seven integrations and records full-page/component captures and structured evidence beside install logs.

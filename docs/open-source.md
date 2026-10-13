@@ -15,6 +15,7 @@ Targets: [leecois/livenui](https://github.com/leecois/livenui) and [livenui.dev]
 The [root MIT license](../LICENSE) retains the copyright notices for Liven UI contributions and inherited MIT-licensed source. Components retain their package-specific LICENSE/NOTICE files for standalone distribution. Bundled [icons](../packages/ui/LICENSE-ICONS), [fonts](../apps/docs/lib/og/OFL.txt) and [shaders](../packages/metal-fx/LICENSE-APACHE-2.0) retain their own terms. Follow [contribution licensing](../CONTRIBUTING.md#licensing) for new or adapted components.
 
 - Verify that generated registry entries contain complete maintained source, LICENSE, additional license files and available NOTICE content.
+- Maintain licenses at their package or asset owner. Website copies in `apps/docs/public/licenses/` are ignored build outputs generated from package originals; do not commit or edit them separately. Icon attribution is included in `packages/ui/LICENSE-ICONS`.
 - Run the [fresh consumer integration check](testing.md#fresh-consumer-integration) when changing source distribution.
 - Keep private workspace package identities distinct from the public source registry. Do not advertise unpublished npm packages.
 
