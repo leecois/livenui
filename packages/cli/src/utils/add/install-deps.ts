@@ -20,7 +20,9 @@ export function createDependencyInstaller(
         .filter(([name]) => !installed.has(name))
         .map(([name, version]) => (!version ? name : `${name}@${version}`))
     const items = toList(deps)
-    const devItems = toList(devDeps)
+    const devItems = toList(
+      Object.fromEntries(Object.entries(devDeps).filter(([name]) => !Object.hasOwn(deps, name)))
+    )
     if (!items.length && !devItems.length) return
 
     const manager = await (options.getManager ?? getPackageManager)()

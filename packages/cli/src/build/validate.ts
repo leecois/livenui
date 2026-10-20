@@ -1,4 +1,6 @@
+import path from 'node:path'
 import type { Output, OutputComponent } from '@/registry/schema'
+import { registryPath } from '@/utils/paths'
 
 export function validateOutput(registry: Output) {
   function validateComponent(
@@ -58,9 +60,10 @@ export function validateOutput(registry: Output) {
 
   const compSet = new Set<string>()
   for (const comp of registry.components) {
-    if (compSet.has(comp.name))
+    const name = path.posix.normalize(registryPath(comp.name))
+    if (compSet.has(name))
       throw new Error(`duplicated component name ${comp.name}`)
-    compSet.add(comp.name)
+    compSet.add(name)
 
     validateComponent(comp)
   }

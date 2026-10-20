@@ -425,7 +425,10 @@ describe('dependency subprocess results', () => {
           calls.push({ command, args, ...options })
         },
       })
-      await install({ existing: '^1', react: '^19' }, { typescript: '^7' })
+      await install(
+        { existing: '^1', react: '^19' },
+        { existing: '^1', react: '^18', typescript: '^7' }
+      )
       expect(calls).toEqual([
         { command: manager, args: [command, 'react@^19'], throwOnError: true },
         { command: manager, args: [command, 'typescript@^7', '-D'], throwOnError: true },

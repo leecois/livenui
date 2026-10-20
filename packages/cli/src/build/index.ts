@@ -5,6 +5,7 @@ import type { RegistryItem } from 'shadcn/schema'
 import { toShadcnRegistry } from '@/build/shadcn'
 import { validateOutput } from '@/build/validate'
 import type { Output } from '@/registry/schema'
+import { registryPath } from '@/utils/paths'
 
 export type { Output, OutputComponent, OutputFile } from '@/registry/schema'
 export * from './build-registry'
@@ -38,7 +39,9 @@ export async function writeShadcnRegistry(
     baseUrl: string
   }
 ) {
-  const { dir, cleanDir = false, baseUrl } = options
+  validateOutput(out)
+  const items = toShadcnRegistry(out, options.baseUrl).items
+  const { dir, cleanDir = false } = options
 
   if (cleanDir) {
     await fs.rm(dir, {
@@ -49,7 +52,7 @@ export async function writeShadcnRegistry(
   }
 
   await Promise.all(
-    toShadcnRegistry(out, baseUrl).items.map(async (item: RegistryItem) => {
+    items.map(async (item: RegistryItem) => {
       const file = path.join(dir, `${item.name}.json`)
 
       await writeFile(file, JSON.stringify(item, null, 2))
@@ -67,6 +70,13 @@ export async function writeLivenUIRegistry(
     log?: boolean
   }
 ): Promise<void> {
+  validateOutput(out)
+  if (
+    out.components.some(
+      (component) => path.posix.normalize(registryPath(component.name)) === '_registry'
+    )
+  )
+    throw new Error('Reserved registry component name: _registry')
   const { dir, cleanDir = false, log = true } = options
 
   if (cleanDir) {
