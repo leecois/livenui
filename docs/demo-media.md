@@ -2,7 +2,7 @@
 
 The Image and Gooey melt demonstrations use five images generated specifically for Liven UI on 2026-10-06 with the built-in image generation tool. No reference images, downloaded photographs or personal portraits were supplied. These are generated artworks, not captures of the native SDK renderers. The SDKs still own reveal and melt behavior.
 
-The assets live in [the public media directory](../apps/docs/public/agent-images). [The media manifest](../apps/docs/features/component-library/lib/media.ts) owns paths used by previews and exported melt snippets. Image integration code continues to use the developer's supplied image pool. Melt integration requires copying the chosen images into the consumer application's public directory or replacing the paths with its own assets.
+The assets live in [the public media directory](../apps/docs/public/agent-images). [The media manifest](../apps/docs/features/component-library/lib/media.ts) owns paths used by previews and exported melt snippets. Image integration code continues to use the developer's supplied image pool. Exported melt snippets use absolute URLs at the public registry origin, so they work without copying website assets. Consumers can replace those URLs with their own images or host copies locally.
 
 ## Assets
 

@@ -1,5 +1,5 @@
 import catalog from '../data/catalog.json'
-import { sourceImport, sourceInstallCommand } from './distribution'
+import { registryOrigin, sourceImport, sourceInstallCommand } from './distribution'
 import { meltDemoImages } from './media'
 import { validateOrbConfiguration } from './orb-limits'
 import { validateStructuredProp } from './structured-props'
@@ -182,7 +182,7 @@ export function snippet(library: Library, props: Props): string {
   if (library.id === 'gooey') {
     const itemProps = { effect: 'morph', ...(item as Props) }
     if (itemProps.effect === 'melt') {
-      return `${start}<Liquid\n${attributes}\n>\n  ${meltDemoImages.map(({ src, alt }) => `<Liquid.Item {...${JSON.stringify(itemProps)}}>\n    <img src="${src}" alt="${alt}" style={{ width: 84, height: 84, borderRadius: 24 }} />\n  </Liquid.Item>`).join('\n  ')}\n</Liquid>`
+      return `${start}<Liquid\n${attributes}\n>\n  ${meltDemoImages.map(({ src, alt }) => `<Liquid.Item {...${JSON.stringify(itemProps)}}>\n    <img src="${new URL(src, registryOrigin).href}" alt="${alt}" style={{ width: 84, height: 84, borderRadius: 24 }} />\n  </Liquid.Item>`).join('\n  ')}\n</Liquid>`
     }
     return `${start}<Liquid\n${attributes}\n>\n  <Liquid.Item {...${JSON.stringify(itemProps)}}>\n    <button type="button">Your content</button>\n  </Liquid.Item>\n</Liquid>`
   }

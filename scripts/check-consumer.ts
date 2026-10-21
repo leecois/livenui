@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { cp, lstat, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { type Browser, chromium, expect } from '@playwright/test'
-import { defaults } from '../apps/docs/features/component-library/lib/config'
+import { defaults, libraries, snippet } from '../apps/docs/features/component-library/lib/config'
 import { productionPreview, runLogged } from './lib/production-preview'
 
 const cases = [
@@ -233,10 +233,20 @@ try {
   }
   assert.ok(installed.devDependencies['@types/three'])
   assert.ok(!JSON.stringify(installed).includes('workspace:'))
+  const gooey = libraries.find((library) => library.id === 'gooey')
+  assert.ok(gooey)
+  const meltCode = snippet(gooey, { item: { effect: 'melt' } })
+  const meltStart = meltCode.indexOf('\n\n')
+  const meltImport = meltCode.slice(0, meltStart)
+  const meltJsx = meltCode.slice(meltStart + 2)
+  await writeFile(
+    join(project, 'gooey-melt.tsx'),
+    `${meltImport}\nexport default function Melt() { return (${meltJsx}) }\n`
+  )
   const componentName = (id: string) => id[0].toUpperCase() + id.slice(1)
   await writeFile(
     join(project, 'main.tsx'),
-    `import { createRoot } from 'react-dom/client'\n${cases.map((item) => `import ${componentName(item.id)} from './${item.id}'`).join('\n')}\ncreateRoot(document.getElementById('root')!).render(<main>${cases.map((item) => `<section id="${item.id}"><h2>${item.id}</h2><${componentName(item.id)} /></section>`).join('')}</main>)\n`
+    `import { createRoot } from 'react-dom/client'\n${cases.map((item) => `import ${componentName(item.id)} from './${item.id}'`).join('\n')}\nimport Melt from './gooey-melt'\ncreateRoot(document.getElementById('root')!).render(<main><section id="gooey-melt"><h2>Melt</h2><Melt /></section>${cases.map((item) => `<section id="${item.id}"><h2>${item.id}</h2><${componentName(item.id)} /></section>`).join('')}</main>)\n`
   )
   await runLogged(
     ['npx', '--no-install', 'tsc', '--noEmit'],
@@ -262,7 +272,11 @@ try {
     join(artifacts, 'bundle-inputs.json'),
     JSON.stringify(result.metafile.inputs, null, 2)
   )
-  await cp('apps/docs/public/agent-images', join(project, 'dist/agent-images'), { recursive: true })
+  await mkdir(join(project, 'dist/agent-images'))
+  await cp(
+    'apps/docs/public/agent-images/prism-garden.webp',
+    join(project, 'dist/agent-images/prism-garden.webp')
+  )
   await writeFile(
     join(project, 'dist/index.html'),
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Liven UI consumer check</title><style>body{margin:0;background:#181818;color:#fafafa;font:16px system-ui}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;padding:24px}section{min-height:280px;padding:24px;border:1px solid #333;border-radius:24px}h2{font-size:16px}button{padding:16px;border:0;border-radius:999px;background:#333;color:white}</style><div id="root"></div><script type="module" src="/main.js"></script></html>'
@@ -283,11 +297,26 @@ try {
   page.on('console', (message) => {
     if (message.type() === 'error') errors.push(message.text())
   })
+  await page.route('https://livenui.dev/agent-images/**', async (route) => {
+    const response = await page.request.get(
+      `${preview.origin}${new URL(route.request().url()).pathname}`
+    )
+    await route.fulfill({ response })
+  })
   const imageResponse = page.waitForResponse(
     (response) => new URL(response.url()).pathname === '/agent-images/prism-garden.webp'
   )
   await page.goto(`http://127.0.0.1:${consumer.port}`)
   assert.equal((await imageResponse).status(), 200)
+  const meltImages = page.locator('#gooey-melt img')
+  await expect(meltImages).toHaveCount(2)
+  for (const image of await meltImages.all()) {
+    expect(await image.getAttribute('src')).toMatch(/^https:\/\/livenui\.dev\/agent-images\//)
+    await image.evaluate(async (element) => {
+      await (element as HTMLImageElement).decode()
+    })
+  }
+  assert.equal(await Bun.file(join(project, 'dist/agent-images/warm-ribbon.webp')).exists(), false)
   for (const item of cases) {
     const section = page.locator(`#${item.id}`)
     await section.scrollIntoViewIfNeeded()
