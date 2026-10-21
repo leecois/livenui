@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { cp, lstat, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { type Browser, chromium, expect } from '@playwright/test'
+import { defaults } from '../apps/docs/features/component-library/lib/config'
 import { productionPreview, runLogged } from './lib/production-preview'
 
 const cases = [
@@ -17,12 +18,18 @@ const cases = [
   },
   {
     id: 'metal',
-    props: { preset: 'silver', variant: 'circle', strength: 0.6, paused: true },
+    props: {
+      preset: 'silver',
+      variant: 'circle',
+      strength: 0.6,
+      paused: true,
+      normalizeHostStyles: false,
+    },
     selector: '.metal-fx-root canvas',
   },
   {
     id: 'gooey',
-    props: { blur: 8, contrast: 20, item: { effect: 'bend' } },
+    props: { blur: 8, contrast: 20, fill: defaults.gooey.fill, item: { effect: 'bend' } },
     selector: '[data-gooey-svg]',
   },
   {
@@ -258,7 +265,7 @@ try {
   await cp('apps/docs/public/agent-images', join(project, 'dist/agent-images'), { recursive: true })
   await writeFile(
     join(project, 'dist/index.html'),
-    '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Liven UI consumer check</title><style>:root{--gradient-accent:linear-gradient(135deg,#2563eb,#4f21e9)}body{margin:0;background:#181818;color:#fafafa;font:16px system-ui}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;padding:24px}section{min-height:280px;padding:24px;border:1px solid #333;border-radius:24px}h2{font-size:16px}button{padding:16px;border:0;border-radius:999px;background:var(--gradient-accent);color:white}</style><div id="root"></div><script type="module" src="/main.js"></script></html>'
+    '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Liven UI consumer check</title><style>body{margin:0;background:#181818;color:#fafafa;font:16px system-ui}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;padding:24px}section{min-height:280px;padding:24px;border:1px solid #333;border-radius:24px}h2{font-size:16px}button{padding:16px;border:0;border-radius:999px;background:#333;color:white}</style><div id="root"></div><script type="module" src="/main.js"></script></html>'
   )
   consumer = Bun.serve({
     hostname: '127.0.0.1',
@@ -288,6 +295,28 @@ try {
     await expect(renderer).toBeVisible()
     await section.screenshot({ path: join(artifacts, `consumer-${item.id}.png`) })
   }
+  for (const token of ['--gradient-accent', '--surface', '--foreground']) {
+    assert.equal(
+      await page.evaluate(
+        (name) => getComputedStyle(document.documentElement).getPropertyValue(name),
+        token
+      ),
+      ''
+    )
+  }
+  const metalAction = page.locator('#metal button')
+  await expect(metalAction).toHaveCSS('background-image', /linear-gradient/)
+  await expect(metalAction).toHaveCSS('color', 'rgb(255, 255, 255)')
+  await expect(page.locator('#gooey [data-gooey-svg] > g')).toHaveCSS('fill', /color\(srgb/)
+  await page.evaluate(() => {
+    document.documentElement.style.setProperty('--gradient-accent', 'linear-gradient(red, blue)')
+  })
+  await expect(metalAction).toHaveCSS(
+    'background-image',
+    'linear-gradient(rgb(255, 0, 0), rgb(0, 0, 255))'
+  )
+  await page.evaluate(() => document.documentElement.style.removeProperty('--gradient-accent'))
+  await expect(metalAction).toHaveCSS('background-image', /120deg/)
   assert.deepEqual(errors, [])
   await page.screenshot({ path: join(artifacts, 'consumer-full-page.png'), fullPage: true })
   await writeFile(

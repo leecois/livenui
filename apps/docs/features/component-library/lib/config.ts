@@ -42,7 +42,7 @@ export const defaults: Record<string, Props> = {
   gooey: {
     blur: 6,
     contrast: 18,
-    fill: 'color-mix(in srgb, var(--surface) 92%, var(--foreground))',
+    fill: 'color-mix(in srgb, var(--surface, Canvas) 92%, var(--foreground, CanvasText))',
   },
   voice: { type: 'default', look: 'glow', colorVariant: 'ocean', level: 0.5 },
   image: { preset: 'pixels-organic', strength: 1, speed: 1, autoReveal: true },
@@ -195,7 +195,8 @@ export function snippet(library: Library, props: Props): string {
       ...(circle ? { width: 40 } : { padding: '0 20px' }),
       border: 0,
       borderRadius: 999,
-      background: 'var(--gradient-accent)',
+      background:
+        'var(--gradient-accent, linear-gradient(120deg, hsl(220 91% 54%), hsl(250 80% 54%)))',
       color: 'white',
     }
     const style = { ...(props.style as Record<string, unknown>), background: 'transparent' }

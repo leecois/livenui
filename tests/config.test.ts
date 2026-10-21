@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test'
+import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import ts from 'typescript'
 import {
@@ -209,6 +210,23 @@ describe('configuration import and export', () => {
     expect(code).toContain('import { MetalText }')
     expect(code).toContain('font={"500 24px/1.2 system-ui"}')
     expect(code).not.toContain('<MetalFx')
+  })
+  test('standalone metal actions fall back to the canonical accent tokens', async () => {
+    const tokens = await readFile('packages/agent-ui/src/tokens.css', 'utf8')
+    const start = tokens.match(/--livenui-accent-start:\s*([^;]+);/)?.[1]
+    const end = tokens.match(/--livenui-accent-end:\s*([^;]+);/)?.[1]
+    const gradient = tokens.match(/--gradient-accent:\s*([^;]+);/)?.[1]
+    expect(start).toBeDefined()
+    expect(end).toBeDefined()
+    expect(gradient).toBeDefined()
+    const fallback = gradient
+      ?.replace('var(--livenui-accent-start)', start ?? '')
+      .replace('var(--livenui-accent-end)', end ?? '')
+      .replace(/\s/g, '')
+    for (const variant of ['circle', 'button']) {
+      const code = snippet(metal, { ...defaults.metal, variant })
+      expect(code.replace(/\s/g, '')).toContain(`var(--gradient-accent,${fallback})`)
+    }
   })
   test('metal exports typecheck with custom host styles and playback props', () => {
     const sources = new Map<string, string>()
