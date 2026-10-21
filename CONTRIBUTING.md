@@ -18,7 +18,7 @@ Report vulnerabilities through the process in [SECURITY.md](SECURITY.md).
 
 ## Licensing
 
-Original components use the [MIT license](LICENSE) with Liven UI contributor copyright. A new registry package needs its own full `LICENSE` with the appropriate year.
+Original components use the [MIT license](LICENSE) with the appropriate author's copyright notice. A new registry package needs its own full `LICENSE` with the appropriate year. The root license covers original Liven UI contributions; inherited portions retain the notices linked in the [README](README.md#license).
 
 For adapted source or bundled assets, verify that the exact source version permits component redistribution, record its origin in package documentation, and preserve applicable LICENSE/NOTICE content. Attribution applies to the included material. Keep existing notices when modifying inherited code.
 
