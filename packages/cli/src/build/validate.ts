@@ -67,4 +67,11 @@ export function validateOutput(registry: Output) {
 
     validateComponent(comp)
   }
+  const files = new Set([...compSet].map((name) => `${name}.json`))
+  for (const file of files) {
+    for (let parent = path.posix.dirname(file); parent !== '.'; parent = path.posix.dirname(parent)) {
+      if (files.has(parent))
+        throw new Error(`Conflicting registry output paths: ${parent} and ${file}`)
+    }
+  }
 }

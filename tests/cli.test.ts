@@ -382,7 +382,7 @@ describe('dependency subprocess results', () => {
         const events: string[] = []
         let calls = 0
         const install = createDependencyInstaller({
-          getInstalled: async () => new Map(),
+          getInstalled: async () => ({ dependencies: new Map(), devDependencies: new Map() }),
           getManager: async () => manager,
           confirm: async () => true,
           spinner: () => ({
@@ -411,7 +411,10 @@ describe('dependency subprocess results', () => {
       const calls: { command: string; args: string[]; throwOnError: boolean }[] = []
       const events: string[] = []
       const install = createDependencyInstaller({
-        getInstalled: async () => new Map([['existing', '^1']]),
+        getInstalled: async () => ({
+          dependencies: new Map([['existing', '^1']]),
+          devDependencies: new Map(),
+        }),
         getManager: async () => manager,
         confirm: async () => true,
         spinner: () => ({
@@ -430,7 +433,15 @@ describe('dependency subprocess results', () => {
         { existing: '^1', react: '^18', typescript: '^7' }
       )
       expect(calls).toEqual([
-        { command: manager, args: [command, 'react@^19'], throwOnError: true },
+        {
+          command: manager,
+          args: [
+            command,
+            'react@^19',
+            ...(manager === 'npm' || manager === 'pnpm' ? ['--save-prod'] : []),
+          ],
+          throwOnError: true,
+        },
         { command: manager, args: [command, 'typescript@^7', '-D'], throwOnError: true },
       ])
       expect(events).toEqual(['Dependencies installed.'])

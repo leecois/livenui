@@ -73,7 +73,10 @@ export async function writeLivenUIRegistry(
   validateOutput(out)
   if (
     out.components.some(
-      (component) => path.posix.normalize(registryPath(component.name)) === '_registry'
+      (component) => {
+        const name = path.posix.normalize(registryPath(component.name))
+        return name === '_registry' || name.startsWith('_registry.json/')
+      }
     )
   )
     throw new Error('Reserved registry component name: _registry')

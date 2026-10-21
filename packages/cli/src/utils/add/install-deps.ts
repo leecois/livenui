@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises'
 import { confirm, isCancel, spinner } from '@clack/prompts'
 import { resolveCommand } from 'package-manager-detector/commands'
 import { x } from 'tinyexec'
@@ -15,14 +16,20 @@ export function createDependencyInstaller(
 ) {
   return async (deps: Record<string, string | null>, devDeps: Record<string, string | null>) => {
     const installed = await (options.getInstalled ?? getDeps)()
-    const toList = (dependencies: Record<string, string | null>) =>
-      Object.entries(dependencies)
-        .filter(([name]) => !installed.has(name))
-        .map(([name, version]) => (!version ? name : `${name}@${version}`))
-    const items = toList(deps)
-    const devItems = toList(
-      Object.fromEntries(Object.entries(devDeps).filter(([name]) => !Object.hasOwn(deps, name)))
-    )
+    const items = Object.entries(deps)
+      .filter(([name]) => !installed.dependencies.has(name))
+      .map(([name, version]) => {
+        const spec = version ?? installed.devDependencies.get(name)
+        return spec ? `${name}@${spec}` : name
+      })
+    const devItems = Object.entries(devDeps)
+      .filter(
+        ([name]) =>
+          !Object.hasOwn(deps, name) &&
+          !installed.dependencies.has(name) &&
+          !installed.devDependencies.has(name)
+      )
+      .map(([name, version]) => (version ? `${name}@${version}` : name))
     if (!items.length && !devItems.length) return
 
     const manager = await (options.getManager ?? getPackageManager)()
@@ -40,7 +47,29 @@ export function createDependencyInstaller(
     }
     spin.start('Installing dependencies...')
     try {
-      if (items.length) await add(items)
+      if (items.length) {
+        const promotions = Object.keys(deps).filter(
+          (name) => !installed.dependencies.has(name) && installed.devDependencies.has(name)
+        )
+        if (manager !== 'npm' && manager !== 'pnpm' && promotions.length) {
+          const original = await fs.readFile('package.json', 'utf8')
+          const manifest = JSON.parse(original)
+          manifest.dependencies ??= {}
+          for (const name of promotions) {
+            manifest.dependencies[name] = deps[name] ?? manifest.devDependencies[name]
+            delete manifest.devDependencies[name]
+          }
+          await fs.writeFile('package.json', `${JSON.stringify(manifest, null, 2)}\n`)
+          try {
+            await add(items)
+          } catch (error) {
+            await fs.writeFile('package.json', original)
+            throw error
+          }
+        } else {
+          await add([...items, ...(manager === 'npm' || manager === 'pnpm' ? ['--save-prod'] : [])])
+        }
+      }
       if (devItems.length) await add([...devItems, '-D'])
       spin.stop('Dependencies installed.')
     } catch (error) {

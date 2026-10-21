@@ -22,6 +22,12 @@ const invalidOutputs: [string, OutputComponent[], string][] = [
   ],
   ['cycles', [component('first', ['second']), component('second', ['first'])], 'Circular'],
   ['traversal', [component('../escaped')], 'Unsafe registry path'],
+  ['file ancestors', [component('foo'), component('foo.json/bar')], 'Conflicting registry output'],
+  [
+    'reversed normalized ancestors',
+    [component('folder/foo.json/./bar'), component('folder/foo')],
+    'Conflicting registry output',
+  ],
 ]
 
 for (const format of ['native', 'standard'] as const) {
@@ -60,7 +66,7 @@ test('native registry reserves its index filename before cleaning output', async
   const dir = await mkdtemp(join(tmpdir(), 'livenui-output-'))
   try {
     await writeFile(join(dir, '_registry.json'), 'preserve existing index')
-    for (const name of ['_registry', './_registry', '.\\_registry']) {
+    for (const name of ['_registry', './_registry', '.\\_registry', '_registry.json/child']) {
       await expect(
         writeLivenUIRegistry(
           { name: 'test', index: [], components: [component(name)] },

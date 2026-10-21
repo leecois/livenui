@@ -83,7 +83,7 @@ Browser suite names in the table end in `.spec.ts`. All seven libraries, three M
 | --- | --- |
 | Configuration, content and examples | `config`, `controls`, `discovery`, `examples`, `avatar-content`, `avatar-chat`, `orb-limits` |
 | Renderer and resource ownership | `engine`, `lifecycle`, `metal-lifecycle`, `image-reentrancy`, `microphone`, `avatar-relief` |
-| Distribution and build | `registry`, `registry-output`, `cli`, `installer-retry`, `publication`, `search-sync` |
+| Distribution and build | `registry`, `registry-output`, `cli`, `dependency-promotion`, `installer-retry`, `publication`, `search-sync` |
 
 Non-browser suite names end in `.test.ts`. Lifecycle probes run isolated subprocesses with controlled frames, image loads, timers and listeners so module mocks cannot leak into package contract checks. They exercise teardown/replacement inside callbacks, paused rendering, pending imports, microphone requests and installer retries. Mocked ownership checks do not establish visual quality.
 
