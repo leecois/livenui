@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test'
 import { fileURLToPath } from 'node:url'
 
 for (const fail of [false, true]) {
-  test(`post-build ${fail ? 'failure produces a failing process exit' : 'success preserves a successful process exit'}`, async () => {
+  test(`search sync ${fail ? 'failure produces a failing process exit' : 'success preserves a successful process exit'}`, async () => {
     const child = Bun.spawn(
       [
         process.execPath,
@@ -18,7 +18,7 @@ mock.module('./scripts/update-orama-index.ts', () => ({ updateSearchIndexes: asy
   calls++;
   if (${fail}) throw new Error('controlled sync failure');
 } }));
-await import('./scripts/post-build.ts');
+await import('./scripts/sync-search.ts');
 assert.equal(calls, 1);
 assert.equal(errors.length, ${fail ? 1 : 0});
 console.log('passed');

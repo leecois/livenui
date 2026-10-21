@@ -96,3 +96,64 @@ console.log('passed');
   ])
   expect({ exitCode, output, errors }).toEqual({ exitCode: 0, output: 'passed\n', errors: '' })
 })
+
+test('build cache includes generated distribution artifacts', async () => {
+  const { minimatch } = await import('minimatch')
+  const config = await Bun.file(new URL('../turbo.json', import.meta.url)).json()
+  for (const artifact of [
+    'public/r/avatars.json',
+    'public/registry/_registry.json',
+    'public/registry/avatars.json',
+    'public/licenses/metal-fx.txt',
+  ]) {
+    expect(
+      config.tasks.build.outputs.some(
+        (pattern: string) => !pattern.startsWith('!') && minimatch(artifact, pattern)
+      )
+    ).toBe(true)
+    expect(
+      config.tasks.build.outputs.some(
+        (pattern: string) => pattern.startsWith('!') && minimatch(artifact, pattern.slice(1))
+      )
+    ).toBe(false)
+  }
+})
+
+test('search sync stays uncached and receives explicitly opted-in environment settings', async () => {
+  const child = Bun.spawn(
+    [
+      fileURLToPath(new URL('../node_modules/.bin/turbo', import.meta.url)),
+      'run',
+      'sync:search',
+      '--dry=json',
+    ],
+    {
+      cwd: fileURLToPath(new URL('..', import.meta.url)),
+      env: {
+        ...process.env,
+        LIVENUI_SYNC_SEARCH: '1',
+        ORAMA_PRIVATE_API_KEY: 'fixture-only',
+        ORAMA_INDEX_ID: 'fixture-index',
+      },
+      stdout: 'pipe',
+      stderr: 'pipe',
+    }
+  )
+  const [exitCode, output] = await Promise.all([
+    child.exited,
+    new Response(child.stdout).text(),
+    new Response(child.stderr).text(),
+  ])
+  expect(exitCode).toBe(0)
+  const task = JSON.parse(output).tasks.find(
+    (task: { taskId: string }) => task.taskId === '@livenui/docs#sync:search'
+  )
+  expect(task.resolvedTaskDefinition.cache).toBe(false)
+  expect(task.dependencies).toContain('@livenui/docs#build')
+  expect(task.environmentVariables.specified.passThroughEnv).toEqual([
+    'LIVENUI_SYNC_SEARCH',
+    'ORAMA_INDEX_ID',
+    'ORAMA_PRIVATE_API_KEY',
+  ])
+  expect(task.environmentVariables.passthrough).toHaveLength(3)
+})

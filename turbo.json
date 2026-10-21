@@ -3,7 +3,14 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "public/licenses/**"]
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "public/licenses/**",
+        "public/r/**",
+        "public/registry/**"
+      ]
     },
     "typecheck": {
       "dependsOn": ["^build"]
@@ -19,6 +26,11 @@
     },
     "clean": {
       "cache": false
+    },
+    "sync:search": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "passThroughEnv": ["LIVENUI_SYNC_SEARCH", "ORAMA_PRIVATE_API_KEY", "ORAMA_INDEX_ID"]
     }
   },
   "ui": "stream"

@@ -17,6 +17,7 @@
     "dev:docs": "turbo run dev -F @livenui/docs...",
     "start": "bun run --filter @livenui/docs start",
     "build": "turbo run build",
+    "sync:search": "turbo run sync:search",
     "typecheck": "turbo run typecheck && tsc -p tsconfig.tools.json",
     "lint": "biome check .",
     "format": "biome format --write .",

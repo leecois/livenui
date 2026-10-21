@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "bun build:pre && next build && bun build:post",
-    "build:post": "bun ./scripts/post-build.ts",
+    "build": "bun build:pre && next build",
+    "sync:search": "bun ./scripts/sync-search.ts",
     "build:pre": "bun ./scripts/pre-build.ts",
     "clean": "rimraf .next",
     "dev": "next dev --turbopack",
