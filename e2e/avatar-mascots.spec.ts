@@ -8,7 +8,6 @@ import {
 import { buildForm, PAD, SPAN, tierFor } from '../packages/bot-avatars/src/plastic'
 import { botAvatarPresets } from '../packages/bot-avatars/src/presets'
 import { SHAPE_PATHS } from '../packages/bot-avatars/src/shapes'
-import { chooseOption } from './helpers/choices'
 import { openAvatarComponentPreview } from './helpers/component-preview'
 
 const mascots = ['arrowhead', 'chat', 'connector', 'bulb'] as const
@@ -317,16 +316,26 @@ test('every mascot follows the pointer, hops on click and freezes when paused', 
   page,
 }, testInfo) => {
   test.setTimeout(90000)
-  await page.goto('/studio?library=avatars')
-  await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible()
+  const library = libraries.find((item) => item.id === 'avatars')
+  if (!library) throw new Error('Missing avatar library')
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   const canvas = page.locator('.preview-stage canvas[data-bot-avatar]')
   for (const type of mascots) {
-    await chooseOption(page, 'Starting point', `avatars-type-${type}`)
-    await page
-      .getByRole('group', { name: 'Material', exact: true })
-      .getByRole('radio', { name: 'Flat', exact: true })
-      .check()
+    await page.goto(
+      studioHref(
+        library,
+        {
+          ...defaults.avatars,
+          type,
+          shading: 'flat',
+          paused: true,
+          jumpEvery: 0,
+          seed: 1,
+        },
+        'ring'
+      )
+    )
+    await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible()
     await settled(canvas)
     await page.getByRole('button', { name: 'Play', exact: true }).click()
     const initial = await raster(canvas)
