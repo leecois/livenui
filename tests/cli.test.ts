@@ -255,7 +255,7 @@ describe('registry installation containment', () => {
         })
         await expect(installer.install('sample')).rejects.toThrow('Symlink leaves project root')
       }
-      expect(await readdir(join(project, 'src'))).toEqual(['existing.txt', 'linked'])
+      expect((await readdir(join(project, 'src'))).sort()).toEqual(['existing.txt', 'linked'])
       expect(await readFile(join(outside, 'existing.txt'), 'utf8')).toBe('original')
       expect(await readdir(outside)).toEqual(['existing.txt'])
     })
