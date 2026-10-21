@@ -23,7 +23,7 @@ The browser runner owns a production server at `127.0.0.1:43187`, one worker, no
 | Documentation lint | App docs script | Broken public MDX links |
 | Architecture gate | `scripts/check-architecture.ts` | Workspace cycles, inverted dependency boundaries, broken root, developer and package-document links |
 | Bun tests | `tests/` | Valid/invalid configuration, examples, discovery, SDK ESM/CJS contracts, finite orb frames, source-registry installation, standalone compilation, legal-file retention, alias planning and installer cleanup/peers |
-| Build | Turbo and Next pre/post scripts | Package distributions, registry regeneration and all app targets |
+| Build | Turbo and Next pre-build scripts | Package distributions, registry regeneration and all app targets |
 | Browser contracts | `e2e/library.spec.ts` | Render hosts, dimensions/alignment, design tokens, source order, navigation, JSON/preset/transfer workflows |
 | Component workflow | `e2e/component-workflow.spec.ts` | Quick choices, direct installation, variant/configuration handoff, reload and fragment history |
 | Visual review | Primary agent inspecting captures | Aesthetic defects that measurable contracts do not encode |

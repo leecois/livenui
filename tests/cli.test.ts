@@ -80,23 +80,61 @@ describe('registry installation containment', () => {
     })
   }
 
-  test('keeps the first duplicate destination after normalizing dot prefixes', async () => {
+  test('deduplicates identical destinations after normalizing dot prefixes', async () => {
     await inProject(async (project) => {
       const installer = createComponentInstaller({
         projectDir: project,
         config,
         resolver: async () =>
-          component([
-            file('sample.txt'),
-            { ...file('sample.txt'), content: 'ignored duplicate' },
-            file('./sample.txt'),
-          ]),
+          component([file('sample.txt'), file('sample.txt'), file('./sample.txt')]),
       })
       await installer.install('sample')
       expect(await readFile(join(project, 'src/sample.txt'), 'utf8')).toBe('installed')
       expect(await readdir(join(project, 'src'))).toEqual(['sample.txt'])
     })
   })
+
+  for (const nested of [false, true]) {
+    test(`rejects conflicting destination content in ${nested ? 'child components' : 'one component'} before writes`, async () => {
+      await inProject(async (project) => {
+        const first = [file('safe.txt'), file('shared.txt')]
+        const second = [{ ...file('./shared.txt'), content: 'different' }]
+        const installer = createComponentInstaller({
+          projectDir: project,
+          config,
+          resolver: async (name) =>
+            nested
+              ? name === 'sample.json'
+                ? { ...component(first), subComponents: ['child'] }
+                : component(second)
+              : component([...first, ...second]),
+        })
+        await expect(installer.install('sample')).rejects.toThrow('Conflicting output content')
+        expect(await readdir(project)).toEqual([])
+      })
+    })
+  }
+
+  for (const targets of [
+    ['shared', 'shared/nested.txt'],
+    ['shared/nested.txt', './shared'],
+    ['shared', 'shared/deep/nested.txt'],
+  ]) {
+    test(`rejects planned file/ancestor conflicts before writing ${targets.join(', ')}`, async () => {
+      await inProject(async (project) => {
+        const installer = createComponentInstaller({
+          projectDir: project,
+          config,
+          resolver: async (name) =>
+            name === 'sample.json'
+              ? { ...component([file('safe.txt'), file(targets[0])]), subComponents: ['child'] }
+              : component([file(targets[1])]),
+        })
+        await expect(installer.install('sample')).rejects.toThrow('Conflicting output paths')
+        expect(await readdir(project)).toEqual([])
+      })
+    })
+  }
 
   test('preflights directory targets and can retry after the blocker is removed', async () => {
     await inProject(async (project) => {

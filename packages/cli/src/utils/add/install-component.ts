@@ -35,12 +35,22 @@ export function createComponentInstaller(options: {
       for (const file of item.files) {
         const filePath = resolveOutputPath(file)
 
-        if (map.has(filePath)) {
-          console.warn(`noticed duplicated output file for ${filePath}, ignoring for now.`)
+        const existing = map.get(filePath)
+        if (existing) {
+          if (existing.content !== file.content)
+            throw new Error(`Conflicting output content: ${filePath}`)
           continue
         }
 
         map.set(filePath, file)
+      }
+    }
+
+    for (const filePath of map.keys()) {
+      let parent = path.dirname(filePath)
+      while (parent !== path.dirname(parent)) {
+        if (map.has(parent)) throw new Error(`Conflicting output paths: ${parent} and ${filePath}`)
+        parent = path.dirname(parent)
       }
     }
 
