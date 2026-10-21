@@ -38,6 +38,26 @@ The production site/registry origin is `https://livenui.dev`; development defaul
 
 `lint:docs` currently includes a formatting/lint write step inherited from the existing app script. Review `git diff` after every gate; do not assume validation is entirely read-only. `bun run release` publishes and `bun run version` changes release metadata: neither is authorized by ordinary maintenance tasks.
 
+## Hosting on Vercel
+
+Connect the repository with production branch `main`, framework **Next.js**, root directory `apps/docs`, Node **24.x**, and **Include source files outside of the Root Directory** enabled. Keep the framework's default output directory. Set the project install command to:
+
+```sh
+npm install --global --allow-scripts=bun bun@1.4.2 && export PATH="$(npm prefix -g)/bin:$PATH" && bun --version && bun install --frozen-lockfile
+```
+
+Set the build command to:
+
+```sh
+export PATH="$(npm prefix -g)/bin:$PATH" && cd ../.. && bun --version && bun run build
+```
+
+The explicit path selects the installed Bun version instead of the build image's earlier binary. The root build produces workspace SDKs before the application generates its registry. Keep the Bun version aligned with `packageManager` when upgrading.
+
+Use `livenui.dev` as the primary domain and redirect `www.livenui.dev` to it. Apply the DNS records recommended by the project's Domains settings. Leave `NEXT_PUBLIC_APP_URL` unset to use the production default, or set it to `https://livenui.dev`. Ordinary builds need no search credentials.
+
+Authenticate the CLI locally and keep `.vercel/` and `.env*` ignored. Prefer deploying a specific Git commit so local environment files and audit artifacts are excluded. Connecting Git enables automatic deployments on future pushes; push/deploy authorization still follows [AGENTS.md](../AGENTS.md). Verify the live domain and installed-source journey using the [release checks](testing.md#evidence).
+
 ## Avatar configuration
 
 Read [avatar playground](avatar-playground.md) before changing chat or the character workspace. Keep chat scheduling in its hook, full-height composition in its view and control panels supplied with callbacks. Native dialogs own covered-content isolation and compact focus containment. Validate Stop, Offline, re-entry and teardown before changing scripted reply scheduling. Keep shape options sourced from catalog metadata and shape-control thumbnails paused in the existing preview boundary. Chat sidebar rows own only hover/focus presentation; their selected state comes from the existing conversation. Motion belongs in the native preview adapter/SDK with reduced-motion and visibility handling. Inactive thumbnails hold a neutral pose. A single chat-owned media listener prevents sidebar activation under reduced motion and releases its listener on teardown. Keep runtime SDK imports in the preview adapter. Color swatches use the retained SDK palette and share the exact-entry state owner. Check container-based stacking, selected-shape retention, accessory/code equality and renderer identity.
