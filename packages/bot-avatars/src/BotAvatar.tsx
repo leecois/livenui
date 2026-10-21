@@ -51,6 +51,16 @@ function showReady() {
 const reducedMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const BotAvatar = forwardRef<HTMLCanvasElement, BotAvatarProps>(function BotAvatar({ type = 'clover', path, face, state = 'default', size = 64, color, ink, brightness: brightnessProp, saturation: saturationProp, speed = 1, paused = false, seed, shading = 'fabric', hat = 'none', glasses = 'none', headphones = false, bowTie = false, accessoryColor = '#27272b', shadow, highlight, depth = 0.65, roundness = 1, furLength = 1, furDensity = 1.6, furFuzz = 0.9, furClumps = 0.4, furCurl = 0.7, furGravity = 0.9, light, rim, spread, backLight, lightFront, shine, sheen, backSoftness, pose: heldPose, interactive = true, turn = 1, theme = 'auto', whirl = 0, whirlSize = 1, whirlWidth = 1, whirlLength = 1, whirlTilt = 1, jumpHeight = 26, jumpTime = 0.68, jumpStretch = 1, jumpSpin = 1, jumpLean = 6, jumpEvery = 8, jumpLand = 0, jumpSquash = 1.15, jumpSquashTime = 0.37, jumpSquashEase = 'pulse', jumpGroundTime = 0.11, jumpGroundEase = 'pulse', jumpRiseTime = 0.33, jumpRiseEase = 'pulse', jumpClickSquashTime = 0.24, className, style, 'aria-label': ariaLabel, ...rest }, ref) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [motionReduced, setMotionReduced] = useState(reducedMotion);
+    useEffect(() => {
+        if (typeof matchMedia !== 'function')
+            return;
+        const media = matchMedia('(prefers-reduced-motion: reduce)');
+        const update = () => setMotionReduced(media.matches);
+        media.addEventListener('change', update);
+        update();
+        return () => media.removeEventListener('change', update);
+    }, []);
     useImperativeHandle(ref, () => canvasRef.current as HTMLCanvasElement);
     const reactId = useId();
     const preset = botAvatarPresets[type] ?? botAvatarPresets.clover;
@@ -113,7 +123,7 @@ export const BotAvatar = forwardRef<HTMLCanvasElement, BotAvatarProps>(function 
         rim: clamp(rim ?? lit.rim, 0, 2),
         spread: clamp(spread ?? lit.spread, 0.4, 2.5),
         typeKey: outlineKey,
-        still: frozen || reducedMotion(),
+        still: frozen || motionReduced,
         furOnIdle: true,
         whirl: { strength: clamp(whirl, 0, 2), size: clamp(whirlSize, 0.6, 1.6), width: clamp(whirlWidth, 0.4, 2), length: clamp(whirlLength, 0.4, 1.6), tilt: clamp(whirlTilt, 0.5, 1.8) },
         parts: typeof Path2D !== 'undefined' && !customPath && SHAPE_PARTS[type] ? partPaths(SHAPE_PARTS[type] as string) : undefined,
@@ -282,7 +292,7 @@ export const BotAvatar = forwardRef<HTMLCanvasElement, BotAvatarProps>(function 
         sim.current.setJump({ height: jumpHeight, time: Math.max(0.2, jumpTime), stretch: jumpStretch, spin: Math.max(0, Math.round(jumpSpin)), lean: jumpLean, every: jumpEvery, land: jumpLand, squash: jumpSquash, squashTime: Math.max(0.05, jumpSquashTime), squashEase: jumpSquashEase, groundTime: Math.max(0, jumpGroundTime), groundEase: jumpGroundEase, riseTime: Math.max(0.05, jumpRiseTime), riseEase: jumpRiseEase, clickSquashTime: Math.max(0.05, jumpClickSquashTime) });
         if (holding.current)
             return;
-        if (reducedMotion()) {
+        if (motionReduced) {
             const still = () => {
                 const canvas = canvasRef.current;
                 if (!canvas || !cfg.current || !cfg.current.path)
@@ -337,7 +347,7 @@ export const BotAvatar = forwardRef<HTMLCanvasElement, BotAvatarProps>(function 
         };
     }, [shadingMode, outlineKey, size, depth, furId, light, backLight, lightFront]);
     useEffect(() => {
-        if (frozen || reducedMotion())
+        if (frozen || motionReduced)
             return;
         const canvas = canvasRef.current;
         if (!canvas)
@@ -391,7 +401,7 @@ export const BotAvatar = forwardRef<HTMLCanvasElement, BotAvatarProps>(function 
             if (io)
                 io.disconnect();
         };
-    }, [frozen]);
+    }, [frozen, motionReduced]);
     const dim = typeof size === 'number' ? `${size * OVERSCAN}px` : `calc(${size} * ${OVERSCAN})`;
     const pull = (k: number) => (typeof size === 'number' ? `${-size * k}px` : `calc(${size} * ${-k})`);
     const side = (OVERSCAN - 1) / 2;
@@ -401,7 +411,7 @@ export const BotAvatar = forwardRef<HTMLCanvasElement, BotAvatarProps>(function 
         flex: 'none', opacity: shown ? 1 : 0, transition: 'opacity 0.3s ease-out', ...style,
     };
     const onClick = (e: MouseEvent<HTMLCanvasElement>) => {
-        if (interactive && !frozen && !heldPose)
+        if (interactive && !frozen && !motionReduced && !heldPose)
             sim.current?.poke();
         rest.onClick?.(e);
     };

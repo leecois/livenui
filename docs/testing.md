@@ -73,7 +73,7 @@ The complete Chromium suite runs desktop (1440px) and mobile (390px) in both the
 | Settings | `settings-controls`, `settings-layout`, `direct-choices`, `selection-tracks`, `control-feedback`, `clean-labels` | Native keyboard/touch interaction, numeric drafts and full-track dragging, direct choices, contained focus and stable geometry; [settings guide](settings-layout.md) |
 | Studio and preview | `studio-workspace`, `preview-width`, `playground-state`, `gooey-layout` | Presets, configuration retention, pre-hydration layout, resizing and one behavior selector; [Studio](studio-workspace.md) and [preview sizing](preview-layout.md) |
 | Avatar chat | `avatar-chat`, `avatar-chat-entry`, `avatar-chat-settings`, `avatar-chat-viewport`, `avatar-chat-keyboard`, `avatar-chat-motion`, `avatar-layout` | Local conversations, initial layout, helper/configuration identity, viewport anchoring, sidebar motion and teardown; [avatar playground](avatar-playground.md) |
-| Rendering | `avatar-mascots`, plus moving-scene cases in `library` | Native materials, state, pointer interaction, pause and Connector relief; [mascots](mascots.md) |
+| Rendering | `avatar-mascots`, `sdk-lifecycle`, plus moving-scene cases in `library` | Native materials, state, pointer interaction, pause and Connector relief; [mascots](mascots.md) |
 | Resources and untrusted input | `microphone`, `playground-security` | Late capture cleanup, rejected raw SVG filters and Orb resource budgets |
 | Assets and shell | `branding`, `demo-images`, `sidebar-icons` | Brand/media payloads, real image decoding, navigation focus/motion and compact containment; [brand](brand.md) and [media](demo-media.md) |
 

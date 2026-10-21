@@ -720,9 +720,21 @@ export function registerVoiceInstance(el: HTMLElement, config: VoiceDriverConfig
         }
     }
     instances.add(inst);
+    let width = el.clientWidth;
+    let height = el.clientHeight;
+    const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(() => {
+        if (!instances.has(inst) || (width === el.clientWidth && height === el.clientHeight))
+            return;
+        width = el.clientWidth;
+        height = el.clientHeight;
+        inst.paintedConfig = null;
+        startLoop();
+    }) : null;
+    observer?.observe(el);
     startLoop();
     return () => {
         instances.delete(inst);
+        observer?.disconnect();
         inst.releaseAnalyser?.();
         stopLoopIfIdle();
     };

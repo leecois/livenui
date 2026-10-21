@@ -97,7 +97,7 @@ Metal shares a renderer but maintains per-instance material frames and pause beh
 
 Image cycle startup retains an explicit pause without scheduling image work. Resuming a cycle preserves its one-shot or continuous mode and manual hold. Completing a resumed hide releases the current image and schedules another reveal only for continuous playback.
 
-Explicit paused Image draws include the target's dimensions when sizing the shared renderer, and paused resizes repaint the held reveal. Resetting a shader after the final instance is destroyed must not allocate another renderer. Voice's frame loop sleeps once every registered instance has painted its paused configuration; registering a changed or active instance wakes it. Custom avatar material caches use complete path identity rather than a reduced animation seed.
+Explicit paused Image draws include the target's dimensions when sizing the shared renderer, and paused resizes repaint the held reveal. Resetting a shader after the final instance is destroyed must not allocate another renderer. Voice's frame loop sleeps once every registered instance has painted its paused configuration; registering a changed or active instance wakes it. Its host resize observer invalidates a held paint without advancing animation time and disconnects on unregister. Mounted avatars subscribe to reduced-motion preference changes, stop or resume their ticker accordingly, and release the media listener on teardown. Custom avatar material caches use complete path identity rather than a reduced animation seed.
 
 ## Data and trust boundaries
 
@@ -121,7 +121,7 @@ The same pre-build generates ignored `public/licenses/` copies from package orig
 
 The separate `livenui-ui/registry` support registry includes local utilities with their consuming components. It must not emit browser imports from the build-time installer package or require its own package to supply those utilities.
 
-Post-build task failures propagate a nonzero process exit. Optional search synchronization cannot report a successful build after a requested sync fails.
+Remote search synchronization runs through the explicit, uncached `sync:search` task after its build dependency completes. A synchronization failure produces a nonzero task exit even when the build was restored successfully from cache. Ordinary builds never synchronize the remote index.
 
 Protected public contracts include `/agents`, `/agents/gallery`, `/studio`, seven `/agents/{id}` guides, `/agents/integration`, `/api/search`, `/r`, `/registry`, `/agent-skill.md`, `/llms.txt`, `/llms-full.txt`, MDX text, static JSON and OG routes. `/` and retired blog routes retain redirects. Glass page-tree navigation has one active destination. The site origin is owned by `lib/site.ts`: `NEXT_PUBLIC_APP_URL` overrides the development localhost default or shared production `https://livenui.dev` fallback in the pure distribution helper. Metadata and registry generation share this origin; do not advertise retired RSS endpoints. Infrastructure in `nixpacks.toml`, Turbo outputs, root scripts and `.github` remains explicit and reviewed.
 

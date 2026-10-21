@@ -486,3 +486,57 @@ cycle.dispose();
 console.log('passed');
 `)
 })
+
+test('paused Voice repaints resized and revealed hosts without keeping frames alive', async () => {
+  await probe(`
+import assert from 'node:assert/strict';
+import { registerVoiceInstance } from './packages/voice-glow/src/voiceDriver.ts';
+const frames = new Map<number, FrameRequestCallback>(); let id = 0;
+const observers = [];
+globalThis.ResizeObserver = class {
+  disconnected = false;
+  constructor(callback) { this.callback = callback; observers.push(this); }
+  observe() {}
+  disconnect() { this.disconnected = true; }
+};
+Object.assign(globalThis, {
+  requestAnimationFrame: (fn: FrameRequestCallback) => { frames.set(++id, fn); return id; },
+  cancelAnimationFrame: (id: number) => frames.delete(id),
+});
+const ctx = new Proxy({ createLinearGradient: () => ({ addColorStop() {} }) }, { get: (target, key) => key in target ? target[key] : () => {} });
+const canvas = { width: 0, height: 0, getContext: () => ctx };
+const properties = new Map<string,string>();
+const host = {
+  clientWidth: 100, clientHeight: 80,
+  hasAttribute: () => false,
+  querySelector: (selector: string) => selector === ':scope > [data-voice-beam-band]' ? canvas : null,
+  style: { setProperty: (key: string, value: string) => properties.set(key, value) },
+};
+const config = (id: string, paused: boolean) => new Proxy({ id, paused, look: 'glow', distortion: 0, reducedMotion: true, theme: 'dark', layers: {}, bandColors: { above: '255,0,0', mid: '0,255,0', below: '0,0,255', core: '255,255,255' } }, { get: (target, key) => key in target ? target[key] : 1 });
+function step(t: number) { const [id, fn] = frames.entries().next().value!; frames.delete(id); fn(t); }
+const off = registerVoiceInstance(host as any, config('held', true) as any, {});
+step(100);
+assert.deepEqual([canvas.width, canvas.height, frames.size], [100,80,0]);
+const originalClip = properties.get('--vb-clip-below-held');
+host.clientWidth = 300; host.clientHeight = 160;
+observers[0].callback();
+step(200);
+assert.deepEqual([canvas.width, canvas.height, frames.size], [300,160,0]);
+assert.notEqual(properties.get('--vb-clip-below-held'), originalClip);
+const heldHue = properties.get('--vb-hue-held');
+observers[0].callback();
+assert.equal(frames.size, 0);
+host.clientWidth = 0; host.clientHeight = 0;
+observers[0].callback(); step(300);
+assert.equal(frames.size, 0);
+host.clientWidth = 220; host.clientHeight = 120;
+observers[0].callback(); step(400);
+assert.deepEqual([canvas.width, canvas.height, frames.size], [220,120,0]);
+assert.equal(properties.get('--vb-hue-held'), heldHue);
+off();
+assert.equal(observers[0].disconnected, true);
+host.clientWidth = 350; observers[0].callback();
+assert.equal(frames.size, 0);
+console.log('passed');
+`)
+})
