@@ -3,11 +3,10 @@
 import { Button } from '@livenui/agent-ui'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
-import { CardPreview } from '../components/card-preview'
-import { Link } from '../components/link'
+import { CatalogCard } from '../components/catalog-card'
 import { useLibrarySession } from '../hooks/use-library-session'
 import { libraries } from '../lib/config'
-import { content, fieldLabel, orderExamples, searchExamples } from '../lib/content'
+import { orderExamples, searchExamples } from '../lib/content'
 import { examples } from '../lib/examples'
 
 const galleryExamples = orderExamples(examples)
@@ -36,27 +35,30 @@ function Gallery() {
   return (
     <div className="agent-libraries not-prose">
       <section className="catalog example-gallery" aria-label="Component examples">
-        <div className="section-heading">
-          <div>
-            <h2>Choose a starting point</h2>
-            <p className="helper-text" role="status">
-              Showing {visible.length} of {matches.length} examples
-              {selected !== 'all'
-                ? ` · ${libraries.find((library) => library.id === selected)?.name}`
-                : ''}
-            </p>
-          </div>
+        <div className="catalog-toolbar">
           <label className="catalog-search">
-            <span aria-hidden="true">⌕</span>
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 4 4" />
+            </svg>
             <input
               type="search"
               aria-label="Search examples"
-              placeholder="Search name or use case…"
+              placeholder="Search examples"
               value={query}
               onChange={(event) => updateFilters(selected, event.target.value)}
             />
           </label>
         </div>
+        <p className="sr-only" role="status">
+          Showing {visible.length} of {matches.length} examples
+        </p>
         <fieldset className="gallery-filters" aria-label="Filter examples by library">
           {[{ id: 'all', name: 'All components' }, ...libraries].map((library) => (
             <button
@@ -84,32 +86,19 @@ function Gallery() {
             const library = libraries.find((library) => library.id === example.library)
             if (!library) return null
             return (
-              <article className="library-card example-card" key={example.id}>
-                <CardPreview library={library} theme={theme} example={example} />
-                <div className="card-info">
-                  <span className="card-purpose">{library.name}</span>
-                  <h3 className="card-title">
-                    <Link
-                      href={`/studio?library=${library.id}&example=${example.id}`}
-                      navigate={navigate}
-                    >
-                      {example.name} <span aria-hidden="true">↗</span>
-                    </Link>
-                  </h3>
-                  <p>
-                    {content[library.id].purpose} ·{' '}
-                    {example.variant === 'ring'
-                      ? 'Interactive preview'
-                      : `${fieldLabel(example.variant)} preview`}
-                  </p>
-                </div>
-              </article>
+              <CatalogCard
+                key={example.id}
+                library={library}
+                example={example}
+                theme={theme}
+                navigate={navigate}
+              />
             )
           })}
         </div>
         {matches.length === 0 && (
           <div className="empty-state">
-            <p>No examples match these filters. Try another name or component.</p>
+            <p>No examples found.</p>
             <Button onClick={() => updateFilters('all', '', true)}>Clear search & filters</Button>
           </div>
         )}
@@ -119,7 +108,6 @@ function Gallery() {
               Show {Math.min(12, matches.length - visible.length)} more examples{' '}
               <span aria-hidden="true">↓</span>
             </Button>
-            <p className="helper-text">{matches.length - visible.length} more to explore</p>
           </div>
         )}
       </section>

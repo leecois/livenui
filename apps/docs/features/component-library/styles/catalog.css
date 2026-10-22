@@ -1,16 +1,15 @@
 .agent-libraries .catalog {
   padding: 8px 0 32px;
 }
-.agent-libraries .section-heading {
+.agent-libraries .catalog-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--livenui-space-6);
+  gap: var(--livenui-space-3);
   margin-bottom: var(--livenui-space-6);
 }
-.agent-libraries .section-heading h2 {
-  font-size: 24px;
-  margin-bottom: var(--livenui-space-2);
+.agent-libraries .catalog-toolbar .catalog-search {
+  flex: 1;
+  min-width: 0;
 }
 .agent-libraries .catalog-search {
   display: flex;
@@ -22,13 +21,14 @@
   border-radius: var(--livenui-radius-control);
   background: var(--surface-glass);
 }
-.agent-libraries .catalog-search span {
-  font-size: 22px;
-  line-height: 1;
+.agent-libraries .catalog-search svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
   color: var(--muted);
 }
 .agent-libraries .catalog-search input {
-  width: 215px;
+  width: 100%;
   min-width: 0;
   padding: 0;
   border: 0;
@@ -43,18 +43,19 @@
 }
 .agent-libraries .library-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--livenui-space-6);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--livenui-space-4);
 }
 .agent-libraries .library-card {
+  position: relative;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
   background: var(--surface);
   min-width: 0;
-  transition: border-color 160ms;
+  transition: border-color var(--livenui-motion-feedback);
 }
-.agent-libraries .library-card:hover {
+.agent-libraries .library-card:is(:hover, :focus-within) {
   border-color: var(--muted);
 }
 .agent-libraries .card-preview {
@@ -75,7 +76,9 @@
   max-width: 100%;
   transform: scale(0.8);
 }
-.agent-libraries .card-preview :is(.demo-actions, .demo-note, .avatar-demo p, .orb-demo p) {
+.agent-libraries
+  .card-preview
+  :is(.demo-actions, .demo-note, .metal-hint, .avatar-demo p, .orb-demo p) {
   display: none;
 }
 .agent-libraries .card-orbs .card-preview-inner {
@@ -87,100 +90,43 @@
 .agent-libraries .card-gooey .card-preview-inner {
   width: 100%;
 }
+.agent-libraries .catalog-card-link {
+  outline: none;
+}
+.agent-libraries .catalog-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius);
+}
+.agent-libraries .catalog-card-link:focus-visible::after {
+  outline: var(--livenui-focus-width) solid var(--ring);
+  outline-offset: var(--livenui-focus-offset);
+}
 .agent-libraries .card-info {
-  padding: var(--livenui-space-6);
-}
-.agent-libraries .card-title {
-  display: flex;
-  align-items: center;
-  gap: var(--livenui-space-3);
-}
-.agent-libraries .card-title a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--livenui-space-2);
-  font-size: 22px;
-  line-height: 1.3;
-  letter-spacing: -0.025em;
-  font-weight: 550;
-}
-.agent-libraries .card-title a span {
-  color: var(--muted);
-  font-size: 18px;
-}
-.agent-libraries .card-purpose {
-  display: inline-block;
-  padding: 5px 10px;
-  margin-bottom: var(--livenui-space-3);
-  border-radius: var(--livenui-radius-control);
-  background: var(--track);
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.5;
-}
-.agent-libraries .card-info p {
-  color: var(--muted);
-  font-size: var(--livenui-font-body);
-  line-height: 1.6;
-  margin-top: var(--livenui-space-3);
-  max-width: 54ch;
-}
-.agent-libraries .card-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--livenui-space-2);
-  color: var(--muted);
-  font-size: var(--livenui-font-caption);
-  margin-top: var(--livenui-space-5);
-  padding-top: var(--livenui-space-3);
-  border-top: 1px solid var(--border);
-}
-.agent-libraries .card-meta a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-}
-.agent-libraries .collection-actions {
-  display: flex;
-  flex-wrap: wrap;
   gap: var(--livenui-space-3);
-  margin-bottom: var(--livenui-space-8);
+  min-height: 60px;
+  padding: var(--livenui-space-3) var(--livenui-space-4);
 }
-.agent-libraries .workflow {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  list-style: none;
-  gap: var(--livenui-space-6);
-  padding: var(--livenui-space-6) 0;
-  margin: 0;
-  border-top: 1px solid var(--border);
+.agent-libraries .card-title {
+  font-size: var(--livenui-font-body);
+  font-weight: 550;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
-.agent-libraries .workflow li {
-  display: flex;
-  align-items: start;
-  gap: var(--livenui-space-3);
-}
-.agent-libraries .workflow li > span {
-  display: grid;
-  place-items: center;
+.agent-libraries .card-info svg {
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--livenui-radius-control);
-  background: var(--track);
   color: var(--muted);
-  font-size: var(--livenui-font-caption);
+  transition: transform var(--livenui-motion-feedback) var(--livenui-ease-selection);
 }
-.agent-libraries .workflow h3 {
-  font-size: 15px;
-}
-.agent-libraries .workflow p {
-  color: var(--muted);
-  font-size: var(--livenui-font-label);
-  margin-top: var(--livenui-space-2);
-  line-height: 1.6;
+.agent-libraries .library-card:is(:hover, :focus-within) .card-info svg {
+  transform: translate(2px, -2px);
 }
 .agent-libraries .empty-state {
   padding: var(--livenui-space-8) 0;
@@ -202,21 +148,6 @@
 .agent-libraries .clear-filters {
   margin-bottom: var(--livenui-space-4);
 }
-.agent-libraries .example-gallery .library-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-.agent-libraries .example-card .card-info {
-  padding: var(--livenui-space-5);
-}
-.agent-libraries .example-card .card-title a {
-  font-size: 18px;
-}
-.agent-libraries .example-card .card-info p {
-  font-size: var(--livenui-font-caption);
-}
-.agent-libraries .example-card .card-preview {
-  height: 240px;
-}
 .agent-libraries .gallery-more {
   display: flex;
   align-items: center;
@@ -225,33 +156,28 @@
   padding-top: var(--livenui-space-6);
 }
 @container (width < 900px) {
-  .agent-libraries .example-gallery .library-grid {
+  .agent-libraries .library-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@container (width < 760px) {
-  .agent-libraries .workflow {
+@container (width < 550px) {
+  .agent-libraries .library-grid {
     grid-template-columns: 1fr;
+  }
+  .agent-libraries .catalog-toolbar {
+    flex-wrap: wrap;
+  }
+  .agent-libraries .catalog-toolbar .catalog-search {
+    flex-basis: 180px;
   }
 }
-@container (width < 550px) {
-  .agent-libraries .library-grid,
-  .agent-libraries .example-gallery .library-grid {
-    grid-template-columns: 1fr;
+@media (prefers-reduced-motion: reduce) {
+  .agent-libraries .library-card,
+  .agent-libraries .card-info svg {
+    transition: none;
   }
-  .agent-libraries .section-heading {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--livenui-space-4);
-  }
-  .agent-libraries .catalog-search {
-    width: 100%;
-  }
-  .agent-libraries .catalog-search input {
-    width: 100%;
-  }
-  .agent-libraries .card-info {
-    padding: var(--livenui-space-5);
+  .agent-libraries .library-card:is(:hover, :focus-within) .card-info svg {
+    transform: none;
   }
 }
 

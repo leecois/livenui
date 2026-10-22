@@ -17,6 +17,10 @@
   display: flex;
 }
 
+#fd-glass-layout [data-library-discovery] + .grid {
+  display: none;
+}
+
 #fd-glass-layout #nd-toc:has(a:focus-visible) #nd-toc-title {
   opacity: 1;
   height: calc(6 * var(--spacing));

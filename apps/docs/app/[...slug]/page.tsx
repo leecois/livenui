@@ -19,6 +19,7 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
   const { slug } = await props.params
   const page = source.getPage(slug)
   if (!page) notFound()
+  const discovery = page.url === '/agents' || page.url === '/agents/gallery'
   const { body: Mdx, toc } = await page.data.load()
   return (
     <DocsPage
@@ -26,10 +27,12 @@ export default async function Page(props: PageProps<'/[...slug]'>) {
       full={page.slugs[0] === 'agents'}
     >
       <DocsTitle className="text-3xl font-semibold">{page.data.title}</DocsTitle>
-      <DocsDescription className="text-lg text-fd-muted-foreground">
-        {page.data.description}
-      </DocsDescription>
-      <DocsBody className="text-fd-foreground/90">
+      {!discovery && (
+        <DocsDescription className="text-lg text-fd-muted-foreground">
+          {page.data.description}
+        </DocsDescription>
+      )}
+      <DocsBody className="text-fd-foreground/90" data-library-discovery={discovery || undefined}>
         <Mdx
           components={getMDXComponents({
             ...Twoslash,

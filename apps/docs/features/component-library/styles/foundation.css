@@ -142,8 +142,7 @@
   line-height: 1.5;
   text-align: start;
 }
-.agent-libraries .text-button:hover,
-.agent-libraries .card-meta a:hover {
+.agent-libraries .text-button:hover {
   color: var(--foreground);
   text-decoration: underline;
   text-underline-offset: 4px;

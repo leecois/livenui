@@ -87,7 +87,11 @@ The original rounded L and unfolding leaf use the canonical SVG. Keep the naviga
 
 ## Page anatomy
 
-Keep the Glass shell and a single page-tree destination for each route. Overview explains component use cases, Gallery compares configurations, guides provide essential controls, and Studio offers all controls, JSON and browser-local saved presets.
+Keep the Glass shell and a single page-tree destination for each route. Overview presents the seven components visually, Gallery compares configurations, guides provide essential controls, and Studio offers all controls, JSON and browser-local saved presets.
+
+Discovery pages show one title, search and preview cards without taglines, purpose badges, repeated descriptions or instructional steps. Components links to Examples beside search; the navigation retains Get started. Each card is one native link with a live, inert preview and a compact title footer. The whole card opens its guide or configured Studio example. Gallery link names include the library for assistive navigation; visible labels show only the example title. Search still indexes names, APIs and use cases; result counts remain live announcements. Discovery omits the automatic previous/next guide footer; search, the Examples action and navigation already provide those destinations. Inert cards omit gesture hints; interactive playgrounds retain them. Metadata and machine-readable documentation retain descriptions. Preserve empty-state recovery, shareable gallery filters and incremental loading.
+
+Cards share 254px preview heights, 16px grid gaps and 12px/16px footer padding. Titles use the 14px body token, and decorative arrows use 18px geometry. Hover and keyboard focus emphasize the border and move only the arrow by 2px using the feedback token; reduced motion removes that movement. Keyboard focus stays inside the card. Do not add overlay actions or nested links to inert previews.
 
 Main navigation uses a 12px panel radius, 8px horizontal list insets and rounded-full rows. Keep icons at 18px with a 10px icon-to-label gap. Desktop rows have a 32px minimum height; below 768px or when any pointer is coarse, retain 44px touch targets. Long labels grow the row rather than clip. Group headings have 20px separation from the preceding row, with no leading group margin. Header and footer remain outside the scrolling list. Preserve neutral route selection, contained keyboard focus and finite icon motion.
 
@@ -123,7 +127,7 @@ Application headings use weight 550, line-height 1.3 and -0.025em tracking. Cata
 
 Editable text uses the input token, which increases to 16px on touch devices without enlarging labels or changing control geometry. Preserve native pinch zoom. Fullscreen chat follows the visual viewport height and vertical offset while the keyboard is open; its composer and Send target remain above the keyboard. Side panels and bot creation use the same visible bounds, while their contents scroll locally. Pinch zoom keeps native viewport behavior rather than resizing the application to cancel magnification.
 
-Use the owning container width. The Glass sidebar changes available space, and settings panels establish their own inline-size containers. Numeric/color/text fields use three columns at 900px or wider, two below 900px and one below 550px. Categorical fields use two columns on wide settings and one below 900px. Each enum grid fits its field; shape grids span the complete row. Gallery becomes two columns below 900px and one below 550px. Heading/search and task actions wrap on compact layouts.
+Use the owning container width. The Glass sidebar changes available space, and settings panels establish their own inline-size containers. Numeric/color/text fields use three columns at 900px or wider, two below 900px and one below 550px. Categorical fields use two columns on wide settings and one below 900px. Each enum grid fits its field; shape grids span the complete row. Components and Gallery use three columns at 900px or wider, two below 900px and one below 550px. Search and task actions wrap on compact layouts.
 
 At 320, 390, 768, 1024 and 1440px, controls, preset names, commands, API tables and scenes must not widen the document. Editors/tables scroll locally. Multiline editors use a 16px radius rather than capsule geometry. Check longer labels and 200% zoom after composition changes.
 

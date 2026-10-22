@@ -207,14 +207,14 @@ test('discovery, shareable filters and Metal variants', async ({ page }) => {
   await expect(cards).toHaveCount(12)
   expect(
     await page
-      .locator('.card-purpose')
-      .evaluateAll((nodes) => new Set(nodes.map((node) => node.textContent)).size)
+      .locator('.library-card')
+      .evaluateAll((nodes) => new Set(nodes.map((node) => node.getAttribute('data-library'))).size)
   ).toBe(7)
   await page.getByRole('searchbox', { name: 'Search examples' }).fill('MetalText')
   await expect(cards).toHaveCount(1)
   await page.reload()
   await expect(page.getByRole('searchbox', { name: 'Search examples' })).toHaveValue('MetalText')
-  await page.locator('.card-title a').click()
+  await page.locator('.catalog-card-link').click()
   await expect(page).toHaveURL(/studio.*example=metal-text/)
   await expect(page.locator('.code-panel code')).toContainText('MetalText')
   await expect(page.locator('#prop-font')).toBeVisible()
@@ -358,7 +358,9 @@ test('all examples remain reachable and preview variants retain interactions', a
   await page.goto('/agents/gallery')
   for (let count = 12; count < 87; count += 12) {
     await page.getByRole('button', { name: /Show \d+ more examples/ }).click()
-    await expect(page.locator('.example-card')).toHaveCount(Math.min(count + 12, 87))
+    await expect(page.locator('.example-gallery .library-card')).toHaveCount(
+      Math.min(count + 12, 87)
+    )
   }
   await page.goto('/studio?library=metal')
   const components = page.getByRole('group', { name: 'Metal component' })
