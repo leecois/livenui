@@ -8,12 +8,16 @@
   );
   --livenui-space-1: 4px;
   --livenui-space-2: 8px;
+  --livenui-space-2-5: 10px;
   --livenui-space-3: 12px;
   --livenui-space-4: 16px;
   --livenui-space-5: 20px;
   --livenui-space-6: 24px;
   --livenui-space-8: 32px;
   --livenui-radius-panel: 24px;
+  --livenui-radius-sidebar: 12px;
+  --livenui-sidebar-row-height: 32px;
+  --livenui-sidebar-icon-size: 18px;
   --livenui-radius-control: 9999px;
   --livenui-control-height: 44px;
   --livenui-font-body: 14px;

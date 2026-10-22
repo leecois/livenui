@@ -67,8 +67,11 @@ Every enum keeps its original typed value. Display names such as Idle are presen
 | `--surface` / `--surface-glass` | Shell card / 94% card mix | Panels and preview surfaces |
 | `--track` | Shell muted surface | Inset tracks and command backgrounds |
 | `--muted` / `--border` / `--ring` | Shell semantic colors | Help text, dividers and focus |
-| `--livenui-space-1/2/3/4/5/6/8` | 4/8/12/16/20/24/32px | Contextual spacing |
-| `--livenui-control-height` | 44px | Minimum interactive height |
+| `--livenui-space-1/2/2-5/3/4/5/6/8` | 4/8/10/12/16/20/24/32px | Contextual spacing |
+| `--livenui-control-height` | 44px | Controls and touch navigation targets |
+| `--livenui-sidebar-row-height` | 32px | Compact desktop navigation rows; long labels can grow |
+| `--livenui-sidebar-icon-size` | 18px | Decorative navigation icons |
+| `--livenui-radius-sidebar` | 12px | Main navigation panel and mobile drawer corners |
 | `--livenui-radius-control` | 9999px | Buttons, chips and tracks |
 | `--livenui-radius-panel` | 24px | Panels, cards and preview corners |
 | `--livenui-font-body/label/caption` | 14/13/12px | Application text |
@@ -85,6 +88,8 @@ The original rounded L and unfolding leaf use the canonical SVG. Keep the naviga
 ## Page anatomy
 
 Keep the Glass shell and a single page-tree destination for each route. Overview explains component use cases, Gallery compares configurations, guides provide essential controls, and Studio offers all controls, JSON and browser-local saved presets.
+
+Main navigation uses a 12px panel radius, 8px horizontal list insets and rounded-full rows. Keep icons at 18px with a 10px icon-to-label gap. Desktop rows have a 32px minimum height; below 768px or when any pointer is coarse, retain 44px touch targets. Long labels grow the row rather than clip. Group headings have 20px separation from the preceding row, with no leading group margin. Header and footer remain outside the scrolling list. Preserve neutral route selection, contained keyboard focus and finite icon motion.
 
 On guides, Preview / Install & Usage is the main task switch. Keep Open in Studio and Copy prompt nearby. Ordinary guides show starting examples, preview, quick settings and current code in reading order. Studio opens a fullscreen workspace: component links and starting examples on the left, persistent live preview in the center, and Customize / Presets / Code on the right. At 1100px these columns are 256px, flexible and 352px. Below 1100px, Components becomes a native drawer; below 700px, preview and inspector stack in two viewport rows with independent scrolling. Header and inspector tabs stay outside scroll regions. JSON is a disclosure in Customize; installation lives in Code. See [Studio workspace](docs/studio-workspace.md). Installation combines the source command, current configured code, integration guidance and optional API reference. Package manager choices and the icon copy action sit above the complete command. Import/export remains in Studio.
 
@@ -146,7 +151,7 @@ Action buttons, standalone pills and Default actions use the 160ms feedback toke
 
 Studio's structural scroll regions have no focus outline. Focus cues belong to their interactive children: links, buttons, radios and editors retain the shared ring or their compound field indicator. Do not add panel tab stops, redirect focus or change native scrolling to hide a container frame.
 
-Dialogs contain focus, support Escape and restore their opener. The mobile drawer keeps header/footer outside its scrolling destination list; focused rows must be fully visible. Decorative icons are `aria-hidden` and unfocusable. Sidebar icons are 18px with 44px rows; their finite detail motion settles within 840ms and disappears under reduced motion.
+Dialogs contain focus, support Escape and restore their opener. The mobile drawer keeps header/footer outside its scrolling destination list; focused rows must be fully visible. Decorative icons are `aria-hidden` and unfocusable. Sidebar row geometry follows the main navigation contract; finite icon detail motion settles within 840ms and disappears under reduced motion.
 
 Search has an accessible name and an actionable empty-state reset. Feedback stays adjacent with `role="status"`/`aria-live`; invalid configuration preserves working preview/code. Microphone access requires an explicit action and simulation stays separate.
 

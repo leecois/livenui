@@ -53,20 +53,51 @@ test('sidebar icons preserve destinations, labels and reduced-motion navigation'
       if (!icon) throw new Error('Missing navigation icon')
       const box = node.getBoundingClientRect()
       const image = icon.getBoundingClientRect()
+      const panel = node.closest('#nd-sidebar, #nd-sidebar-mobile')
+      const label = Array.from(node.childNodes).find(
+        (child) => child.nodeType === Node.TEXT_NODE && child.textContent?.trim()
+      )
+      if (!panel || !label) throw new Error('Missing navigation panel or label')
+      const panelBox = panel.getBoundingClientRect()
+      const panelStyle = getComputedStyle(panel)
+      const range = document.createRange()
+      range.selectNode(label)
       return {
         height: box.height,
+        gap: range.getBoundingClientRect().left - image.right,
+        insetStart: box.left - panelBox.left - Number.parseFloat(panelStyle.borderLeftWidth),
+        insetEnd: panelBox.right - box.right - Number.parseFloat(panelStyle.borderRightWidth),
+        radius: panelStyle.borderTopLeftRadius,
+        focusOffset: getComputedStyle(node).outlineOffset,
+        focusWidth: getComputedStyle(node).outlineWidth,
         size: getComputedStyle(icon).width,
         iconHeight: getComputedStyle(icon).height,
         alignment: Math.abs(box.y + box.height / 2 - image.y - image.height / 2),
         animations: icon.getAnimations({ subtree: true }).length,
       }
     })
-    expect(geometry.height).toBeGreaterThanOrEqual(44)
+    expect(geometry.height).toBe(testInfo.project.use.viewport?.width === 390 ? 44 : 32)
+    expect(geometry.gap).toBeCloseTo(10, 1)
+    expect(geometry.insetStart).toBeCloseTo(8, 1)
+    expect(geometry.insetEnd).toBeCloseTo(8, 1)
+    expect(geometry.radius).toBe('12px')
+    expect(geometry.focusOffset).toBe('-2px')
+    expect(geometry.focusWidth).toBe('2px')
     expect(geometry.size).toBe('18px')
     expect(geometry.iconHeight).toBe('18px')
     expect(geometry.alignment).toBeLessThan(1)
     expect(geometry.animations).toBe(0)
   }
+  const groupGaps = await sidebar.locator('p').evaluateAll((headings) =>
+    headings.flatMap((heading) => {
+      const previous = heading.previousElementSibling
+      return previous?.matches('a')
+        ? [heading.getBoundingClientRect().top - previous.getBoundingClientRect().bottom]
+        : []
+    })
+  )
+  expect(groupGaps).toHaveLength(2)
+  for (const gap of groupGaps) expect(gap).toBeCloseTo(20, 1)
   await expect(sidebar.locator('a[class~="bg-fd-primary/10"]')).toHaveCount(1)
   await expect(sidebar.locator('a[class~="bg-fd-primary/10"]')).toHaveAttribute(
     'href',
