@@ -2,6 +2,10 @@ import { expect, type Page, test } from '@playwright/test'
 
 test.use({ hasTouch: true })
 
+test.afterEach(async ({ page }) => {
+  await page.unrouteAll({ behavior: 'wait' })
+})
+
 test('local chat sends and creates conversations on an insecure device origin', async ({
   page,
   baseURL,
@@ -10,8 +14,7 @@ test('local chat sends and creates conversations on an insecure device origin', 
   const origin = 'http://device.livenui.test'
   await page.route(`${origin}/**`, async (route) => {
     const source = new URL(route.request().url())
-    const response = await route.fetch({ url: `${baseURL}${source.pathname}${source.search}` })
-    await route.fulfill({ response })
+    await route.continue({ url: `${baseURL}${source.pathname}${source.search}` })
   })
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
