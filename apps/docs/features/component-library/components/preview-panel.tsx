@@ -60,25 +60,31 @@ export function PreviewPanel({
             </button>
           ))}
         </SelectionTrack>
-        <div className="preview-playback">
+        <fieldset className="preview-playback" aria-label="Playback">
           <button
             type="button"
             className="pill"
             onClick={() => setPaused(!paused)}
             aria-pressed={paused}
+            aria-label={paused ? 'Play' : 'Pause'}
+            title={paused ? 'Play' : 'Pause'}
           >
             {paused ? (
               <Play size={18} aria-hidden="true" />
             ) : (
               <Pause size={18} aria-hidden="true" />
             )}
-            {paused ? 'Play' : 'Pause'}
           </button>
-          <button type="button" className="pill" onClick={() => replay()}>
+          <button
+            type="button"
+            className="pill"
+            aria-label="Replay"
+            title="Replay"
+            onClick={() => replay()}
+          >
             <RotateCcw size={18} aria-hidden="true" />
-            Replay
           </button>
-        </div>
+        </fieldset>
       </div>
       <div
         className="preview-viewport"

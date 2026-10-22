@@ -62,33 +62,43 @@
 .agent-libraries .preview-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--livenui-space-3);
-  padding: var(--livenui-space-3) var(--livenui-space-4);
-  border: 1px solid var(--border);
-  border-radius: var(--radius) var(--radius) 0 0;
-  background: var(--surface);
+  padding: 0 0 var(--livenui-space-3);
 }
 .agent-libraries .preview-playback {
   display: flex;
-  gap: var(--livenui-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  gap: var(--livenui-space-1);
+  padding-inline-start: var(--livenui-space-3);
+  border-inline-start: 1px solid var(--border);
 }
 .agent-libraries .preview-devices {
   min-width: 0;
   margin: 0;
 }
-.agent-libraries .preview-devices .pill {
+.agent-libraries .preview-devices .pill,
+.agent-libraries .preview-playback .pill {
   width: var(--livenui-control-height);
   padding: 0;
+}
+.agent-libraries .preview-devices .pill {
   transition-property: background-color, border-color;
 }
 .agent-libraries .preview-devices .pill:not([aria-pressed="true"]) {
   border-color: transparent;
   background: transparent;
 }
-.agent-libraries .preview-playback {
-  margin-inline-start: auto;
+.agent-libraries .preview-playback .pill:not([aria-pressed="true"]) {
+  border-color: transparent;
+  background: var(--track);
+}
+.agent-libraries .preview-playback .pill:not([aria-pressed="true"]):hover {
+  border-color: var(--border);
+  color: var(--foreground);
 }
 .agent-libraries .preview-viewport {
   position: relative;
@@ -96,7 +106,7 @@
   grid-template-columns: minmax(0, 1fr);
   justify-items: start;
   border: 1px solid var(--border);
-  border-top: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
   background: var(--track);
   overflow: hidden;
 }
@@ -210,10 +220,6 @@
 }
 .agent-libraries .controls-panel {
   container-type: inline-size;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--surface);
   min-width: 0;
 }
 .agent-libraries .controls-heading {
@@ -221,10 +227,10 @@
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: var(--livenui-space-3);
-  padding: var(--livenui-space-4) var(--livenui-space-5);
+  margin-bottom: var(--livenui-space-3);
 }
 .agent-libraries .controls-heading h2 {
-  font-size: 20px;
+  font-size: 16px;
 }
 .agent-libraries .controls-reset {
   grid-column: -2 / -1;
@@ -247,7 +253,7 @@
   border: 0;
   margin: 0;
   min-width: 0;
-  padding: 0 var(--livenui-space-5) var(--livenui-space-4);
+  padding: 0;
 }
 .agent-libraries .control-search {
   margin-bottom: var(--livenui-space-3);
@@ -329,7 +335,7 @@
 }
 .agent-libraries .control-divider {
   grid-column: 1 / -1;
-  border-top: 1px solid var(--border);
+  height: var(--livenui-space-1);
 }
 .agent-libraries .control-group-heading {
   grid-column: 1 / -1;
@@ -620,7 +626,7 @@
   font-size: var(--livenui-font-caption);
   line-height: 1.6;
   color: var(--muted);
-  padding: 0 var(--livenui-space-5) var(--livenui-space-4);
+  margin-top: var(--livenui-space-3);
 }
 .agent-libraries .control-notice:empty,
 .agent-libraries .transfer-notice:empty {
@@ -952,12 +958,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .agent-libraries .preview-toolbar {
-    padding: var(--livenui-space-3);
     gap: var(--livenui-space-2);
-    flex-wrap: wrap;
-  }
-  .agent-libraries .preview-toolbar .pill {
-    padding-inline: 10px;
   }
   .agent-libraries .preview-stage {
     padding-inline: var(--livenui-space-3);

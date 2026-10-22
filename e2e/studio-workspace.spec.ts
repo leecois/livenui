@@ -53,7 +53,20 @@ test('Studio scroll panels omit focus frames while controls retain focus cues', 
       fullPage: true,
     })
     if (focus.overflow) {
+      const observeScroll = () =>
+        region.evaluate((element) => {
+          element.dataset.scrollSettled = 'false'
+          element.addEventListener(
+            'scrollend',
+            () => {
+              element.dataset.scrollSettled = 'true'
+            },
+            { once: true }
+          )
+        })
+      await observeScroll()
       await region.press('End')
+      await expect(region).toHaveAttribute('data-scroll-settled', 'true')
       await expect.poll(() => region.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
       await expect
         .poll(() =>
@@ -62,7 +75,12 @@ test('Studio scroll panels omit focus frames while controls retain focus cues', 
           )
         )
         .toBeLessThanOrEqual(1)
+      await observeScroll()
       await region.press('Home')
+      await expect(region).toHaveAttribute('data-scroll-settled', 'true')
+      await region.evaluate((element) => {
+        delete element.dataset.scrollSettled
+      })
       await expect.poll(() => region.evaluate((element) => element.scrollTop)).toBe(0)
     }
     await region.evaluate((element, value) => {

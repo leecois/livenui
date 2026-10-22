@@ -88,6 +88,19 @@
 .agent-libraries .button span[aria-hidden] {
   font-size: 16px;
 }
+@keyframes copy-feedback {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.agent-libraries [data-copy-status] .copy-feedback-icon {
+  animation: copy-feedback var(--livenui-motion-feedback) var(--livenui-ease-selection);
+}
 .agent-libraries .copy-label {
   display: grid;
 }
@@ -287,6 +300,9 @@
   color: var(--muted);
 }
 @media (prefers-reduced-motion: reduce) {
+  .agent-libraries [data-copy-status] .copy-feedback-icon {
+    animation: none;
+  }
   .agent-libraries
     :is(.button, .pill, .field-default):active:not(:disabled):not(.selection-track > *) {
     transform: none;

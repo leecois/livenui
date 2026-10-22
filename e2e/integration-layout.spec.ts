@@ -182,3 +182,35 @@ test('copy feedback follows the current command and latest clipboard request', a
   await expect(copy).toHaveAttribute('title', 'Copied')
   await expect(copy.locator('[aria-live]')).toHaveText('Copied')
 })
+
+test('copy result motion settles without moving the action and respects reduced motion', async ({
+  page,
+}) => {
+  await page.goto('/studio?library=orbs')
+  await page.getByRole('tab', { name: 'Code', exact: true }).click()
+  const copy = page
+    .locator('.install-panel')
+    .getByRole('button', { name: 'Copy command', exact: true })
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  const motion = await copy.evaluate(async (element) => {
+    if (!(element instanceof HTMLButtonElement)) throw new Error('Copy requires a native button')
+    const before = element.getBoundingClientRect().toJSON()
+    element.click()
+    for (let frame = 0; frame < 2; frame++) await new Promise(requestAnimationFrame)
+    const icon = element.querySelector('.copy-feedback-icon')
+    const animations = icon?.getAnimations() || []
+    const durations = animations.map((animation) => animation.effect?.getTiming().duration)
+    await Promise.all(animations.map((animation) => animation.finished))
+    return { before, after: element.getBoundingClientRect().toJSON(), durations }
+  })
+  expect(motion.durations).toContain(160)
+  expect(motion.after).toEqual(motion.before)
+  await expect(copy).toHaveAttribute('title', 'Copied')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.evaluate(() => Reflect.set(window, 'denyCopy', true))
+  await copy.click()
+  await expect(copy).toHaveAttribute('title', 'Copy failed')
+  expect(
+    await copy.locator('.copy-feedback-icon').evaluate((element) => element.getAnimations().length)
+  ).toBe(0)
+})

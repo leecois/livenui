@@ -22,10 +22,7 @@ export function ComponentShowcase({
   return (
     <section className="component-showcase" aria-label="Component starting examples">
       <div className="showcase-heading">
-        <div>
-          <h2>See it in action</h2>
-          <p className="helper-text">Choose an example to try, then make it your own below.</p>
-        </div>
+        <h2>Examples</h2>
         <Link
           href={`/agents/gallery?library=${library.id}`}
           navigate={navigate}

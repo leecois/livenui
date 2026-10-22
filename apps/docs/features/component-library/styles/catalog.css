@@ -195,7 +195,6 @@
 }
 .agent-libraries .showcase-heading h2 {
   font-size: 22px;
-  margin-bottom: var(--livenui-space-2);
 }
 .agent-libraries .showcase-grid {
   display: grid;

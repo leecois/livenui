@@ -1,7 +1,7 @@
 .agent-libraries .integration-panel {
   grid-column: 1 / -1;
   min-width: 0;
-  margin-top: var(--livenui-space-2);
+  margin-top: 0;
 }
 .agent-libraries .integration-heading {
   display: flex;
@@ -11,15 +11,11 @@
   margin-bottom: var(--livenui-space-4);
 }
 .agent-libraries .integration-heading h2 {
-  font-size: 22px;
+  font-size: 16px;
 }
 .agent-libraries .install-panel,
 .agent-libraries .code-panel {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--livenui-space-5);
-  background: var(--surface);
-  margin-bottom: var(--livenui-space-4);
+  margin-bottom: var(--livenui-space-6);
 }
 .agent-libraries .code-heading {
   display: flex;
@@ -52,8 +48,10 @@
 .agent-libraries .code-panel pre {
   max-height: 360px;
   overflow: auto;
-  margin: var(--livenui-space-5) 0 0;
-  padding-bottom: var(--livenui-space-2);
+  margin: var(--livenui-space-3) 0 0;
+  padding: var(--livenui-space-4);
+  border-radius: var(--livenui-space-4);
+  background: var(--track);
   font-size: var(--livenui-font-caption);
   line-height: 1.8;
   color: var(--muted);
@@ -92,7 +90,9 @@
 }
 .agent-libraries .install-command {
   margin: var(--livenui-space-4) 0 0;
-  padding: 0;
+  padding: var(--livenui-space-4);
+  border-radius: var(--livenui-space-4);
+  background: var(--track);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -103,16 +103,15 @@
   line-height: 1.8;
 }
 .agent-libraries .integration-details {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  padding: var(--livenui-space-5);
-  margin-bottom: var(--livenui-space-3);
+  border-top: 1px solid var(--border);
+  padding-block: var(--livenui-space-2);
 }
 .agent-libraries .integration-details summary {
   display: list-item;
+  align-content: center;
+  min-height: var(--livenui-control-height);
   cursor: pointer;
-  font-size: var(--livenui-font-body);
+  font-size: var(--livenui-font-label);
   font-weight: 550;
   line-height: 1.6;
 }
@@ -166,11 +165,4 @@
 .agent-libraries .item-api-title {
   margin: var(--livenui-space-6) 0 var(--livenui-space-4);
   font-size: 17px;
-}
-@container (width < 550px) {
-  .agent-libraries .integration-heading {
-    flex-direction: column;
-    align-items: start;
-    gap: var(--livenui-space-2);
-  }
 }

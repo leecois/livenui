@@ -47,6 +47,7 @@ export function Copy({
   return (
     <Button
       className={`${emphasis ? 'button-accent' : ''} ${iconOnly ? 'copy-icon' : ''}`}
+      data-copy-status={status || undefined}
       aria-label={name}
       title={status || name}
       disabled={disabled}
@@ -54,7 +55,7 @@ export function Copy({
     >
       {iconOnly ? (
         <>
-          <Icon size={18} aria-hidden="true" />
+          <Icon key={status} className="copy-feedback-icon" size={18} aria-hidden="true" />
           <span className="sr-only" aria-live="polite">
             {status}
           </span>
@@ -70,7 +71,7 @@ export function Copy({
             </span>
             <span aria-live="polite">{status || children}</span>
           </span>
-          <Icon size={18} aria-hidden="true" />
+          <Icon key={status} className="copy-feedback-icon" size={18} aria-hidden="true" />
         </>
       )}
     </Button>

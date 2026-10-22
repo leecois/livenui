@@ -162,7 +162,7 @@ function Workbench({
             {!studio && (
               <div className="playground-heading">
                 <h2 ref={playground} tabIndex={-1}>
-                  Make it yours
+                  Playground
                 </h2>
               </div>
             )}
