@@ -14,18 +14,20 @@ test('avatar chat covers the guide before hydration on entry and reload', async 
   })
   const chat = page.getByRole('dialog', { name: 'Bot avatar chat playground', exact: true })
   const input = chat.getByRole('textbox', { name: 'Message Clover', exact: true })
-  for (const entry of ['navigation', 'reload']) {
-    let release = () => {}
-    const hydration = new Promise<void>((resolve) => {
-      release = resolve
-    })
-    let held = 0
-    await page.route('**/_next/**/*.js', async (route) => {
-      held++
-      await hydration
-      await route.continue()
-    })
-    try {
+  let release = () => {}
+  let hydration = Promise.resolve()
+  let held = 0
+  await page.route('**/_next/**/*.js', async (route) => {
+    held++
+    await hydration
+    await route.continue()
+  })
+  try {
+    for (const entry of ['navigation', 'reload']) {
+      held = 0
+      hydration = new Promise<void>((resolve) => {
+        release = resolve
+      })
       if (entry === 'reload') await page.reload({ waitUntil: 'commit' })
       else await page.goto('/agents/avatars', { waitUntil: 'commit' })
       await expect.poll(() => held).toBeGreaterThan(0)
@@ -105,6 +107,7 @@ test('avatar chat covers the guide before hydration on entry and reload', async 
         fullPage: true,
       })
       release()
+      await page.waitForLoadState('load')
       await expect(chat.locator('.avatar-chat-actor canvas')).toBeVisible()
       await expect(input).toBeFocused()
       expect(await back.boundingBox()).toEqual(backBefore)
@@ -115,10 +118,10 @@ test('avatar chat covers the guide before hydration on entry and reload', async 
         path: testInfo.outputPath(`chat-${entry}-ready.png`),
         fullPage: true,
       })
-    } finally {
-      release()
-      await page.unrouteAll({ behavior: 'wait' })
     }
+  } finally {
+    release()
+    await page.unrouteAll({ behavior: 'wait' })
   }
   await chat.getByRole('button', { name: 'Component preview', exact: true }).click()
   await expect(chat).toHaveCount(0)
