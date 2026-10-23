@@ -1,5 +1,6 @@
 import { Button } from '@livenui/agent-ui'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpFromLine, ArrowUpRight, ChevronDown } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { siteUrl } from '../../../lib/site'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library } from '../lib/config'
@@ -10,6 +11,18 @@ import { CodePanel } from './code-panel'
 import { Copy } from './copy'
 import { Link } from './link'
 import { PropsTable } from './props-table'
+
+function IntegrationDetails({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <details className="integration-details">
+      <summary>
+        <span>{title}</span>
+        <ChevronDown size={18} aria-hidden="true" />
+      </summary>
+      <div className="integration-details-content">{children}</div>
+    </details>
+  )
+}
 
 export function IntegrationPanel({
   library,
@@ -61,8 +74,7 @@ export function IntegrationPanel({
         </pre>
       </div>
       <CodePanel state={state} copyLabel={details ? undefined : 'Copy snippet'} />
-      <details className="integration-details">
-        <summary>Integration notes</summary>
+      <IntegrationDetails title="Integration notes">
         <p className="helper-text">
           React 18+{library.id === 'image' ? ' · Three.js included' : ''}. Adjust the import to your
           component alias.
@@ -70,7 +82,7 @@ export function IntegrationPanel({
         {content[library.id].integration && (
           <p className="helper-text integration-guidance">{content[library.id].integration}</p>
         )}
-      </details>
+      </IntegrationDetails>
       {details && <ConfigurationDetails library={library} state={state} transfer={studio} />}
     </section>
   )
@@ -89,8 +101,7 @@ export function ConfigurationDetails({
   return (
     <div className="configuration-details">
       {transfer && (
-        <details className="integration-details">
-          <summary>Import & export</summary>
+        <IntegrationDetails title="Import & export">
           <div className="export-actions">
             <input
               className="sr-only"
@@ -102,16 +113,18 @@ export function ConfigurationDetails({
               onChange={(event) => void importConfiguration(event.target.files?.[0])}
             />
             <Button onClick={() => importInput.current?.click()}>
-              Import JSON <span aria-hidden="true">↑</span>
+              Import JSON <ArrowUpFromLine size={18} aria-hidden="true" />
             </Button>
             <Button onClick={download}>
-              Export JSON <span aria-hidden="true">↓</span>
+              Export JSON <ArrowDownToLine size={18} aria-hidden="true" />
             </Button>
           </div>
-        </details>
+          <p className="transfer-notice" role="status" aria-atomic="true">
+            {transferNotice}
+          </p>
+        </IntegrationDetails>
       )}
-      <details className="integration-details">
-        <summary>API reference</summary>
+      <IntegrationDetails title="API reference">
         <PropsTable library={activeLibrary} />
         {library.itemFields.length > 0 && (
           <>
@@ -119,10 +132,7 @@ export function ConfigurationDetails({
             <PropsTable library={{ ...library, fields: library.itemFields }} />
           </>
         )}
-      </details>
-      <p className="transfer-notice" role="status">
-        {transferNotice}
-      </p>
+      </IntegrationDetails>
     </div>
   )
 }

@@ -214,3 +214,86 @@ test('copy result motion settles without moving the action and respects reduced 
     await copy.locator('.copy-feedback-icon').evaluate((element) => element.getAnimations().length)
   ).toBe(0)
 })
+
+test('integration disclosures keep import feedback beside its actions', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/studio?library=orbs')
+  await page.getByRole('tab', { name: 'Code', exact: true }).click()
+  const notes = page.locator('.integration-details').filter({ hasText: 'Integration notes' })
+  await notes.locator('summary').click()
+  await expect(notes).toHaveAttribute('open', '')
+  await page.getByRole('tab', { name: 'Customize', exact: true }).click()
+  const disclosure = page.locator('.integration-details').filter({ hasText: 'Import & export' })
+  const summary = disclosure.locator('summary')
+  await summary.focus()
+  await page.keyboard.press('Enter')
+  await expect(disclosure).toHaveAttribute('open', '')
+  await expect(summary).toBeFocused()
+  await expect(summary).toHaveCSS('outline-style', 'solid')
+  await expect(summary).toHaveCSS('outline-offset', '-2px')
+  const notice = disclosure.getByRole('status')
+  await expect(notice).toBeEmpty()
+  expect((await notice.boundingBox())?.height).toBe(0)
+  await expect(notice).toHaveCSS('margin-top', '0px')
+  const file = disclosure.getByLabel('Import configuration file')
+  await file.setInputFiles({
+    name: 'invalid.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ library: 'beam', props: {} })),
+  })
+  await expect(notice).toContainText('matching library')
+  await disclosure.scrollIntoViewIfNeeded()
+  await expect(notice).toBeVisible()
+  expect(
+    await disclosure.evaluate((element) => {
+      const actions = element.querySelector('.export-actions')?.getBoundingClientRect()
+      const feedback = element.querySelector('.transfer-notice')?.getBoundingClientRect()
+      if (!actions || !feedback) throw new Error('Import feedback must stay beside actions')
+      return feedback.top - actions.bottom
+    })
+  ).toBe(12)
+  await file.setInputFiles({
+    name: 'orbs.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ library: 'orbs', props: { size: 32 } })),
+  })
+  await expect(notice).toHaveText('Configuration imported.')
+  await expect(page.locator('.code-panel code')).toContainText('size={32}')
+  await summary.focus()
+  await page.keyboard.press('Space')
+  await expect(disclosure).not.toHaveAttribute('open')
+  await expect(notice).toBeHidden()
+  await page.keyboard.press('Enter')
+  await expect(notice).toBeVisible()
+  for (const row of await page.locator('.integration-details summary:visible').all()) {
+    const bounds = await row.boundingBox()
+    const icon = await row.locator('svg').boundingBox()
+    if (!bounds || !icon) throw new Error('Disclosure label and icon must be visible')
+    expect(bounds.height).toBeGreaterThanOrEqual(44)
+    expect(icon.width).toBe(18)
+    expect(bounds.x + bounds.width - (icon.x + icon.width)).toBe(12)
+  }
+  await disclosure.scrollIntoViewIfNeeded()
+  await page.screenshot({
+    path: testInfo.outputPath('integration-disclosures-full-page.png'),
+    fullPage: true,
+  })
+  await disclosure.screenshot({ path: testInfo.outputPath('integration-transfer.png') })
+  await page.setViewportSize({ width: 320, height: 1000 })
+  for (const button of await disclosure.locator('.export-actions > button').all()) {
+    expect((await button.boundingBox())?.height).toBeGreaterThanOrEqual(44)
+  }
+  expect(await disclosure.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(
+    true
+  )
+  await disclosure.screenshot({ path: testInfo.outputPath('integration-transfer-320.png') })
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await expect(summary.locator('svg')).toHaveCSS('transition-duration', '0.16s')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  expect(
+    await summary
+      .locator('svg')
+      .evaluate((element) => Number.parseFloat(getComputedStyle(element).transitionDuration))
+  ).toBe(0.00001)
+})

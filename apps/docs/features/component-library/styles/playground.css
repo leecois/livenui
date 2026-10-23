@@ -628,8 +628,7 @@
   color: var(--muted);
   margin-top: var(--livenui-space-3);
 }
-.agent-libraries .control-notice:empty,
-.agent-libraries .transfer-notice:empty {
+.agent-libraries .control-notice:empty {
   display: none;
 }
 .agent-libraries .preset-row {
