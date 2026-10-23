@@ -216,7 +216,7 @@ export function usePlayground({
     const name = presetName.trim()
     if (!name) {
       setNotice('Give your preset a name first.')
-      return
+      return false
     }
     const next = presets.filter(
       (preset) => !(preset.library === library.id && preset.name === name)
@@ -231,7 +231,10 @@ export function usePlayground({
     if (savePresets(next)) {
       setNotice('Preset saved on this device.')
       setPresetName('')
-    } else setNotice('This browser could not save your preset. Export the JSON to keep it.')
+      return true
+    }
+    setNotice('This browser could not save your preset. Export the JSON to keep it.')
+    return false
   }
   const selectTab = (next: string) => {
     if (next === 'json') setDraft(JSON.stringify(effectiveProps, null, 2))

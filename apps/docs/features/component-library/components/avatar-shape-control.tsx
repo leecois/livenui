@@ -42,7 +42,7 @@ export function AvatarShapeControl({
             <RotateCcw size={13} aria-hidden="true" />
           </button>
         </div>
-        <div className="field-options" id={id}>
+        <div className="field-options" id={id} data-expanded={expanded || undefined}>
           {options.map((option) => (
             <label
               className="field-option"

@@ -30,11 +30,11 @@ export function ChoiceField({
   className?: string
   children?: ReactNode
   limit?: number
-  layout?: 'auto' | 'grid'
+  layout?: 'auto' | 'grid' | 'list'
 }) {
   const id = useId()
   const [expanded, setExpanded] = useState(false)
-  const grid = layout === 'grid' || options.length > 3
+  const grid = layout !== 'auto' || options.length > 3
   const visible = expanded
     ? options
     : options.filter((option, index) => index < limit || option.value === value)
@@ -45,6 +45,7 @@ export function ChoiceField({
       aria-label={label}
       aria-describedby={value === undefined && onDefault ? `${id}-default` : undefined}
       data-choice-grid={grid || undefined}
+      data-choice-list={layout === 'list' || undefined}
     >
       <legend className="sr-only">{label}</legend>
       <div className="choice-row">
@@ -64,7 +65,11 @@ export function ChoiceField({
             </button>
           )}
         </div>
-        <Track className={`field-options ${grid ? 'choice-grid' : ''}`} id={id}>
+        <Track
+          className={`field-options ${grid ? 'choice-grid' : ''}`}
+          id={id}
+          data-expanded={expanded || undefined}
+        >
           {visible.map((option) => (
             <label className="field-option" key={String(option.value)} title={option.description}>
               <input

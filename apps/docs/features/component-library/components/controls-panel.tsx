@@ -1,5 +1,6 @@
 import { Button } from '@livenui/agent-ui'
-import { ArrowUpRight, Check, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react'
+import { ArrowUpRight, Check, ChevronDown, ChevronUp, Plus, RotateCcw, Trash2 } from 'lucide-react'
+import { useLayoutEffect, useRef } from 'react'
 import type { PlaygroundState } from '../hooks/use-playground'
 import type { Library, Preset } from '../lib/config'
 import { content } from '../lib/content'
@@ -194,47 +195,76 @@ export function SavedPresets({
   library,
   presets,
   state,
+  naming,
+  onNamingChange,
 }: {
   library: Library
   presets: Preset[]
   state: PlaygroundState
+  naming: boolean
+  onNamingChange: (naming: boolean) => void
 }) {
   const saved = presets.filter((preset) => preset.library === library.id)
+  const input = useRef<HTMLInputElement>(null)
+  const trigger = useRef<HTMLButtonElement>(null)
+  useLayoutEffect(() => {
+    if (naming) input.current?.focus({ preventScroll: true })
+  }, [naming])
+  const close = () => {
+    onNamingChange(false)
+    requestAnimationFrame(() => trigger.current?.focus({ preventScroll: true }))
+  }
   return (
     <section className="studio-presets" aria-label="Saved presets">
       <p className="sr-only" id="preset-storage">
         Saved in this browser.
       </p>
-      <label className="sr-only" htmlFor="preset-name">
-        Preset name
-      </label>
-      <form
-        className="preset-save"
-        onSubmit={(event) => {
-          event.preventDefault()
-          state.save()
-        }}
-      >
-        <div className="preset-heading">
-          <h3 className="saved-heading">New preset</h3>
-          <Button
-            type="submit"
-            className="button-accent"
-            aria-label="Save preset"
-            title="Save in this browser"
-          >
-            Save
-          </Button>
-        </div>
-        <input
-          id="preset-name"
-          placeholder="Preset name"
-          aria-describedby="preset-storage"
-          maxLength={80}
-          value={state.presetName}
-          onChange={(event) => state.setPresetName(event.target.value)}
-        />
-      </form>
+      {naming ? (
+        <form
+          className="preset-save"
+          onSubmit={(event) => {
+            event.preventDefault()
+            if (state.save()) close()
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Escape') return
+            event.preventDefault()
+            event.stopPropagation()
+            close()
+          }}
+        >
+          <label className="sr-only" htmlFor="preset-name">
+            Preset name
+          </label>
+          <input
+            ref={input}
+            id="preset-name"
+            placeholder="Preset name"
+            aria-describedby="preset-storage"
+            maxLength={80}
+            value={state.presetName}
+            onChange={(event) => state.setPresetName(event.target.value)}
+          />
+          <div className="preset-actions">
+            <Button type="button" onClick={close}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="button-accent"
+              aria-label="Save preset"
+              title="Save in this browser"
+            >
+              Save
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <Button ref={trigger} className="preset-new" onClick={() => onNamingChange(true)}>
+          <Plus size={16} aria-hidden="true" />
+          New preset
+        </Button>
+      )}
       {saved.length > 0 && (
         <div className="preset-list">
           {saved.map((preset) => (
@@ -245,9 +275,10 @@ export function SavedPresets({
               <button
                 type="button"
                 aria-label={`Delete ${preset.name}`}
+                title={`Delete ${preset.name}`}
                 onClick={() => state.deletePreset(preset.id)}
               >
-                ×
+                <Trash2 size={16} aria-hidden="true" />
               </button>
             </div>
           ))}

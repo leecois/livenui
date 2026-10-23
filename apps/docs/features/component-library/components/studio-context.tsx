@@ -40,7 +40,7 @@ export function StudioContext({
         <div className="studio-starting-point">
           <ChoiceField
             label="Starting point"
-            layout="grid"
+            layout="list"
             value={state.startingPoint}
             onChange={(value) => {
               state.selectExample(String(value))

@@ -36,6 +36,8 @@ test('Image starting points keep text in separate full-width rows', async ({ pag
           width: row.width,
           groupWidth: group.width,
           headingBottom: heading.bottom,
+          alignment: getComputedStyle(label).justifyContent,
+          border: getComputedStyle(label).borderColor,
           textContained:
             bounds.left >= row.left &&
             bounds.right <= row.right &&
@@ -48,7 +50,12 @@ test('Image starting points keep text in separate full-width rows', async ({ pag
       expect(row.height).toBeGreaterThanOrEqual(44)
       expect(row.width).toBeCloseTo(row.groupWidth, 0)
       expect(row.textContained).toBe(true)
-      expect(row.top - (index ? geometry[index - 1].bottom : row.headingBottom)).toBeCloseTo(8, 0)
+      expect(row.alignment).toBe('flex-start')
+      expect(row.border).toBe('rgba(0, 0, 0, 0)')
+      expect(row.top - (index ? geometry[index - 1].bottom : row.headingBottom)).toBeCloseTo(
+        index ? 4 : 8,
+        0
+      )
     }
     await page.screenshot({
       path: testInfo.outputPath(`starting-${width}-full-page.png`),
@@ -154,4 +161,59 @@ test('outfit expansion preserves an option outside the compact set and the main 
   await settings.getByRole('tab', { name: 'Code', exact: true }).click()
   for (const prop of ['hat={"crown"}', 'glasses={"shades"}', 'bowTie={false}'])
     await expect(settings.locator('.code-panel code')).toContainText(prop)
+})
+
+test('expanded choices reveal without animating existing rows or losing focus', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/studio?library=avatars')
+  await openStudioBrowser(page)
+  const group = page.getByRole('group', { name: 'Starting point', exact: true })
+  const toggle = group.getByRole('button', { name: /Browse all/ })
+  await toggle.focus()
+  const motion = await group.evaluate(async (element) => {
+    const existing = [...element.querySelectorAll('.field-option')]
+    const before = existing.map((item) => item.getBoundingClientRect().toJSON())
+    const button = element.querySelector<HTMLButtonElement>('.choices-expand')
+    button?.click()
+    await new Promise(requestAnimationFrame)
+    await new Promise(requestAnimationFrame)
+    const animations = element.getAnimations({ subtree: true }).filter((animation) => {
+      const target = (animation.effect as KeyframeEffect).target
+      return target instanceof HTMLElement && target.matches('.field-option')
+    })
+    const results = animations.map((animation) => {
+      const target = (animation.effect as KeyframeEffect).target as HTMLElement
+      animation.pause()
+      animation.currentTime = 80
+      return {
+        existing: existing.includes(target),
+        duration: animation.effect?.getTiming().duration,
+        opacity: Number(getComputedStyle(target).opacity),
+      }
+    })
+    const after = existing.map((item) => item.getBoundingClientRect().toJSON())
+    for (const animation of animations) animation.finish()
+    return { before, after, results, focused: document.activeElement === button }
+  })
+  expect(motion.results.length).toBeGreaterThan(0)
+  expect(motion.focused).toBe(true)
+  expect(motion.after).toEqual(motion.before)
+  for (const animation of motion.results) {
+    expect(animation.existing).toBe(false)
+    expect(animation.duration).toBe(160)
+    expect(animation.opacity).toBeGreaterThan(0)
+    expect(animation.opacity).toBeLessThan(1)
+  }
+  await group.getByRole('button', { name: /Show fewer/ }).click()
+  await expect(group.getByRole('radio')).toHaveCount(6)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await group.getByRole('button', { name: /Browse all/ }).click()
+  const reduced = await group.evaluate((element) =>
+    [...element.querySelectorAll('.field-option')].every(
+      (item) => getComputedStyle(item).opacity === '1' && item.getAnimations().length === 0
+    )
+  )
+  expect(reduced).toBe(true)
 })

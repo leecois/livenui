@@ -1,9 +1,6 @@
 .agent-libraries .studio-context {
   display: grid;
-  gap: var(--livenui-space-3);
-  padding-bottom: var(--livenui-space-5);
-  border-bottom: 1px solid var(--border);
-  margin-bottom: var(--livenui-space-6);
+  gap: var(--livenui-space-5);
 }
 .agent-libraries .studio-choice {
   display: grid;
@@ -13,10 +10,20 @@
 .agent-libraries .studio-library-options {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--livenui-space-2);
+  gap: var(--livenui-space-1);
 }
 .agent-libraries .studio-library-options .pill {
   font-size: var(--livenui-font-label);
+  justify-content: flex-start;
+  padding-inline: var(--livenui-space-3);
+  border-color: transparent;
+  background: transparent;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.agent-libraries .studio-library-options .pill:not([aria-current]):hover {
+  background: var(--track);
 }
 .agent-libraries .studio-library-options [aria-current="page"] {
   background: var(--gradient-accent);
@@ -26,14 +33,13 @@
 .agent-libraries .studio-starting-point {
   display: grid;
   gap: var(--livenui-space-2);
-  border-top: 1px solid var(--border);
-  padding-top: var(--livenui-space-3);
-}
-.agent-libraries .studio-starting-point .choice-grid {
-  grid-template-columns: minmax(0, 1fr);
 }
 .agent-libraries .studio-context .text-button {
   justify-self: start;
+  padding-inline: var(--livenui-space-3);
+}
+.agent-libraries .studio-starting-point :is(.choice-heading, .field-status) {
+  padding-inline: var(--livenui-space-3);
 }
 .agent-libraries .studio-dialog {
   position: fixed;
@@ -151,6 +157,9 @@
   scrollbar-gutter: stable;
   padding: var(--livenui-space-5);
   outline: 0;
+}
+.agent-libraries .studio-browser > .studio-panel-scroll {
+  padding-inline: var(--livenui-space-2);
 }
 .agent-libraries .studio-preview {
   min-width: 0;

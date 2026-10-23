@@ -96,6 +96,7 @@ test('saved presets restore playback after a reduced-motion reload', async ({ pa
   await page.goto('/studio?library=orbs')
   await page.getByRole('button', { name: 'Play', exact: true }).click()
   await openStudioPresets(page)
+  await page.getByRole('button', { name: 'New preset', exact: true }).click()
   await page.getByLabel('Preset name', { exact: true }).fill('Playing configuration')
   await page.getByRole('button', { name: /Save preset/ }).click()
   await expect(page.locator('.studio-save-notice')).toContainText('Preset saved')

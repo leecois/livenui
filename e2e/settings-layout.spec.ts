@@ -354,6 +354,7 @@ test('advanced settings and configuration tabs fit narrow widths and long saved 
   await page.keyboard.press('Home')
   await expect(customize).toBeFocused()
   await openStudioPresets(page)
+  await page.getByRole('button', { name: 'New preset', exact: true }).click()
   const saved = page.locator('.studio-presets')
   const nameField = saved.getByRole('textbox', { name: 'Preset name', exact: true })
   for (const width of [1440, 1024, 390, 320]) {
@@ -375,7 +376,7 @@ test('advanced settings and configuration tabs fit narrow widths and long saved 
       return {
         width: field.width,
         formWidth: form.getBoundingClientRect().width,
-        gap: field.top - action.bottom,
+        gap: action.top - field.bottom,
         height: field.height,
         actionHeight: action.height,
         font: style.fontSize,

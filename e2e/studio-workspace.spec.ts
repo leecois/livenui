@@ -105,6 +105,7 @@ test('Studio scroll panels omit focus frames while controls retain focus cues', 
     fullPage: true,
   })
   await openStudioPresets(page)
+  await page.getByRole('button', { name: 'New preset', exact: true }).click()
   const inspector = page.locator('.studio-inspector')
   const input = inspector.getByRole('textbox', { name: 'Preset name', exact: true })
   await input.focus()
@@ -116,7 +117,9 @@ test('Studio scroll panels omit focus frames while controls retain focus cues', 
     path: testInfo.outputPath('input-focus-full-page.png'),
     fullPage: true,
   })
-  await page.keyboard.press('Shift+Tab')
+  await page.keyboard.press('Tab')
+  await expect(inspector.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused()
+  await page.keyboard.press('Tab')
   const save = inspector.getByRole('button', { name: 'Save preset', exact: true })
   await expect(save).toBeFocused()
   await expect(save).toHaveCSS('outline-width', '2px')
@@ -180,6 +183,8 @@ test('Studio Presets keeps configuration saving beside editing and code', async 
     exact: true,
   })
   await expect(saved).toBeVisible()
+  await expect(input).toHaveCount(0)
+  await expect(presets.getByRole('button', { name: 'New preset', exact: true })).toBeFocused()
   await expect(presets.getByRole('status')).toContainText('Preset saved on this device.')
   await tabs.getByRole('tab', { name: 'Customize', exact: true }).click()
   await duration.fill('2')
@@ -363,4 +368,55 @@ test('fullscreen theme switching keeps rendering and integration code in sync', 
   expect(bounds.x + bounds.width).toBeLessThanOrEqual(testInfo.project.use.viewport?.width || 1440)
   await page.getByRole('button', { name: `Switch to ${theme} theme`, exact: true }).click()
   await expect(code).toContainText(`theme={"${theme}"}`)
+})
+
+test('preset naming retains drafts on cancel and storage failure', async ({ page }) => {
+  await page.goto('/studio?library=beam')
+  const scene = page.locator('.preview-stage .beam-host')
+  await expect(scene).toBeVisible()
+  await scene.evaluate((element) => element.setAttribute('data-naming-probe', 'retained'))
+  await openStudioPresets(page)
+  const presets = page.getByRole('tabpanel', { name: 'Presets', exact: true })
+  const create = presets.getByRole('button', { name: 'New preset', exact: true })
+  const input = presets.getByRole('textbox', { name: 'Preset name', exact: true })
+  await expect(input).toHaveCount(0)
+  await create.click()
+  await expect(input).toBeFocused()
+  await input.press('Enter')
+  await expect(presets.getByRole('status')).toContainText('Give your preset a name first.')
+  await expect(input).toBeFocused()
+  await input.fill('Retained draft')
+  await input.press('Escape')
+  await expect(input).toHaveCount(0)
+  await expect(create).toBeFocused()
+  await create.press('Enter')
+  await expect(input).toBeFocused()
+  await expect(input).toHaveValue('Retained draft')
+  await presets.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await expect(create).toBeFocused()
+  await page.getByRole('button', { name: 'Name a preset', exact: true }).click()
+  await expect(input).toBeFocused()
+  await expect(input).toHaveValue('Retained draft')
+  await page.evaluate(() => {
+    const setItem = Storage.prototype.setItem
+    let fail = true
+    Storage.prototype.setItem = function (key, value) {
+      if (key === 'livenui-presets' && fail) {
+        fail = false
+        throw new DOMException('Storage unavailable', 'QuotaExceededError')
+      }
+      setItem.call(this, key, value)
+    }
+  })
+  await input.press('Enter')
+  await expect(presets.getByRole('status')).toContainText('could not save your preset')
+  await expect(input).toHaveValue('Retained draft')
+  await expect(input).toBeFocused()
+  await expect(presets.locator('.preset-row')).toHaveCount(0)
+  await input.press('Enter')
+  await expect(input).toHaveCount(0)
+  await expect(create).toBeFocused()
+  await expect(presets.locator('.preset-row')).toHaveCount(1)
+  await expect(presets.getByRole('status')).toContainText('Preset saved on this device.')
+  await expect(scene).toHaveAttribute('data-naming-probe', 'retained')
 })

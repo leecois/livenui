@@ -70,6 +70,7 @@ export function StudioLayout({
   const [wide, setWide] = useState(false)
   const [browse, setBrowse] = useState(false)
   const [view, setView] = useState('customize')
+  const [naming, setNaming] = useState(false)
   const id = useId()
   useLayoutEffect(() => {
     const element = root.current
@@ -109,6 +110,7 @@ export function StudioLayout({
   }
   const save = () => {
     setView('presets')
+    setNaming(true)
     requestAnimationFrame(() => {
       const input = inspectorScroll.current?.querySelector<HTMLInputElement>('#preset-name')
       input?.scrollIntoView({ block: 'nearest' })
@@ -303,7 +305,13 @@ export function StudioLayout({
             >
               {state && (
                 <>
-                  <SavedPresets library={library} presets={presets} state={state} />
+                  <SavedPresets
+                    library={library}
+                    presets={presets}
+                    state={state}
+                    naming={naming}
+                    onNamingChange={setNaming}
+                  />
                   <p className="studio-save-notice helper-text" role="status">
                     {state.notice}
                   </p>
